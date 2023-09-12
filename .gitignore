@@ -1,5 +1,7 @@
 .env
 
+parts
+
 # dependencies
 /node_modules
 /.pnp
