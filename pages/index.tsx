@@ -1,6 +1,6 @@
+import { applicationEventSchema } from "@/lib/ApplicationEvent";
 import { AsyncQueue } from "@/lib/AsyncQueue";
 import { parseEventSourceReadableStream } from "@/lib/parseEventSourceReadableStream";
-import { z } from "zod";
 
 export default function Home() {
   const handleSend = async () => {
@@ -11,7 +11,7 @@ export default function Home() {
         body: "",
       });
 
-      const events = readEvents(response.body!, z.string(), {
+      const events = readEvents(response.body!, applicationEventSchema, {
         errorHandler: console.error,
       });
       for await (const event of events) {

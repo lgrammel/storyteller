@@ -1,7 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { z } from "zod";
+import { ApplicationEvent } from "@/lib/ApplicationEvent";
 import { AsyncQueue } from "@/lib/AsyncQueue";
 import { createEventSourceReadableStream } from "@/lib/createEventSourceReadableStream";
+import { NextApiRequest, NextApiResponse } from "next";
 
 export const config = {
   runtime: "edge",
@@ -17,10 +17,16 @@ export default async function handler(
     return;
   }
 
-  const queue = new AsyncQueue<string>();
+  const queue = new AsyncQueue<ApplicationEvent>();
 
-  queue.push("value1");
-  queue.push("value2");
+  queue.push({
+    type: "progress",
+    description: "start",
+  });
+  queue.push({
+    type: "progress",
+    description: "end",
+  });
   queue.close();
 
   return new Response(createEventSourceReadableStream(queue), {
