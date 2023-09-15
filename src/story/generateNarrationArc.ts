@@ -30,7 +30,6 @@ export async function generateNarrationArc(topic: string) {
     new OpenAIChatModel({
       model: "gpt-4",
       temperature: 1.2,
-      maxCompletionTokens: 600,
     }),
     new ZodStructureDefinition({
       name: "narrationArcs",
@@ -38,7 +37,7 @@ export async function generateNarrationArc(topic: string) {
     }),
     [
       OpenAIChatMessage.user(
-        "Generate an abstract narration arc for a preschooler story on the following topic: " +
+        "Generate an abstract, high level narration arc for a story aimed at preschoolers for the following topic topic: " +
           `'${topic}'.`
       ),
     ]

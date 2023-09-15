@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 async function main() {
-  const narrationArcs = await generateNarrationArc("a prince and a pirate");
+  const narrationArcs = await generateNarrationArc("a witch and her black cat");
 
   console.log(JSON.stringify(narrationArcs, null, 2));
 }

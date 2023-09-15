@@ -1,5 +1,33 @@
 export const generateNarrationArcExamples = [
   {
+    title: "The Kind Witch and Her Black Cat Friend",
+    introduction:
+      "In a vibrant town lived a misunderstood old witch and her beloved black cat. The town's folk misunderstood her, believing that she was wicked. However, the witch was kind and loving, especially to her black cat.",
+    risingAction:
+      "Once, the black cat accidentally wanders off into the woody forest nearby and loses its way back home. Noticing her companion's abscence, the witch decides to venture out into the heart of the forest, disrupting her solitude.",
+    climax:
+      "Navigating the treacherous woods, she uses her magic and wit to overcome challenges such as giant spiders and tricky goblins. Her akills and pure heart impress the beings of the forest and they begin to view her differently.",
+    fallingAction:
+      "With the help and guidance of the newly befriended forest dwellers, she finds her dear black cat, scared but safe. To express her gratitude, she casts spells of happiness and peace over the woodland creatures homes.",
+    conclusion:
+      "Upon their return, town's folk noticed their cheerfulness and, their adventurous stories spread both far and wide about a kind witch and her lovely black cat, changing the townsfolk perception forever about the witch.",
+    characters: [
+      {
+        name: "The Witch",
+        gender: "Female",
+        ageInYears: 300,
+        voice: "Sophisticated with gentle firmness",
+      },
+      {
+        name: "Black Cat",
+        gender: "Neutral",
+        ageInYears: 100,
+        voice:
+          "Soft and friendly, with occasional kitten-like adaptations to show mood",
+      },
+    ],
+  },
+  {
     title: "The Prince and the Pirate",
     introduction:
       "Once upon a time, in a far ocean kingdom's palace, a brave young Prince yearned for adventure. On another part of the sprawling sea, a kind-hearted Pirate sought peace and friendship, tired of loneliness among his rough, ancient crew.",
