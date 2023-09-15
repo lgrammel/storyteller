@@ -21,6 +21,7 @@ export default function Home() {
     <>
       <div>Hello am I a page?</div>
       <button onClick={handleSend}>Click me</button>
+      <audio controls src={"/api/load-mp3?filename=0.mp3"} />
     </>
   );
 }
