@@ -1,5 +1,6 @@
 import { AsyncQueue } from "@/lib/AsyncQueue";
 import { parseEventSourceReadableStream } from "@/lib/parseEventSourceReadableStream";
+import { z } from "zod";
 
 export default function Home() {
   const handleSend = async () => {
@@ -10,10 +11,13 @@ export default function Home() {
         body: "",
       });
 
-      const events = readEvents(response.body!);
+      const events = readEvents(response.body!, z.string(), {
+        errorHandler: console.error,
+      });
       for await (const event of events) {
         console.log(event);
       }
+      console.log("Done");
     } finally {
     }
   };
@@ -27,13 +31,14 @@ export default function Home() {
   );
 }
 
-export function readEvents(
+export function readEvents<T>(
   stream: ReadableStream<Uint8Array>,
+  schema: Zod.Schema<T>,
   options?: {
     errorHandler: (error: any) => void;
   }
-): AsyncIterable<string | undefined> {
-  const queue = new AsyncQueue<string | undefined>();
+): AsyncIterable<T | undefined> {
+  const queue = new AsyncQueue<T | undefined>();
 
   // run async (no await on purpose):
   parseEventSourceReadableStream({
@@ -48,10 +53,8 @@ export function readEvents(
       },
       onEvent(event) {
         try {
-          // TODO parse with Zod
-          const data = JSON.parse(event.data);
-
-          queue.push(data.textDelta);
+          // TODO SecureJSON
+          queue.push(schema.parse(JSON.parse(event.data)));
         } catch (error) {
           options?.errorHandler(error);
           queue.close();
