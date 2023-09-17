@@ -1,81 +1,106 @@
 export const expandNarrationArcExamples = [
   {
-    storyParts: [
+    introduction: [
       {
-        text: "Once upon a time, in a distant ocean kingdom's castle lived a brave young Prince. He had a heart filled with curiosity and dreams of thrilling adventures. Far away on the same sprawling sea, a strong and kind Pirate sailed restlessly. Despite being surrounded by his old, gnarled crew, he longed for true friendship and peace.",
+        type: "narration",
         speaker: "Narrator",
+        content:
+          "Once upon a time, in a kingdom bathed in golden sunshine and adorned with glistening towers, there lived a young prince. Our prince, Edgar was of the curious kind. He had an immense fascination for the world beyond his palace doors. As different as night and day, across the wild, whispering sea, lived a boy of the same age. His name was Patch, a bonny and adventurous pirate. As fate would have it, an invitation from the Pirate’s Council stirred the hearts of both Prince Edgar and Pirate Patch, sending them on an adventurous journey they were yet to discover.",
+      },
+    ],
+    risingAction: [
+      {
+        type: "dialogue",
+        speaker: "Prince Edgar",
+        content:
+          " I've got to make it to the Pirate's Council. This sea journey would be quite an adventure!",
       },
       {
-        text: "The Prince was young, just eighteen springs old, while the Pirate was a tad older, at twenty-five. The Prince's voice was as bold and determined as his spirit, while the Pirate's voice was husky yet comforting, like a warm blanket on a cold night.",
+        type: "narration",
         speaker: "Narrator",
+        content:
+          "Edgar set sail in his majestic golden boat, but within moments, a sly gust of wind sent his royal map flying right out into the sea.",
       },
       {
-        text: "One fine day, glinting in the sunrise, bobbing on the azure waves, a sealed bottle washed ashore. The bottle contained a mysterious message, a drawn map and the promise of an extraordinary quest.",
+        type: "dialogue",
+        speaker: "Prince Edgar",
+        content: "Oh no…I've lost my map!",
+      },
+      {
+        type: "dialogue",
+        speaker: "Pirate Patch",
+        content:
+          "Ahoy mateys! We’re off to the high seas! But somethin's off. Th' sea is too calm...an' th' dancin' dolphins that usually guide me are none t' be seen.",
+      },
+      {
+        type: "narration",
         speaker: "Narrator",
+        content:
+          "The adventures of our heroes were mirroring each other's struggles. The prince was lost without his map and the pirate, without his dolphins to navigate. Their trials ran rapidly parallel, though they were yet to realize it.",
       },
+    ],
+    climax: [
       {
-        text: "This is it! The adventure I've been waiting for.",
-        speaker: "Prince",
-      },
-      {
-        text: "Little did the brave Prince know, the very same peculiar message was safeguarded in the Pirate's old wooden chest. Noticing the same cryptic script as on his, the Pirate's heart beat faster.",
+        type: "narration",
         speaker: "Narrator",
+        content:
+          "Destiny wound its mystical thread, and their sea routes overlapped. The astonished prince and pirate found themselves at the exact same spot in the wide ocean. Their amazement doubled upon realizing they shared an eerily similar conquest.",
       },
       {
-        text: "I reckon it's time for a new voyage, mates!",
-        speaker: "Pirate",
+        type: "dialogue",
+        speaker: "Prince Edgar",
+        content: "Are you heading to the Pirate's Council too?",
       },
       {
-        text: "Like two ships sailing in the vast ocean unbeknownst to each other, their paths eerily mirrored. Small island after another, they traced according to the map, their journeys often punctuated by wild weather and shared excitement.",
+        type: "dialogue",
+        speaker: "Pirate Patch",
+        content:
+          "That I am, lad. Aye, seems like we got more in common than we thought.",
+      },
+    ],
+    fallingAction: [
+      {
+        type: "narration",
         speaker: "Narrator",
+        content:
+          "From then onwards, their journey was filled with shared laughter and wide-eyed wonder. They tamed the monkey mischief-makers and discovered new islands. They navigated through a sea filled with songs more beautifully melodic than any they had ever heard.",
       },
       {
-        text: "And so came the day when these two paths converged due to a storm. Their ships, each like an extension of themselves, clashed amidst the roaring sea just as the sun split the dark sky.",
+        type: "dialogue",
+        speaker: "Prince Edgar",
+        content:
+          "Look, Patch! The sea is turning clear. We can see the dolphins now!",
+      },
+      {
+        type: "dialogue",
+        speaker: "Pirate Patch",
+        content: "Aye, Edgar! Th' dolphins be tellin' us we’re nearly there!",
+      },
+    ],
+    conclusion: [
+      {
+        type: "narration",
         speaker: "Narrator",
+        content:
+          "Together, as the diligent prince and the daring pirate, they arrived at the grand gathering of the Pirate's Council. It was a sight to behold, brimming with bright, colourful buoys bobbing rhythmically on the sea. Impressed by their tale of friendship and adventure, the Council awarded them each a cartoon badge. The prince received the valiant 'Prince Egg' badge while Pirate Patch was decorated with the daring 'Pirate Patch' badge.",
       },
       {
-        text: "Are you the one who’s been following the same map and clues as I am?",
-        speaker: "Prince",
+        type: "dialogue",
+        speaker: "Prince Edgar",
+        content:
+          "We did it, Patch! We couldn't have made it without sticking together.",
       },
       {
-        text: "That I am, young Prince. And you're the royal on the same quest, I reckon.",
-        speaker: "Pirate",
+        type: "dialogue",
+        speaker: "Pirate Patch",
+        content:
+          "Aye, ye're right, Edgar. Here’s to many more ventures together!",
       },
       {
-        text: "In that explosive moment, they found not an enemy in each other but an unexpectedly shared dream. They realized their hearts held more than mere thoughts of treasure: a thirst for bravery, respect, and unity.",
+        type: "narration",
         speaker: "Narrator",
-      },
-      {
-        text: "As new allies, the Prince and the Pirate set forth on a harmonious quest. This time, not chasing treasures, but to save a kingdom under the reign of a selfish king. Their journey took them through thick jungles, high mountains, and deep valleys. With every challenge and laughter shared, their bond grew stronger.",
-        speaker: "Narrator",
-      },
-      {
-        text: "When they finally confronted the selfish king, it wasn't the swords that won the battle, but the unity and friendship of the Prince and Pirate.",
-        speaker: "Narrator",
-      },
-      {
-        text: "It's not your gold we wanted, but the freedom of these good people.",
-        speaker: "Prince",
-      },
-      {
-        text: "In the end, the loyalty and unity of the Prince and the Pirate released not only a trapped kingdom but also taught a valuable lesson to the selfish king.",
-        speaker: "Narrator",
-      },
-      {
-        text: "True strength comes from unity and righteousness, not selfish goals.",
-        speaker: "Pirate",
-      },
-      {
-        text: "With the kingdom free and peace restored, the Prince and Pirate returned to their paths. The Prince went back to his castle, taking with him countless tales of adventure and valor, and the Pirate sailed off into the wide open sea with a crew that respected him more than ever.",
-        speaker: "Narrator",
-      },
-      {
-        text: "And so, they ever remain - The brave Prince and the kind Pirate, forever a symbol of courage, unity, friendship and the strength of character over riches and gold.",
-        speaker: "Narrator",
-      },
-      {
-        text: "And who knows, perhaps someday their paths will cross again, and together they will share another great adventure.",
-        speaker: "Narrator",
+        content:
+          "And thus, the prince and the pirate celebrated their victorious day. They returned home with their special badges, tales of a shared adventure, and a new bond of friendship. From then on, their names rang joyously across both the kingdom and the pirate land, remembered forever as bold and brave heroes.",
       },
     ],
   },

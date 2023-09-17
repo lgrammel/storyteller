@@ -1,5 +1,71 @@
 export const generateNarrationArcExamples = [
   {
+    title: "The Prince and The Pirate's Great Adventure",
+    introduction:
+      "Once upon a time in a kingdom of the brightest sunshine and gleaming towers, lived a young Prince named Edgar. His heart was kind, and he was filled with tremendous curiosity for the world beyond his castle. On the other side of the wild and whispering sea lived Patch, an adventurous pirate boy of the same age whose heart was just as kind and quest for adventure was remarkably similar. An invitation from the Pirate’s Council caught both our heroes' attention, sending them on a magical adventure.",
+    risingAction:
+      "As soon as Edgar the Prince sets sail on his enshrined golden boat, the royal map flies out, misplaced due to a sly ocean breeze which directed him to the island home of naughty monkeys. Meanwhile, the sea route for Pirate Patch was plagued by surprisingly calm waters and missing dolphins essential to track his navigation. Their adventures unsynchronously echoed each other's struggles.",
+    climax:
+      "Destiny made their tumultuous sea routes intersect, and our unsuspecting heroes finally noted that they weren’t the only ones sailing for the Pirate’s council. Prince Edgar and Pirate Patch were astonished at realising their mirrored adventures yet maintained their secret friendly competition.",
+    fallingAction:
+      "Their continuing journey was filled with joyful laughter, shared wonderment and exhilarating surprise twists. Troubling monkeys gave them courage, upcoming islands gave them hope and myriad sea songs gave them soothing comfort in each other's company. Soon the seas turned transparent, revealing the playful dolphins which indicated they were halfway to the fabled Pirate’s land.",
+    conclusion:
+      "Together, the prince and the pirate, arrived at the Pirate's council shrouded in eye-catching colourful bobbing buoys. The kind and forward thinkers impressed the mighty elders with their sturdy collaboration and honourable diplomatic story-telling which landed them special cartoon badges (Endearing Prince Egg and Passionate Pirate Patch). Triumphant, they celebrated their newly-merged traditions as strong young heroes and marked delightful memories on a wonderfully distinct adventure.",
+    characters: [
+      {
+        name: "Edgar",
+        gender: "male",
+        ageInYears: 5,
+        voice: "a bright and cheerful tone packed with curiosity and kindness",
+      },
+      {
+        name: "Patch",
+        gender: "male",
+        ageInYears: 5,
+        voice: "a friendly, high-spirited voice sparkling with adventure",
+      },
+    ],
+  },
+  {
+    title: "The Great Excursion of Pirate Pete and Prince Pedro",
+    introduction:
+      "Once upon a time in the Kingdom of Liberty, there lived a bold and youthful prince named Pedro, who was admired and loved by all the citizens. On theta same land, there was also a clever pirate named Pete, known throughout the area for his brave adventures.",
+    risingAction:
+      "One beautiful morning, a golden eagle dropped a treasure map into the hands of Prince Pedro. Enlisting the help of Pirate Pete, who knew how to read such maps, they began their fantastic journey together. On the path, they had to combat enormous sea monsters, challenge raging storms, and even hike up an enormous mountain, with courage and fun at every corner.",
+    climax:
+      "When they understood that the treasure they were hunting was at the peak of the tallest mountain, Mount Horizon. Having no resources to climb up, they decided to let their differences meld and together built a sturdy flying ship. After facing many predicaments, they reach the peak, only to more dangers by an evil witch.",
+    fallingAction:
+      "Using their quick wit and acquired skills along the journey they harnessed their talents and happy spirits to outsmart the cunning witch. They rescued the chest which rather being filled with gliod was full of unique stories from all over the kingdom.",
+    conclusion:
+      "Prince Pedro and Pirate Pete learned that adventures, despite hazards, can also be amusing and the priceless stories across their kingdom were more valuable than any gold could ever be. They returned to their land, not only with a chest filled with stories but the eternal bond they formed during their quest. Their stories kept reminding the residents of Liberty that courage, wisdom, and the value of friendship was the greatest treasure any individual could seek.",
+    characters: [
+      {
+        name: "Prince Pedro",
+        gender: "male",
+        ageInYears: 14,
+        voice: "has a soft and yet confident voice",
+      },
+      {
+        name: "Pirate Pete",
+        gender: "male",
+        ageInYears: 15,
+        voice: "possesses a rough, but friendly and enthusiastic timbre",
+      },
+      {
+        name: "Golden Eagle",
+        gender: "not specified",
+        ageInYears: 5,
+        voice: "makes high-pitched, shrill sounds",
+      },
+      {
+        name: "Evil Witch",
+        gender: "female",
+        ageInYears: 50,
+        voice: "is high pitched, usually filled with laughter",
+      },
+    ],
+  },
+  {
     title: "The Kind Witch and Her Black Cat Friend",
     introduction:
       "In a vibrant town lived a misunderstood old witch and her beloved black cat. The town's folk misunderstood her, believing that she was wicked. However, the witch was kind and loving, especially to her black cat.",
