@@ -18,7 +18,7 @@ const narratedStoryPartsSchema = z.array(
       .optional()
       .nullable()
       .describe(
-        "Speaker of a dialogue (direct speech) part. Set to null for narration parts."
+        "Speaker of a dialogue (direct speech) part. Must be a single speaker. Set to null for narration parts."
       ),
     content: z.string().describe("Content of the story part"),
   })
@@ -67,7 +67,7 @@ export async function expandNarrationArc2(narrationArc: NarrationArc) {
   return generateStructure(
     new OpenAIChatModel({
       model: "gpt-4",
-      temperature: 1,
+      temperature: 0,
     }),
     new ZodStructureDefinition({
       name: "story",

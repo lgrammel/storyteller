@@ -5,6 +5,105 @@ export const expandNarrationArcExamples = [
         type: "narration",
         speaker: "Narrator",
         content:
+          "Once upon a time, in an age filled with chivalry and magic, there lived a courageous Prince named Theodore and a daring Pirate named Crimson Beard. Both wanted nothing else but adventure, untold stories, and the thrill they got from discovering beautiful and unique things. Theodore was brave with a heart as mighty as his kingdom, while Crimson had an eccentric spirit that flourished on the open seas. The two would soon share a journey to a legendary island said to hide an unrivalled treasure.",
+      },
+    ],
+    risingAction: [
+      {
+        type: "narration",
+        speaker: "Narrator",
+        content:
+          "One windy afternoon, Prince Theodore happened upon a cryptic map inside an old book. The map, sprinkled with strange symbols and letters, spoke of a treasure hidden on a place known as the Ambling Isle. Excited to uncover its wonders, Theodore decided to sail to the Isle.",
+      },
+      {
+        type: "dialogue",
+        speaker: "Prince Theodore",
+        content:
+          "This map, it's a call to adventure! I must find this treasure.",
+      },
+      {
+        type: "narration",
+        speaker: "Narrator",
+        content:
+          "Simultaneously Crimson, freewheeling the seas, remarkably found a similar map in a message bottle. Instant intrigue led him towards the mysterious island.",
+      },
+      {
+        type: "dialogue",
+        speaker: "Crimson Beard",
+        content:
+          "Arr, a treasure map! The Ambling Isle, eh? That's where I'll find me next adventure!",
+      },
+      {
+        type: "narration",
+        speaker: "Narrator",
+        content:
+          "On their journey, they each battled furious storms, mere confusion, and tiring trials, almost giving up but still pressing on in the pursuit of discovery.",
+      },
+    ],
+    climax: [
+      {
+        type: "narration",
+        speaker: "Narrator",
+        content:
+          "Surprisingly, on the Isle's shores, the Prince and the Pirate discovered each other at the same spot, ready to hurl accusations on who has the unquestionable right to hunt the treasure.",
+      },
+      {
+        type: "dialogue",
+        speaker: "Prince Theodore",
+        content: "You! What are you doing here? This treasure is mine!",
+      },
+      {
+        type: "dialogue",
+        speaker: "Crimson Beard",
+        content:
+          "Arr, I beg to differ, Princey. I found me map fair and square!",
+      },
+      {
+        type: "narration",
+        speaker: "Narrator",
+        content:
+          "Just as tempers flared, they suddenly noticed that their maps, when pieced together, formed a heart. This unveiling silenced their feud and allowed them to get a clue about the essence of the treasure they're after. Agreeing to work together, they followed the combined map to a massive chest, held their breaths, opened it - and uncovered piles upon piles of colorful, shimmering...musical instruments?",
+      },
+    ],
+    fallingAction: [
+      {
+        type: "narration",
+        speaker: "Narrator",
+        content:
+          "They both stared for a long time, bewilderment turning into heightening joy. Prince Theodore picked a golden flute, and Pirate Crimson settled for a shining tambourine.",
+      },
+      {
+        type: "dialogue",
+        speaker: "Prince Theodore",
+        content: "This... this is the treasure? Music?",
+      },
+      {
+        type: "dialogue",
+        speaker: "Crimson Beard",
+        content: "Arr, seems like it, Princey. Let's give it a whirl!",
+      },
+      {
+        type: "narration",
+        speaker: "Narrator",
+        content:
+          "And there, under the brilliant sun on an enchanted island, they played. They filled the air with the most beautiful sounds anyone, anywhere, had ever heard. Their music echoed over the oceans and danced through wind into all nearby kingdoms. Together, they found a common beat, a shared song, a mutual love for music.",
+      },
+    ],
+    conclusion: [
+      {
+        type: "narration",
+        speaker: "Narrator",
+        content:
+          "With an abundant collection of musical jewels, the Prince and the Pirate understood that real treasures indeed aren't about gold coins or buried silver but the shared stories, experiencing unexpected lessons, and forging unforgettable moments together. They sailed back - singing, playing, brimming with new adventure tales. In lands far and wide, the reassuring sounds of their newfound music carried the delightful lesson that warmth, unity, and friendship truly underpin every wonderful adventure's core.",
+      },
+    ],
+  },
+  {
+    introduction: [
+      {
+        type: "narration",
+        speaker: "Narrator",
+        content:
           "Once upon a time, in a kingdom bathed in golden sunshine and adorned with glistening towers, there lived a young prince. Our prince, Edgar was of the curious kind. He had an immense fascination for the world beyond his palace doors. As different as night and day, across the wild, whispering sea, lived a boy of the same age. His name was Patch, a bonny and adventurous pirate. As fate would have it, an invitation from the Pirate’s Council stirred the hearts of both Prince Edgar and Pirate Patch, sending them on an adventurous journey they were yet to discover.",
       },
     ],
