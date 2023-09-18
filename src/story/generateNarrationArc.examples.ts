@@ -1,5 +1,38 @@
 export const generateNarrationArcExamples = [
   {
+    title: "The Home of Love",
+    introduction:
+      "Once upon a time in a small peaceful town named Serenity Springs, there was a sweet, little girl named Lily. Lily wasn't like other children in the town because she didn't have a family. She spent her days tending to her only possession—a vibrant flower garden.",
+    risingAction:
+      "One sunny afternoon, an enchantingly peculiar bird named Bluebeak flew into Lily's Saturday market stall. He was lost, much like Lily. Seeing the parallel between the tiny, wayward bird and herself, Lily decided to help him; their vibrant companionship began grow. As Lily and Bluebeak began looking for the bird's family, they faced numerous challenges such as navigating dense woods, meeting other animals who could not be of help, and even carefully evading Sergeant Baize, the overzealous town guard!",
+    climax:
+      "On one tumultuous day, a huge rainstorm cropped up just as Lily and Bluebeak had embarked for Lake Leena. As heavy rain poured down, our heroes found shelter in a large cave. While waiting for the rain to stop, a brilliant rainbow formed in the sky. Bluebeak got excited and flew straight into the rainbow! To their surprise, they arrived at the most beautiful meadow they've ever seen. It was filled with birds that looked just like Bluebeak!",
+    fallingAction:
+      "Seeing the immense happiness on Bluebeak's face, Lily knew right away that they found his family. At this moment, Lily realized that not all families need to look the same. Overwhelmed with happiness and relief, Bluebeak’s parents thanked Lily for her help and then made her a special request: to become a part of their family. Lily was triumphantly joyful with tears bringing down her cheeks.",
+    conclusion:
+      "From that day on, Lily became a well-loved member of Bluebeak's family—her new home. She realized family was about kindness, love, acceptance, and community all along – these are the very things that truly make up a home. And so, Lily, Bluebeak and their family of birds continued to live joyously ever-after in the meadows, reciprocating the same love they all needed and deserved.",
+    characters: [
+      {
+        name: "Lily",
+        gender: "female",
+        ageInYears: 7,
+        voice: "soft and cheerful",
+      },
+      {
+        name: "Bluebeak",
+        gender: "male",
+        ageInYears: 1,
+        voice: "energetic and squeaky",
+      },
+      {
+        name: "Sergeant Baize",
+        gender: "male",
+        ageInYears: 30,
+        voice: "low and robust",
+      },
+    ],
+  },
+  {
     title: "The Prince and the Pirate: Journey to the Ambling Isle",
     introduction:
       "Once upon a time, in an age filled with chivalry and magic, there lived a courageous Prince named Theodore and a daring Pirate named Crimson Beard. Both wanted nothing else but adventure, untold stories, and the thrill they got from discovering beautiful and unique things. Theodore was brave with a heart as mighty as his kingdom, while Crimson had an eccentric spirit that flourished on the open seas. The two would soon share a journey to a legendary island said to hide an unrivalled treasure.",

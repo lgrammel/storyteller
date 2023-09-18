@@ -3,8 +3,7 @@ import fs from "fs/promises";
 import {
   MemoryVectorIndex,
   OpenAITextEmbeddingModel,
-  TextChunk,
-  upsertTextChunks,
+  upsertIntoVectorIndex,
 } from "modelfusion";
 import { z } from "zod";
 
@@ -24,14 +23,15 @@ async function main() {
     const data = await fs.readFile("./data/voices.json", "utf8");
     const voices: Voice[] = Object.values(JSON.parse(data).voices);
 
-    const vectorIndex = new MemoryVectorIndex<Voice & TextChunk>();
+    const vectorIndex = new MemoryVectorIndex<Voice>();
 
-    await upsertTextChunks({
+    await upsertIntoVectorIndex({
       vectorIndex,
       embeddingModel: new OpenAITextEmbeddingModel({
         model: "text-embedding-ada-002",
       }),
-      chunks: voices.map((voice) => ({ ...voice, text: voice.description })),
+      objects: voices,
+      getText: (voice) => voice.description,
     });
 
     await fs.writeFile("./data/voices.index.json", vectorIndex.serialize());

@@ -5,10 +5,9 @@ import {
   OpenAIChatMessage,
   OpenAIChatModel,
   OpenAITextEmbeddingModel,
-  SimilarTextChunksFromVectorIndexRetriever,
-  ZodStructureDefinition,
+  VectorIndexRetriever,
   generateStructure,
-  retrieveTextChunks,
+  retrieve,
 } from "modelfusion";
 import { z } from "zod";
 import { expandNarrationArcExamples } from "./expandNarrationArc.examples";
@@ -20,14 +19,13 @@ const voiceSchema = z.object({
   gender: z.enum(["M", "F"]),
   tags: z.array(z.string()),
   description: z.string(),
-  text: z.string(),
 });
 
 type Voice = z.infer<typeof voiceSchema>;
 
 async function main() {
   try {
-    const vectorIndex = await MemoryVectorIndex.deserialize({
+    const voicesIndex = await MemoryVectorIndex.deserialize({
       serializedData: await fs.readFile("./data/voices.index.json", "utf8"),
       schema: voiceSchema,
     });
@@ -93,8 +91,8 @@ async function main() {
     }));
 
     // retrieve the voice vectors from the index:
-    const retriever = new SimilarTextChunksFromVectorIndexRetriever({
-      vectorIndex,
+    const retriever = new VectorIndexRetriever({
+      vectorIndex: voicesIndex,
       embeddingModel: new OpenAITextEmbeddingModel({
         model: "text-embedding-ada-002",
       }),
@@ -105,9 +103,7 @@ async function main() {
     const result = await Promise.all(
       voiceDescriptionsArray.map(async (voiceDescription) => ({
         name: voiceDescription.id,
-        voice: (
-          await retrieveTextChunks(retriever, voiceDescription.description)
-        ).chunks,
+        voice: await retrieve(retriever, voiceDescription.description),
       }))
     );
 

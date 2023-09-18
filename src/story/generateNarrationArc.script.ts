@@ -5,7 +5,7 @@ dotenv.config();
 
 async function main() {
   const narrationArcs = await generateNarrationArc(
-    "a tale about a prince and a pirate finding a great treasure"
+    "a tale about an orphan finding a home"
   );
 
   console.log(JSON.stringify(narrationArcs, null, 2));
