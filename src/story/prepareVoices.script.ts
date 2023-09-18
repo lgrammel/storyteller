@@ -31,7 +31,9 @@ async function main() {
         model: "text-embedding-ada-002",
       }),
       objects: voices,
-      getText: (voice) => voice.description,
+      getText: (voice) =>
+        (voice.gender === "M" ? "Male voice. " : "Female voice. ") +
+        voice.description,
     });
 
     await fs.writeFile("./data/voices.index.json", vectorIndex.serialize());

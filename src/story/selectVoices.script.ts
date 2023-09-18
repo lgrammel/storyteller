@@ -6,6 +6,7 @@ import {
   OpenAIChatModel,
   OpenAITextEmbeddingModel,
   VectorIndexRetriever,
+  ZodStructureDefinition,
   generateStructure,
   retrieve,
 } from "modelfusion";
@@ -58,7 +59,15 @@ async function main() {
     //     name: "voices",
     //     description: "Voice descriptions for an audio story for kids.",
     //     schema: z.object(
-    //       Object.fromEntries(speakers.map((speaker) => [speaker, z.string()]))
+    //       Object.fromEntries(
+    //         speakers.map((speaker) => [
+    //           speaker,
+    //           z.object({
+    //             gender: z.enum(["M", "F"]),
+    //             voice: z.string(),
+    //           }),
+    //         ])
+    //       )
     //     ),
     //   }),
     //   [
@@ -72,42 +81,86 @@ async function main() {
     //   ]
     // );
 
-    const voiceDescriptions: Record<string, string> = {
-      Narrator:
-        "A warm, soothing voice that is clear and engaging, with a gentle pace and tone that is comforting to young listeners.",
-      Lily: "A soft, youthful voice full of innocence and kindness, with a hint of determination and courage.",
-      "Sergeant Baize":
-        "A deep, authoritative voice with a stern yet caring tone, reflecting his role as the town guard.",
-      Bluebeak:
-        "A high-pitched, chirpy voice that is full of curiosity and excitement, reflecting his adventurous spirit.",
-      "Bluebeak's Parents":
-        "Two gentle, loving voices that are filled with warmth and gratitude, reflecting their joy at being reunited with their son and welcoming Lily into their family.",
+    // console.log(JSON.stringify(voiceDescriptions, null, 2));
+
+    const voiceDescriptions: Record<
+      string,
+      {
+        gender: "M" | "F";
+        voice: string;
+      }
+    > = {
+      Narrator: {
+        gender: "M",
+        voice:
+          "A warm, soothing voice with a gentle pace, perfect for storytelling. The voice should be clear and articulate, with a friendly tone that can express a range of emotions.",
+      },
+      Lily: {
+        gender: "F",
+        voice:
+          "A soft, youthful voice that reflects her innocence and kindness. The voice should be high-pitched, but not squeaky, with a cheerful undertone.",
+      },
+      "Sergeant Baize": {
+        gender: "M",
+        voice:
+          "A deep, authoritative voice that reflects his role as a guard. The voice should be firm but not scary, with a hint of gruffness.",
+      },
+      Bluebeak: {
+        gender: "M",
+        voice:
+          "A light, chirpy voice that reflects his small size and bird-like nature. The voice should be high-pitched and lively, with a playful undertone.",
+      },
+      "Bluebeak's Parents": {
+        gender: "M",
+        voice:
+          "A pair of voices that are warm and loving, reflecting their parental role. The voices should be gentle and comforting, with a tone of gratitude and joy.",
+      },
     };
 
-    // turn the voice descriptions into an array:
-    const voiceDescriptionsArray = speakers.map((speaker) => ({
-      id: speaker,
-      description: voiceDescriptions[speaker],
-    }));
-
     // retrieve the voice vectors from the index:
+    // TODO need to be able to segment male / female voices via pre-filtering
     const retriever = new VectorIndexRetriever({
       vectorIndex: voicesIndex,
       embeddingModel: new OpenAITextEmbeddingModel({
         model: "text-embedding-ada-002",
       }),
-      maxResults: 2,
+      maxResults: 5,
       similarityThreshold: 0.2,
     });
 
-    const result = await Promise.all(
-      voiceDescriptionsArray.map(async (voiceDescription) => ({
-        name: voiceDescription.id,
-        voice: await retrieve(retriever, voiceDescription.description),
-      }))
-    );
+    const usedVoiceIds: string[] = [];
+    const speakerToVoiceId: Record<string, string> = {};
 
-    console.log(JSON.stringify(result, null, 2));
+    for (const speaker of speakers) {
+      const potentialVoices = await retrieve(
+        retriever,
+        (voiceDescriptions[speaker].gender === "M"
+          ? "Male voice. "
+          : "Female voice. ") + voiceDescriptions[speaker].voice
+      );
+
+      const voice = potentialVoices.find(
+        (voice) => !usedVoiceIds.includes(voice.id)
+      );
+
+      // TODO how to avoid / handle? reuse voices?
+      if (!voice) {
+        throw new Error(`No voice found for ${speaker}`);
+      }
+
+      usedVoiceIds.push(voice.id);
+      speakerToVoiceId[speaker] = voice.id;
+    }
+
+    console.log(JSON.stringify(speakerToVoiceId, null, 2));
+
+    // {
+    //   "Narrator": "c8ea4f2a-06e6-4d7b-9484-db941bf7c657",
+    //   "Lily": "9db02220-4029-40f1-a807-55d645386d2b",
+    //   "Sergeant Baize": "abb4aea5-bc72-467d-82bb-c3169a528cde",
+    //   "Bluebeak": "4e95c4a7-95aa-4b1d-bc23-00f7d1d484ea",
+    //   "Bluebeak's Parents": "maurice"
+    // }
   } catch (err) {
     console.error("Error reading file", err);
   }
