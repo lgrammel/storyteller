@@ -31,7 +31,7 @@ async function main() {
         model: "text-embedding-ada-002",
       }),
       objects: voices,
-      getText: (voice) =>
+      getValueToEmbed: (voice) =>
         (voice.gender === "M" ? "Male voice. " : "Female voice. ") +
         voice.description,
     });
