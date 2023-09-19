@@ -23,6 +23,14 @@ export default async function handler(
     type: "progress",
     description: "start",
   });
+
+  // TODO
+  // - generate narration arc
+  // - expand narration arc
+  // - select voices
+  // - narrate story
+  // - generate image
+
   queue.push({
     type: "progress",
     description: "end",
