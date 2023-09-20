@@ -20,8 +20,8 @@ export default async function handler(
   const queue = new AsyncQueue<ApplicationEvent>();
 
   queue.push({
-    type: "progress",
-    description: "start",
+    type: "titleGenerated",
+    title: "My Story",
   });
 
   // TODO
@@ -31,10 +31,19 @@ export default async function handler(
   // - narrate story
   // - generate image
 
-  queue.push({
-    type: "progress",
-    description: "end",
-  });
+  // how to display the progress?
+  // scaffolding? --> skeleton elements
+  // streaming? --> how to stream complex structures?
+  // audio controls --> complex display
+  // text display
+
+  // step 1: title & image
+  // how can this be done in a parallel way?
+
+  // queue.push({
+  //   type: "progress",
+  //   description: "end",
+  // });
   queue.close();
 
   return new Response(createEventSourceReadableStream(queue), {

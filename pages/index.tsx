@@ -1,10 +1,16 @@
 import { applicationEventSchema } from "@/lib/ApplicationEvent";
-import { AsyncQueue } from "@/lib/AsyncQueue";
-import { parseEventSourceReadableStream } from "@/lib/parseEventSourceReadableStream";
+import { readEvents } from "@/lib/readEvents";
+import React from "react";
 
 export default function Home() {
-  const handleSend = async () => {
+  const [waitingForUserInput, setWaitingForUserInput] = React.useState(true);
+  const [image, setImage] = React.useState<string | null>(null);
+  const [title, setTitle] = React.useState<string | null>(null);
+
+  const onSubmit = async () => {
     try {
+      setWaitingForUserInput(false);
+
       const response = await fetch("/api/generate-story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -14,8 +20,21 @@ export default function Home() {
       const events = readEvents(response.body!, applicationEventSchema, {
         errorHandler: console.error,
       });
+
       for await (const event of events) {
-        console.log(event);
+        // TODO clean this up
+        if (event == null) {
+          continue;
+        }
+
+        switch (event.type) {
+          case "imageGenerated":
+            setImage(event.image);
+            break;
+          case "titleGenerated":
+            setTitle(event.title);
+            break;
+        }
       }
       console.log("Done");
     } finally {
@@ -24,44 +43,14 @@ export default function Home() {
 
   return (
     <>
-      <div>Hello am I a page?</div>
-      <button onClick={handleSend}>Click me</button>
-      <audio controls src={"/api/load-mp3?filename=0.mp3"} />
+      {waitingForUserInput ? (
+        <button onClick={onSubmit}>Generate Story</button>
+      ) : (
+        <>
+          {title && <h2>{title}</h2>}
+          {image && <img src={image} alt={title ?? ""} />}
+        </>
+      )}
     </>
   );
-}
-
-export function readEvents<T>(
-  stream: ReadableStream<Uint8Array>,
-  schema: Zod.Schema<T>,
-  options?: {
-    errorHandler: (error: any) => void;
-  }
-): AsyncIterable<T | undefined> {
-  const queue = new AsyncQueue<T | undefined>();
-
-  // run async (no await on purpose):
-  parseEventSourceReadableStream({
-    stream,
-    callback: {
-      onClose() {
-        queue.close();
-      },
-      onError(error) {
-        options?.errorHandler(error);
-        queue.close();
-      },
-      onEvent(event) {
-        try {
-          // TODO SecureJSON
-          queue.push(schema.parse(JSON.parse(event.data)));
-        } catch (error) {
-          options?.errorHandler(error);
-          queue.close();
-        }
-      },
-    },
-  });
-
-  return queue;
 }
