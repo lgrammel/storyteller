@@ -11,15 +11,29 @@ export default function Home() {
     try {
       setWaitingForUserInput(false);
 
-      const response = await fetch("/api/generate-story", {
+      const topic = "a tale about an elephant on vacation";
+      const baseUrl = "http://localhost:3001";
+
+      const generateStoryResponse = await fetch(`${baseUrl}/generate-story`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: "a tale about an elephant on vacation",
+        body: JSON.stringify({ topic }),
       });
 
-      const events = readEvents(response.body!, applicationEventSchema, {
-        errorHandler: console.error,
+      const path: string = (await generateStoryResponse.json()).path;
+
+      const eventStreamResponse = await fetch(`${baseUrl}${path}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
       });
+
+      const events = readEvents(
+        eventStreamResponse.body!,
+        applicationEventSchema,
+        {
+          errorHandler: console.error,
+        }
+      );
 
       for await (const event of events) {
         // TODO clean this up
