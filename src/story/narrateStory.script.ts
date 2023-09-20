@@ -11,13 +11,6 @@ dotenv.config();
 
 async function main() {
   const story = expandNarrationArcExamples[0];
-  const storyParts = [
-    ...story.introduction,
-    ...story.risingAction,
-    ...story.climax,
-    ...story.fallingAction,
-    ...story.conclusion,
-  ];
 
   // {
   //   Narrator: "pNInz6obpgDQGcFmaJgB", // Adam
@@ -33,6 +26,13 @@ async function main() {
     "Bluebeak's Parents": "maurice",
   };
 
+  const storyParts = [
+    ...story.introduction,
+    ...story.risingAction,
+    ...story.climax,
+    ...story.fallingAction,
+    ...story.conclusion,
+  ];
   for (let i = 0; i < storyParts.length; i++) {
     const part = storyParts[i];
 

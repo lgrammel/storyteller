@@ -3,7 +3,6 @@ import {
   OpenAIChatModel,
   ZodStructureDefinition,
   generateStructure,
-  streamText,
 } from "modelfusion";
 import { z } from "zod";
 import { NarrationArc } from "./generateNarrationArc";
@@ -15,14 +14,14 @@ const narratedStoryPartsSchema = z.array(
       .describe("Type of story part. Either 'narration' or 'dialogue'."),
     speaker: z
       .string()
-      .optional()
-      .nullable()
       .describe(
         "Speaker of a dialogue (direct speech) part. Must be a single speaker. Set to null for narration parts."
       ),
     content: z.string().describe("Content of the story part"),
   })
 );
+
+export type NarratedStoryParts = z.infer<typeof narratedStoryPartsSchema>;
 
 export async function expandNarrationArc(narrationArc: NarrationArc) {
   return generateStructure(

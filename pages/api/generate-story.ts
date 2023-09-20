@@ -4,6 +4,9 @@ import { createEventSourceReadableStream } from "@/lib/createEventSourceReadable
 import { generateNarrationArc } from "@/story/generateNarrationArc";
 import { fakeGenerateStoryImage } from "@/story/fakeGenerateStoryImage";
 import { NextApiRequest, NextApiResponse } from "next";
+import { expandNarrationArc } from "@/story/expandNarrationArc";
+import { selectVoices } from "@/story/selectVoices";
+import { LmntSpeechSynthesisModel, synthesizeSpeech } from "modelfusion";
 
 export const config = {
   runtime: "edge",
@@ -31,6 +34,7 @@ export default async function handler(
   });
 
   // TODO error handling
+  // TODO parallelize
   // const storyImage = await generateStoryImage(narrationArc);
   const storyImage = await fakeGenerateStoryImage(narrationArc);
 
@@ -39,26 +43,30 @@ export default async function handler(
     image: storyImage,
   });
 
-  // TODO
-  // - generate narration arc
-  // - expand narration arc
-  // - select voices
-  // - narrate story
-  // - generate image
+  const expandedNarrationArc = await expandNarrationArc(narrationArc);
+  const voices = await selectVoices(expandedNarrationArc);
 
-  // how to display the progress?
-  // scaffolding? --> skeleton elements
-  // streaming? --> how to stream complex structures?
-  // audio controls --> complex display
-  // text display
+  const storyParts = [
+    ...expandedNarrationArc.introduction,
+    ...expandedNarrationArc.risingAction,
+    ...expandedNarrationArc.climax,
+    ...expandedNarrationArc.fallingAction,
+    ...expandedNarrationArc.conclusion,
+  ];
 
-  // step 1: title & image
-  // how can this be done in a parallel way?
+  for (let i = 0; i < storyParts.length; i++) {
+    const part = storyParts[i];
 
-  // queue.push({
-  //   type: "progress",
-  //   description: "end",
-  // });
+    const narration = await synthesizeSpeech(
+      new LmntSpeechSynthesisModel({
+        voice: voices[part.speaker as keyof typeof voices],
+      }),
+      part.content
+    );
+
+    // TODO send narration to client
+    // TODO store in file (later, Fastify server)
+  }
 
   queue.close();
 
