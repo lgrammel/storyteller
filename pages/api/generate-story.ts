@@ -2,7 +2,7 @@ import { ApplicationEvent } from "@/lib/ApplicationEvent";
 import { AsyncQueue } from "@/lib/AsyncQueue";
 import { createEventSourceReadableStream } from "@/lib/createEventSourceReadableStream";
 import { generateNarrationArc } from "@/story/generateNarrationArc";
-import { generateStoryImage } from "@/story/generateStoryImage";
+import { fakeGenerateStoryImage } from "@/story/fakeGenerateStoryImage";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export const config = {
@@ -31,7 +31,8 @@ export default async function handler(
   });
 
   // TODO error handling
-  const storyImage = await generateStoryImage(narrationArc);
+  // const storyImage = await generateStoryImage(narrationArc);
+  const storyImage = await fakeGenerateStoryImage(narrationArc);
 
   queue.push({
     type: "imageGenerated",
