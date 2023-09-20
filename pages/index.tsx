@@ -14,7 +14,7 @@ export default function Home() {
       const response = await fetch("/api/generate-story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: "",
+        body: "a tale about an elephant on vacation",
       });
 
       const events = readEvents(response.body!, applicationEventSchema, {
@@ -48,7 +48,13 @@ export default function Home() {
       ) : (
         <>
           {title && <h2>{title}</h2>}
-          {image && <img src={image} alt={title ?? ""} />}
+          {image && (
+            <img
+              src={`data:image/png;base64,${image}`}
+              alt={title ?? ""}
+              style={{ maxWidth: "100%" }}
+            />
+          )}
         </>
       )}
     </>

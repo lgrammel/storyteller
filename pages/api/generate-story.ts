@@ -1,6 +1,8 @@
 import { ApplicationEvent } from "@/lib/ApplicationEvent";
 import { AsyncQueue } from "@/lib/AsyncQueue";
 import { createEventSourceReadableStream } from "@/lib/createEventSourceReadableStream";
+import { generateNarrationArc } from "@/story/generateNarrationArc";
+import { generateStoryImage } from "@/story/generateStoryImage";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export const config = {
@@ -17,11 +19,23 @@ export default async function handler(
     return;
   }
 
+  const storyRequest = await readStreamAsString(req.body);
+
   const queue = new AsyncQueue<ApplicationEvent>();
+
+  const narrationArc = await generateNarrationArc(storyRequest);
 
   queue.push({
     type: "titleGenerated",
-    title: "My Story",
+    title: narrationArc.title,
+  });
+
+  // TODO error handling
+  const storyImage = await generateStoryImage(narrationArc);
+
+  queue.push({
+    type: "imageGenerated",
+    image: storyImage,
   });
 
   // TODO
@@ -44,6 +58,7 @@ export default async function handler(
   //   type: "progress",
   //   description: "end",
   // });
+
   queue.close();
 
   return new Response(createEventSourceReadableStream(queue), {
@@ -54,4 +69,23 @@ export default async function handler(
       "Content-Encoding": "none",
     },
   });
+}
+
+async function readStreamAsString(
+  stream: ReadableStream<Uint8Array>
+): Promise<string> {
+  const reader = stream.getReader();
+  const chunks: string[] = [];
+
+  while (true) {
+    const { value, done } = await reader.read();
+
+    if (done) {
+      break;
+    }
+
+    chunks.push(new TextDecoder().decode(value));
+  }
+
+  return chunks.join("");
 }

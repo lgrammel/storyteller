@@ -46,14 +46,6 @@ export const narrationArcSchema = z.object({
       "This is the final part of the story, where everything concludes, and the story reaches a sense of closure. " +
         "Aim for a comforting and positive end. Reiterate the main lesson or moral if there is one. "
     ),
-  characters: z.array(
-    z.object({
-      name: z.string(),
-      gender: z.string(),
-      ageInYears: z.number(),
-      voice: z.string().describe("Description of the character's voice."),
-    })
-  ),
 });
 
 export type NarrationArc = z.infer<typeof narrationArcSchema>;

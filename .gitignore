@@ -1,6 +1,6 @@
 .env
 
-parts
+stories
 
 # dependencies
 /node_modules

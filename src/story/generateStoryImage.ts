@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import { readFile } from "fs/promises";
 import {
   OpenAIChatModel,
   StabilityImageGenerationModel,
@@ -6,13 +6,9 @@ import {
   generateText,
   mapInstructionPromptToOpenAIChatFormat,
 } from "modelfusion";
-import fs from "node:fs";
-import { generateNarrationArcExamples } from "./generateNarrationArc.examples";
+import { NarrationArc } from "./generateNarrationArc";
 
-dotenv.config();
-
-async function main() {
-  const story = generateNarrationArcExamples[0];
+export async function generateStoryImage(story: NarrationArc) {
   const text = [
     story.title,
     story.introduction,
@@ -22,11 +18,10 @@ async function main() {
     story.conclusion,
   ].join("\n\n");
 
-  // generate prompt for story:
   const imagePrompt = await generateText(
     new OpenAIChatModel({
       model: "gpt-4",
-      temperature: 0, // remove randomness
+      temperature: 0,
       maxCompletionTokens: 500, // enough tokens for prompt
     }).withPromptFormat(mapInstructionPromptToOpenAIChatFormat()),
     {
@@ -36,9 +31,7 @@ async function main() {
     }
   );
 
-  console.log(imagePrompt);
-
-  const image = await generateImage(
+  return await generateImage(
     new StabilityImageGenerationModel({
       model: "stable-diffusion-xl-1024-v1-0",
       cfgScale: 7,
@@ -50,13 +43,14 @@ async function main() {
     }),
     [
       { text: imagePrompt },
-      { text: "style of children story illustration", weight: 0.8 },
+      { text: "style of illustration for a preschooler story", weight: 0.8 },
     ]
   );
-
-  const path = `./stability-image-example.png`;
-  fs.writeFileSync(path, Buffer.from(image, "base64"));
-  console.log(`Image saved to ${path}`);
 }
 
-main().catch(console.error);
+export async function fakeGenerateStoryImage(
+  imagePath: string
+): Promise<string> {
+  const image = await readFile(imagePath);
+  return image.toString("base64");
+}
