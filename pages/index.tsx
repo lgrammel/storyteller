@@ -7,6 +7,7 @@ export default function Home() {
   const [image, setImage] = React.useState<string | null>(null);
   const [title, setTitle] = React.useState<string | null>(null);
   const [audioUrls, setAudioUrls] = React.useState<string[]>([]);
+  const [activePart, setActivePart] = React.useState(0);
 
   const onSubmit = async () => {
     try {
@@ -69,9 +70,16 @@ export default function Home() {
       ) : (
         <>
           {title && <h2>{title}</h2>}
-          {audioUrls.map((url) => (
-            <audio controls src={url} key={url} />
-          ))}
+          {audioUrls[activePart] != null && (
+            <audio
+              autoPlay
+              controls
+              src={audioUrls[activePart]}
+              onEnded={(e) => {
+                setActivePart(activePart + 1);
+              }}
+            />
+          )}
           {image && (
             <img
               src={`data:image/png;base64,${image}`}
