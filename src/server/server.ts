@@ -1,13 +1,23 @@
 import { applicationEventSchema } from "@/lib/ApplicationEvent";
 import { AsyncQueue } from "@/lib/AsyncQueue";
+import {
+  NarratedStoryParts,
+  expandNarrationArc,
+} from "@/story/expandNarrationArc";
 import { expandNarrationArcExamples } from "@/story/expandNarrationArc.examples";
 import { fakeGenerateStoryImage } from "@/story/fakeGenerateStoryImage";
 import { generateNarrationArc } from "@/story/generateNarrationArc";
 import { generateNarrationArcExamples } from "@/story/generateNarrationArc.examples";
+import { selectVoices } from "@/story/selectVoices";
+import { selectVoicesExamples } from "@/story/selectVoices.examples";
 import cors from "@fastify/cors";
 import dotenv from "dotenv";
 import Fastify from "fastify";
-import { setGlobalFunctionLogging } from "modelfusion";
+import {
+  LmntSpeechSynthesisModel,
+  setGlobalFunctionLogging,
+  synthesizeSpeech,
+} from "modelfusion";
 import { nanoid as createId } from "nanoid";
 import { z } from "zod";
 
@@ -60,6 +70,38 @@ const endpoint = {
       type: "imageGenerated",
       image: storyImage,
     });
+
+    // expand into story
+    // const story = await expandNarrationArc(narrationArc);
+    const story = expandNarrationArcExamples[0];
+
+    const storyParts = [
+      ...story.introduction,
+      ...story.risingAction,
+      ...story.climax,
+      ...story.fallingAction,
+      ...story.conclusion,
+    ] as NarratedStoryParts; // TODO remove
+
+    // select voices
+    // const voices = await selectVoices(storyParts);
+    const voices = selectVoicesExamples[0];
+
+    // narrate
+    for (let i = 0; i < storyParts.length; i++) {
+      const part = storyParts[i];
+
+      // const narration: Buffer = await synthesizeSpeech(
+      //   new LmntSpeechSynthesisModel({
+      //     voice: voices[part.speaker as keyof typeof voices],
+      //   }),
+      //   part.content
+      // );
+      const narration: Buffer = todo;
+
+      // TODO send narration to client
+      // TODO store in file (later, Fastify server)
+    }
   },
 };
 

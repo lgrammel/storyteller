@@ -13,25 +13,11 @@ import { voices } from "./voices";
 import { z } from "zod";
 import { NarratedStoryParts } from "./expandNarrationArc";
 
-export async function selectVoices(story: {
-  introduction: NarratedStoryParts;
-  risingAction: NarratedStoryParts;
-  climax: NarratedStoryParts;
-  fallingAction: NarratedStoryParts;
-  conclusion: NarratedStoryParts;
-}) {
+export async function selectVoices(storyParts: NarratedStoryParts) {
   const voicesIndex = await MemoryVectorIndex.deserialize({
     serializedData: JSON.stringify(voices),
     schema: voiceSchema,
   });
-
-  const storyParts = [
-    ...story.introduction,
-    ...story.risingAction,
-    ...story.climax,
-    ...story.fallingAction,
-    ...story.conclusion,
-  ];
 
   // extract all unique speakers:
   const speakerSet = new Set<string>();

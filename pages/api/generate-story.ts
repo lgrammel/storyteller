@@ -44,7 +44,6 @@ export default async function handler(
   });
 
   const expandedNarrationArc = await expandNarrationArc(narrationArc);
-  const voices = await selectVoices(expandedNarrationArc);
 
   const storyParts = [
     ...expandedNarrationArc.introduction,
@@ -53,6 +52,8 @@ export default async function handler(
     ...expandedNarrationArc.fallingAction,
     ...expandedNarrationArc.conclusion,
   ];
+
+  const voices = await selectVoices(storyParts);
 
   for (let i = 0; i < storyParts.length; i++) {
     const part = storyParts[i];
