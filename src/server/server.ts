@@ -1,7 +1,9 @@
 import { applicationEventSchema } from "@/lib/ApplicationEvent";
 import { AsyncQueue } from "@/lib/AsyncQueue";
+import { expandNarrationArcExamples } from "@/story/expandNarrationArc.examples";
 import { fakeGenerateStoryImage } from "@/story/fakeGenerateStoryImage";
 import { generateNarrationArc } from "@/story/generateNarrationArc";
+import { generateNarrationArcExamples } from "@/story/generateNarrationArc.examples";
 import cors from "@fastify/cors";
 import dotenv from "dotenv";
 import Fastify from "fastify";
@@ -37,7 +39,8 @@ const endpoint = {
     input: z.infer<typeof schema>;
     publishEvent: (event: z.infer<typeof eventSchema>) => void;
   }) {
-    const narrationArc = await generateNarrationArc(input.topic);
+    // const narrationArc = await generateNarrationArc(input.topic);
+    const narrationArc = generateNarrationArcExamples[0];
 
     publishEvent({
       type: "titleGenerated",
@@ -47,7 +50,11 @@ const endpoint = {
     // TODO error handling
     // TODO parallelize
     // const storyImage = await generateStoryImage(narrationArc);
-    const storyImage = await fakeGenerateStoryImage(narrationArc);
+    const storyImage = await fakeGenerateStoryImage(
+      "stories/002/story-002.png"
+    );
+
+    // TODO store as asset, get path
 
     publishEvent({
       type: "imageGenerated",

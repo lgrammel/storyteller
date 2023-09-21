@@ -11,26 +11,6 @@ export const generateNarrationArcExamples = [
       "Seeing the immense happiness on Bluebeak's face, Lily knew right away that they found his family. At this moment, Lily realized that not all families need to look the same. Overwhelmed with happiness and relief, Bluebeak’s parents thanked Lily for her help and then made her a special request: to become a part of their family. Lily was triumphantly joyful with tears bringing down her cheeks.",
     conclusion:
       "From that day on, Lily became a well-loved member of Bluebeak's family—her new home. She realized family was about kindness, love, acceptance, and community all along – these are the very things that truly make up a home. And so, Lily, Bluebeak and their family of birds continued to live joyously ever-after in the meadows, reciprocating the same love they all needed and deserved.",
-    characters: [
-      {
-        name: "Lily",
-        gender: "female",
-        ageInYears: 7,
-        voice: "soft and cheerful",
-      },
-      {
-        name: "Bluebeak",
-        gender: "male",
-        ageInYears: 1,
-        voice: "energetic and squeaky",
-      },
-      {
-        name: "Sergeant Baize",
-        gender: "male",
-        ageInYears: 30,
-        voice: "low and robust",
-      },
-    ],
   },
   {
     title: "The Prince and the Pirate: Journey to the Ambling Isle",
@@ -44,20 +24,6 @@ export const generateNarrationArcExamples = [
       "They both stared for a long time, bewilderment turning into heightening joy. Prince Theodore picked a golden flute, and Pirate Crimson settled for a shining tambourine. And there, under the brilliant sun on an enchanted island, they played. They filled the air with the most beautiful sounds anyone, anywhere, had ever heard. Their music echoed over the oceans and danced through wind into all nearby kingdoms. Together, they found a common beat, a shared song, a mutual love for music.",
     conclusion:
       "With an abundant collection of musical jewels, the Prince and the Pirate understood that real treasures indeed aren't about gold coins or buried silver but the shared stories, experiencing unexpected lessons, and forging unforgettable moments together. They sailed back - singing, playing, brimming with new adventure tales. In lands far and wide, the reassuring sounds of their newfound music carried the delightful lesson that warmth, unity, and friendship truly underpin every wonderful adventure's core.",
-    characters: [
-      {
-        name: "Theodore",
-        gender: "male",
-        ageInYears: 20,
-        voice: "clear, youthful, emotionally rich",
-      },
-      {
-        name: "Crimson Beard",
-        gender: "male",
-        ageInYears: 30,
-        voice: "grainy, hearty, expressive",
-      },
-    ],
   },
   {
     title: "The Prince and The Pirate's Great Adventure",
@@ -71,20 +37,6 @@ export const generateNarrationArcExamples = [
       "Their continuing journey was filled with joyful laughter, shared wonderment and exhilarating surprise twists. Troubling monkeys gave them courage, upcoming islands gave them hope and myriad sea songs gave them soothing comfort in each other's company. Soon the seas turned transparent, revealing the playful dolphins which indicated they were halfway to the fabled Pirate’s land.",
     conclusion:
       "Together, the prince and the pirate, arrived at the Pirate's council shrouded in eye-catching colourful bobbing buoys. The kind and forward thinkers impressed the mighty elders with their sturdy collaboration and honourable diplomatic story-telling which landed them special cartoon badges (Endearing Prince Egg and Passionate Pirate Patch). Triumphant, they celebrated their newly-merged traditions as strong young heroes and marked delightful memories on a wonderfully distinct adventure.",
-    characters: [
-      {
-        name: "Edgar",
-        gender: "male",
-        ageInYears: 5,
-        voice: "a bright and cheerful tone packed with curiosity and kindness",
-      },
-      {
-        name: "Patch",
-        gender: "male",
-        ageInYears: 5,
-        voice: "a friendly, high-spirited voice sparkling with adventure",
-      },
-    ],
   },
   {
     title: "The Great Excursion of Pirate Pete and Prince Pedro",
@@ -98,32 +50,6 @@ export const generateNarrationArcExamples = [
       "Using their quick wit and acquired skills along the journey they harnessed their talents and happy spirits to outsmart the cunning witch. They rescued the chest which rather being filled with gliod was full of unique stories from all over the kingdom.",
     conclusion:
       "Prince Pedro and Pirate Pete learned that adventures, despite hazards, can also be amusing and the priceless stories across their kingdom were more valuable than any gold could ever be. They returned to their land, not only with a chest filled with stories but the eternal bond they formed during their quest. Their stories kept reminding the residents of Liberty that courage, wisdom, and the value of friendship was the greatest treasure any individual could seek.",
-    characters: [
-      {
-        name: "Prince Pedro",
-        gender: "male",
-        ageInYears: 14,
-        voice: "has a soft and yet confident voice",
-      },
-      {
-        name: "Pirate Pete",
-        gender: "male",
-        ageInYears: 15,
-        voice: "possesses a rough, but friendly and enthusiastic timbre",
-      },
-      {
-        name: "Golden Eagle",
-        gender: "not specified",
-        ageInYears: 5,
-        voice: "makes high-pitched, shrill sounds",
-      },
-      {
-        name: "Evil Witch",
-        gender: "female",
-        ageInYears: 50,
-        voice: "is high pitched, usually filled with laughter",
-      },
-    ],
   },
   {
     title: "The Kind Witch and Her Black Cat Friend",
@@ -137,21 +63,6 @@ export const generateNarrationArcExamples = [
       "With the help and guidance of the newly befriended forest dwellers, she finds her dear black cat, scared but safe. To express her gratitude, she casts spells of happiness and peace over the woodland creatures homes.",
     conclusion:
       "Upon their return, town's folk noticed their cheerfulness and, their adventurous stories spread both far and wide about a kind witch and her lovely black cat, changing the townsfolk perception forever about the witch.",
-    characters: [
-      {
-        name: "The Witch",
-        gender: "Female",
-        ageInYears: 300,
-        voice: "Sophisticated with gentle firmness",
-      },
-      {
-        name: "Black Cat",
-        gender: "Neutral",
-        ageInYears: 100,
-        voice:
-          "Soft and friendly, with occasional kitten-like adaptations to show mood",
-      },
-    ],
   },
   {
     title: "The Prince and the Pirate",
@@ -165,20 +76,6 @@ export const generateNarrationArcExamples = [
       "With clashes settled, animosities quelled and someone mysterious to rescue, both forge a bond braving dense jungles, mountains high and valleys deep, their quests humorously tangled yet courageously fought.",
     conclusion:
       "In the end, it was friendship's magical strength and unity of their protagonistic spirits that led to their triumphant fulfillment- rescuing not just a selfish king's lost treasure, as told in the captured messages, but also releasing a kingdom trapped under his self-serving reign. The exodus ends with the royals returning to their homes and the pirate now feared less, entrusted with keeping the ocean’s peace. This story signifies that often, our characterized identities can transform when propped by unity and moral purpose.",
-    characters: [
-      {
-        name: "Prince",
-        gender: "Male",
-        ageInYears: 18,
-        voice: "bold and determined",
-      },
-      {
-        name: "Pirate",
-        gender: "Male",
-        ageInYears: 25,
-        voice: "husky yet comforting",
-      },
-    ],
   },
   {
     title: "The Prince and The Pirate",
@@ -192,20 +89,6 @@ export const generateNarrationArcExamples = [
       "After defeating the sea monster, they realize each other's capabilities and mutuality formed from shared dreams. They split the treasure and depart towards their separate paths with a newfound understanding and respect for the other's identity.",
     conclusion:
       "In spite of being of different worlds - the Sea and the Land, the Prince and the Pirate understood their similarities and pursued their shared dreams, breaking free from the shackles of stereotypes. They learned valuable lessons on the power of unity, the importance of mutual respect, and freedom of choice.",
-    characters: [
-      {
-        name: "Prince Aron",
-        gender: "Male",
-        ageInYears: 20,
-        voice: "Confident and clear",
-      },
-      {
-        name: "Captain Morgan",
-        gender: "Male",
-        ageInYears: 35,
-        voice: "Rough and tough",
-      },
-    ],
   },
   {
     title: "The Adventures of Prince Peter and Pirate Polly",
@@ -219,21 +102,6 @@ export const generateNarrationArcExamples = [
       "The wave retreats came with refreshing peace and they discovered the Kindness Key amidst a joyful dolphin colony. As the key was inserted into an age-old stone threshold, they experienced a terrain unfold gleaming bright with incessantly contagious laughter...",
     conclusion:
       "The tangling journey while daunting, taught Prince Peter about real adventure, and Pirate Polly about tempered bravery. Their offbeat friendship weaved a humbling interconnectedness as it unveiled a more heartfelt joy beyond laugh-filled treasures.",
-    characters: [
-      {
-        name: "Prince Peter",
-        gender: "male",
-        ageInYears: 6,
-        voice: "Caricature-like, with buoyant hints of responsible calmness.",
-      },
-      {
-        name: "Pirate Polly",
-        gender: "female",
-        ageInYears: 6,
-        voice:
-          "Assertive with a playful undertow and an adventurous eagerness in equal parts.",
-      },
-    ],
   },
   {
     title: "The Prince and the Pirate",
@@ -247,25 +115,5 @@ export const generateNarrationArcExamples = [
       "Prince Leo and Jack pull off their smokescreen commendably. It disturbs the greedy king, who then quickly decides to retreat & withdraw out of fear. Their daunting ordeal finally came to an end, and the kingdom harmony is restored.",
     conclusion:
       "Behind every daunting pirates tale, was a brave story of friendship and courage. Prince Leo gained a new friend and some spicy sailing stories experienced in real; so did the pirate who adds his presence in the royal prince's thrilling life by pledging loyalty to him.",
-    characters: [
-      {
-        name: "Leo",
-        gender: "male",
-        ageInYears: 10,
-        voice: "happy and enthusiastic",
-      },
-      {
-        name: "Jack",
-        gender: "male",
-        ageInYears: 22,
-        voice: "grunt with an unrefined pirate accent",
-      },
-      {
-        name: "The bitter king",
-        gender: "male",
-        ageInYears: 35,
-        voice: "arrogant and snobby",
-      },
-    ],
   },
 ];
