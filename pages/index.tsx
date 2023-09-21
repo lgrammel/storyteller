@@ -6,6 +6,7 @@ export default function Home() {
   const [waitingForUserInput, setWaitingForUserInput] = React.useState(true);
   const [image, setImage] = React.useState<string | null>(null);
   const [title, setTitle] = React.useState<string | null>(null);
+  const [audioUrls, setAudioUrls] = React.useState<string[]>([]);
 
   const onSubmit = async () => {
     try {
@@ -42,12 +43,18 @@ export default function Home() {
         }
 
         switch (event.type) {
-          case "imageGenerated":
+          case "imageGenerated": {
             setImage(event.image);
             break;
-          case "titleGenerated":
+          }
+          case "titleGenerated": {
             setTitle(event.title);
             break;
+          }
+          case "audioGenerated": {
+            audioUrls[event.index] = `${baseUrl}${event.path}`;
+            setAudioUrls(audioUrls);
+          }
         }
       }
       console.log("Done");
@@ -62,6 +69,9 @@ export default function Home() {
       ) : (
         <>
           {title && <h2>{title}</h2>}
+          {audioUrls.map((url) => (
+            <audio controls src={url} key={url} />
+          ))}
           {image && (
             <img
               src={`data:image/png;base64,${image}`}

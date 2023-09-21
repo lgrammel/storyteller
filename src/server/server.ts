@@ -8,6 +8,7 @@ import { expandNarrationArcExamples } from "@/story/expandNarrationArc.examples"
 import { fakeGenerateStoryImage } from "@/story/fakeGenerateStoryImage";
 import { generateNarrationArc } from "@/story/generateNarrationArc";
 import { generateNarrationArcExamples } from "@/story/generateNarrationArc.examples";
+import { fakeNarrateStory } from "@/story/narrateStory.fake";
 import { selectVoices } from "@/story/selectVoices";
 import { selectVoicesExamples } from "@/story/selectVoices.examples";
 import cors from "@fastify/cors";
@@ -44,10 +45,15 @@ const endpoint = {
 
   async run({
     input,
+    storeAsset,
     publishEvent,
   }: {
     input: z.infer<typeof schema>;
     publishEvent: (event: z.infer<typeof eventSchema>) => void;
+    storeAsset: (options: {
+      data: Buffer;
+      contentType: string;
+    }) => Promise<string>;
   }) {
     // const narrationArc = await generateNarrationArc(input.topic);
     const narrationArc = generateNarrationArcExamples[0];
@@ -97,10 +103,20 @@ const endpoint = {
       //   }),
       //   part.content
       // );
-      const narration: Buffer = todo;
+      const narration: Buffer = fakeNarrateStory(
+        `stories/002/story-002-${i}.mp3`
+      );
 
-      // TODO send narration to client
-      // TODO store in file (later, Fastify server)
+      const path = await storeAsset({
+        data: narration,
+        contentType: "audio/mpeg",
+      });
+
+      publishEvent({
+        type: "audioGenerated",
+        index: i,
+        path,
+      });
     }
   },
 };
@@ -108,10 +124,20 @@ const endpoint = {
 setGlobalFunctionLogging("detailed-object");
 
 // TODO needs to be endpoint specific
-const store: Record<
+
+type Storage = Record<
+  string,
+  {
+    data: Buffer;
+    contentType: string;
+  }
+>;
+
+const runs: Record<
   string,
   {
     eventQueue: AsyncQueue<z.infer<typeof eventSchema>>;
+    storage: Storage;
   }
 > = {};
 
@@ -122,10 +148,13 @@ async function main() {
 
   server.post(`/${endpoint.name}`, async (request) => {
     const runId = createId();
-    const eventQueue = new AsyncQueue<z.infer<typeof endpoint.eventSchema>>();
 
-    store[runId] = {
+    const eventQueue = new AsyncQueue<z.infer<typeof endpoint.eventSchema>>();
+    const storage: Storage = {};
+
+    runs[runId] = {
       eventQueue,
+      storage,
     };
 
     // start longer-running process (no await):
@@ -134,6 +163,11 @@ async function main() {
         input: endpoint.inputSchema.parse(request.body),
         publishEvent: (event) => {
           eventQueue.push(event);
+        },
+        storeAsset: async (options: { data: Buffer; contentType: string }) => {
+          const id = createId();
+          storage[id] = options;
+          return `/${endpoint.name}/${runId}/assets/${id}`;
         },
       })
       .catch((err) => {
@@ -149,10 +183,33 @@ async function main() {
     };
   });
 
+  server.get(
+    `/${endpoint.name}/:runId/assets/:assetId`,
+    async (request, reply) => {
+      const runId = (request.params as any).runId; // TODO fix
+      const assetId = (request.params as any).assetId; // TODO fix
+
+      const asset = runs[runId]?.storage[assetId];
+
+      // TODO errors
+      const headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Length": asset.data.length,
+        "Content-Type": asset.contentType,
+        "Cache-Control": "no-cache", // TODO
+      };
+
+      reply.raw.writeHead(200, headers);
+
+      reply.raw.write(asset.data);
+      reply.raw.end();
+    }
+  );
+
   server.get(`/${endpoint.name}/:id/events`, async (request, reply) => {
     const runId = (request.params as any).id; // TODO fix
 
-    const eventQueue = store[runId]?.eventQueue;
+    const eventQueue = runs[runId]?.eventQueue;
 
     if (!eventQueue) {
       return {
