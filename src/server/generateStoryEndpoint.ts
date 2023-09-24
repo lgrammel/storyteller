@@ -83,7 +83,7 @@ export const generateStoryEndpoing: Endpoint<
           // const narrationAudio = await narrateStoryPart({ storyPart, voices });
           const narrationAudio = await narrateStoryPartFake({
             path: `stories/002/story-002-${i}.mp3`,
-            delayInMs: 1000,
+            delayInMs: 250,
           });
 
           const path = await run.storeDataAsset({

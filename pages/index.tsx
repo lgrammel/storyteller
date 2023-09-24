@@ -51,11 +51,6 @@ export default function Home() {
       );
 
       for await (const event of events) {
-        // TODO clean this up
-        if (event == null) {
-          continue;
-        }
-
         switch (event.type) {
           case "generated-image": {
             setImageUrl(`${baseUrl}${event.path}`);

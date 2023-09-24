@@ -7,8 +7,8 @@ export function readEvents<T>(
   options?: {
     errorHandler: (error: any) => void;
   }
-): AsyncIterable<T | undefined> {
-  const queue = new AsyncQueue<T | undefined>();
+): AsyncIterable<T> {
+  const queue = new AsyncQueue<T>();
 
   // run async (no await on purpose):
   parseEventSourceReadableStream({
