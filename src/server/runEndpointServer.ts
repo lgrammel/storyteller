@@ -45,12 +45,12 @@ export async function runEndpointServer<INPUT, EVENT>({
   });
 
   server.get(
-    `/${endpoint.name}/:runId/assets/:assetId`,
+    `/${endpoint.name}/:runId/assets/:assetName`,
     async (request, reply) => {
       const runId = (request.params as any).runId; // TODO fix
-      const assetId = (request.params as any).assetId; // TODO fix
+      const assetName = (request.params as any).assetName; // TODO fix
 
-      const asset = runs[runId]?.assets[assetId];
+      const asset = runs[runId]?.assets[assetName];
 
       // TODO errors
       const headers = {

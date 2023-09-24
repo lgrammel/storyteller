@@ -1,30 +1,11 @@
 import { applicationEventSchema } from "@/lib/ApplicationEvent";
-import { AsyncQueue } from "@/lib/AsyncQueue";
-import { delay } from "@/lib/delay";
-import {
-  NarratedStoryParts,
-  expandNarrationArc,
-} from "@/story/expandNarrationArc";
-import { expandNarrationArcExamples } from "@/story/expandNarrationArc.examples";
-import { generateStoryImageFake } from "@/story/generateStoryImage.fake";
-import { generateNarrationArc } from "@/story/generateNarrationArc";
-import { generateNarrationArcExamples } from "@/story/generateNarrationArc.examples";
+import { expandNarrationArcFake } from "@/story/expandNarrationArc.fake";
 import { generateNarrationArcFake } from "@/story/generateNarrationArc.fake";
+import { generateStoryImageFake } from "@/story/generateStoryImage.fake";
 import { fakeNarrateStoryPart } from "@/story/narrateStoryPart.fake";
-import { selectVoices } from "@/story/selectVoices";
 import { selectVoicesExamples } from "@/story/selectVoices.examples";
-import cors from "@fastify/cors";
-import dotenv from "dotenv";
-import Fastify from "fastify";
-import {
-  LmntSpeechSynthesisModel,
-  setGlobalFunctionLogging,
-  synthesizeSpeech,
-} from "modelfusion";
-import { nanoid as createId } from "nanoid";
 import { z } from "zod";
 import { Endpoint } from "./Endpoint";
-import { EndpointRun } from "./EndpointRun";
 
 const inputSchema = z.object({
   topic: z.string(),
@@ -44,7 +25,11 @@ export const generateStoryEndpoing: Endpoint<
     // const narrationArc = await generateNarrationArc(input.topic);
     const narrationArc = await generateNarrationArcFake({ index: 0 });
 
-    // TODO optionally save as asset
+    await run.storeTextAsset({
+      name: "narration-arc.json",
+      contentType: "application/json",
+      text: JSON.stringify(narrationArc),
+    });
 
     run.publishEvent({ type: "generated-title", title: narrationArc.title });
 
@@ -63,9 +48,13 @@ export const generateStoryEndpoing: Endpoint<
 
     // expand into story
     // const story = await expandNarrationArc(narrationArc);
-    const story = expandNarrationArcExamples[0];
+    const story = await expandNarrationArcFake({ index: 0 });
 
-    await delay(2000); // delay for testing
+    await run.storeTextAsset({
+      name: "story.json",
+      contentType: "application/json",
+      text: JSON.stringify(story),
+    });
 
     const storyParts = [
       ...story.introduction,
@@ -73,7 +62,7 @@ export const generateStoryEndpoing: Endpoint<
       ...story.climax,
       ...story.fallingAction,
       ...story.conclusion,
-    ] as NarratedStoryParts; // TODO remove
+    ];
 
     // select voices
     // const voices = await selectVoices(storyParts);
@@ -94,12 +83,16 @@ export const generateStoryEndpoing: Endpoint<
         delayInMs: 1000,
       });
 
-      const path = await run.storeAsset({
+      const path = await run.storeDataAsset({
+        name: `story-part-${i}.mp3`,
         data: narrationAudio,
         contentType: "audio/mpeg",
       });
 
       run.publishEvent({ type: "generated-audio-part", index: i, path });
     }
+
+    // TODO should not be part of the run (but handled by server)
+    await run.saveAssets();
   },
 };
