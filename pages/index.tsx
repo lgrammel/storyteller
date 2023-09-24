@@ -16,10 +16,12 @@ export default function Home() {
   const [title, setTitle] = React.useState<string | null>(null);
   const [audioUrls, setAudioUrls] = React.useState<string[]>([]);
   const [activePart, setActivePart] = React.useState(0);
+  const [generatingStory, setGeneratingStory] = React.useState(false);
 
   const onSubmit = async () => {
     try {
       setWaitingForUserInput(false);
+      setGeneratingStory(true);
 
       const topic = "a tale about an elephant on vacation";
       const baseUrl = "http://localhost:3001";
@@ -62,12 +64,12 @@ export default function Home() {
           }
           case "audioGenerated": {
             audioUrls[event.index] = `${baseUrl}${event.path}`;
-            setAudioUrls(audioUrls);
+            setAudioUrls(audioUrls.slice());
           }
         }
       }
-      console.log("Done");
     } finally {
+      setGeneratingStory(false);
     }
   };
 
@@ -94,17 +96,23 @@ export default function Home() {
                 </div>
               )}
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex justify-between items-center">
               {audioUrls[activePart] != null && (
                 <audio
                   autoPlay
                   controls
                   src={audioUrls[activePart]}
                   onEnded={(e) => {
-                    setActivePart(activePart + 1);
+                    setActivePart(
+                      activePart === audioUrls.length - 1 ? 0 : activePart + 1
+                    );
                   }}
                 />
               )}
+              <span>
+                Part {activePart + 1} /{" "}
+                {generatingStory ? "..." : audioUrls.length}
+              </span>
             </CardFooter>
           </Card>
         </div>
