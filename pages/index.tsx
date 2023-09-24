@@ -57,15 +57,15 @@ export default function Home() {
         }
 
         switch (event.type) {
-          case "imageGenerated": {
+          case "generated-image": {
             setImage(event.image);
             break;
           }
-          case "titleGenerated": {
+          case "generated-title": {
             setTitle(event.title);
             break;
           }
-          case "audioGenerated": {
+          case "generated-audio-part": {
             audioUrls[event.index] = `${baseUrl}${event.path}`;
             setAudioUrls(audioUrls.slice());
           }

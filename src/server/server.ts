@@ -1,14 +1,16 @@
 import { applicationEventSchema } from "@/lib/ApplicationEvent";
 import { AsyncQueue } from "@/lib/AsyncQueue";
+import { delay } from "@/lib/delay";
 import {
   NarratedStoryParts,
   expandNarrationArc,
 } from "@/story/expandNarrationArc";
 import { expandNarrationArcExamples } from "@/story/expandNarrationArc.examples";
-import { fakeGenerateStoryImage } from "@/story/fakeGenerateStoryImage";
+import { generateStoryImageFake } from "@/story/generateStoryImage.fake";
 import { generateNarrationArc } from "@/story/generateNarrationArc";
 import { generateNarrationArcExamples } from "@/story/generateNarrationArc.examples";
-import { fakeNarrateStory } from "@/story/narrateStory.fake";
+import { generateNarrationArcFake } from "@/story/generateNarrationArc.fake";
+import { fakeNarrateStoryPart } from "@/story/narrateStoryPart.fake";
 import { selectVoices } from "@/story/selectVoices";
 import { selectVoicesExamples } from "@/story/selectVoices.examples";
 import cors from "@fastify/cors";
@@ -43,7 +45,7 @@ const endpoint = {
   inputSchema: schema,
   eventSchema,
 
-  async run({
+  async processRequest({
     input,
     storeAsset,
     publishEvent,
@@ -55,35 +57,32 @@ const endpoint = {
       contentType: string;
     }) => Promise<string>;
   }) {
+    // generate high-level story arc
     // const narrationArc = await generateNarrationArc(input.topic);
-    const narrationArc = generateNarrationArcExamples[0];
+    const narrationArc = await generateNarrationArcFake({ index: 0 });
 
-    await delay(2000); // delay for testing
+    // TODO optionally save as asset
 
-    publishEvent({
-      type: "titleGenerated",
-      title: narrationArc.title,
-    });
-
-    await delay(2000); // delay for testing
+    publishEvent({ type: "generated-title", title: narrationArc.title });
 
     // TODO error handling
     // TODO parallelize
+
+    // generate image that represents story:
     // const storyImage = await generateStoryImage(narrationArc);
-    const storyImage = await fakeGenerateStoryImage(
-      "stories/002/story-002.png"
-    );
+    const storyImage = await generateStoryImageFake({
+      path: "stories/002/story-002.png",
+    });
 
     // TODO store as asset, get path
 
-    publishEvent({
-      type: "imageGenerated",
-      image: storyImage,
-    });
+    publishEvent({ type: "generated-image", image: storyImage });
 
     // expand into story
     // const story = await expandNarrationArc(narrationArc);
     const story = expandNarrationArcExamples[0];
+
+    await delay(2000); // delay for testing
 
     const storyParts = [
       ...story.introduction,
@@ -97,11 +96,9 @@ const endpoint = {
     // const voices = await selectVoices(storyParts);
     const voices = selectVoicesExamples[0];
 
-    await delay(2000); // delay for testing
-
-    // narrate
+    // narrate the story:
     for (let i = 0; i < storyParts.length; i++) {
-      const part = storyParts[i];
+      const storyPart = storyParts[i];
 
       // const narration: Buffer = await synthesizeSpeech(
       //   new LmntSpeechSynthesisModel({
@@ -109,22 +106,17 @@ const endpoint = {
       //   }),
       //   part.content
       // );
-      const narration: Buffer = fakeNarrateStory(
-        `stories/002/story-002-${i}.mp3`
-      );
+      const narrationAudio = await fakeNarrateStoryPart({
+        path: `stories/002/story-002-${i}.mp3`,
+        delayInMs: 1000,
+      });
 
       const path = await storeAsset({
-        data: narration,
+        data: narrationAudio,
         contentType: "audio/mpeg",
       });
 
-      publishEvent({
-        type: "audioGenerated",
-        index: i,
-        path,
-      });
-
-      await delay(1000); // delay for testing
+      publishEvent({ type: "generated-audio-part", index: i, path });
     }
   },
 };
@@ -167,7 +159,7 @@ async function main() {
 
     // start longer-running process (no await):
     endpoint
-      .run({
+      .processRequest({
         input: endpoint.inputSchema.parse(request.body),
         publishEvent: (event) => {
           eventQueue.push(event);
@@ -266,7 +258,3 @@ async function main() {
 }
 
 main();
-
-function delay(delayInMs: number) {
-  return new Promise((resolve) => setTimeout(resolve, delayInMs));
-}

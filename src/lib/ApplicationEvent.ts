@@ -2,15 +2,15 @@ import { z } from "zod";
 
 export const applicationEventSchema = z.discriminatedUnion("type", [
   z.object({
-    type: z.literal("titleGenerated"),
+    type: z.literal("generated-title"),
     title: z.string(),
   }),
   z.object({
-    type: z.literal("imageGenerated"),
+    type: z.literal("generated-image"),
     image: z.string(),
   }),
   z.object({
-    type: z.literal("audioGenerated"),
+    type: z.literal("generated-audio-part"),
     index: z.number(),
     path: z.string(),
   }),
