@@ -117,6 +117,8 @@ const endpoint = {
         index: i,
         path,
       });
+
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // delay for testing
     }
   },
 };
