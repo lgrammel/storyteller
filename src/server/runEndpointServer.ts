@@ -2,6 +2,7 @@ import cors from "@fastify/cors";
 import Fastify from "fastify";
 import { Endpoint } from "./Endpoint";
 import { EndpointRun } from "./EndpointRun";
+import { saveEndpointRunAssets } from "./saveEndpointRunAssets";
 
 export async function runEndpointServer<INPUT, EVENT>({
   endpoint,
@@ -34,8 +35,17 @@ export async function runEndpointServer<INPUT, EVENT>({
       .catch((err) => {
         console.error(err);
       })
-      .finally(() => {
+      .finally(async () => {
         run.finish();
+
+        try {
+          await saveEndpointRunAssets({
+            basePath: "stories",
+            run,
+          });
+        } catch (err) {
+          console.error(err);
+        }
       });
 
     return {

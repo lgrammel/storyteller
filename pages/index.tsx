@@ -45,9 +45,7 @@ export default function Home() {
       const events = readEvents(
         eventStreamResponse.body!,
         applicationEventSchema,
-        {
-          errorHandler: console.error,
-        }
+        { errorHandler: console.error }
       );
 
       for await (const event of events) {

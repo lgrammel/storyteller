@@ -1,8 +1,6 @@
 import { AsyncQueue } from "@/lib/AsyncQueue";
 import { nanoid as createId } from "nanoid";
 import { Run } from "modelfusion";
-import { promises as fs } from "fs";
-import { join } from "path";
 
 type Asset = {
   data: Buffer;
@@ -43,22 +41,5 @@ export class EndpointRun<EVENT> implements Run {
 
   finish() {
     this.eventQueue.close();
-  }
-
-  async saveAssets() {
-    // Define the base directory for saving assets
-    const baseDir = "./stories";
-    const endpointDir = join(baseDir, this.endpointName);
-    const runDir = join(endpointDir, this.runId);
-
-    // Ensure the directory structure exists
-    await fs.mkdir(runDir, { recursive: true });
-
-    // Write each asset to the disk
-    for (const assetName in this.assets) {
-      const asset = this.assets[assetName];
-      const assetPath = join(runDir, assetName);
-      await fs.writeFile(assetPath, asset.data);
-    }
   }
 }

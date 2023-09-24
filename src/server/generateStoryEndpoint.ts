@@ -21,8 +21,9 @@ export const generateStoryEndpoing: Endpoint<
   inputSchema,
   eventSchema: applicationEventSchema,
 
+  // TODO error handling
   async processRequest({ input, run }) {
-    // generate high-level story arc
+    // generate high-level story arc:
     // const narrationArc = await generateNarrationArc(input.topic);
     const narrationArc = await generateNarrationArcFake({ index: 0 });
 
@@ -34,65 +35,66 @@ export const generateStoryEndpoing: Endpoint<
 
     run.publishEvent({ type: "generated-title", title: narrationArc.title });
 
-    // TODO error handling
-    // TODO parallelize
+    // Run image generation and story expansion in parallel:
+    await Promise.all([
+      // generate image that represents story:
+      (async () => {
+        // const storyImage = await generateStoryImage(narrationArc);
+        const storyImageBase64 = await generateStoryImageFake({
+          path: "stories/002/story-002.png",
+        });
 
-    // generate image that represents story:
-    // const storyImage = await generateStoryImage(narrationArc);
-    const storyImageBase64 = await generateStoryImageFake({
-      path: "stories/002/story-002.png",
-    });
+        const imagePath = await run.storeDataAsset({
+          name: "story.png",
+          data: Buffer.from(storyImageBase64, "base64"),
+          contentType: "image/png",
+        });
 
-    const imagePath = await run.storeDataAsset({
-      name: "story.png",
-      data: Buffer.from(storyImageBase64, "base64"),
-      contentType: "image/png",
-    });
+        run.publishEvent({ type: "generated-image", path: imagePath });
+      })(),
 
-    run.publishEvent({ type: "generated-image", path: imagePath });
+      // expand and narrate story:
+      (async () => {
+        // const story = await expandNarrationArc(narrationArc);
+        const story = await expandNarrationArcFake({ index: 0 });
 
-    // expand into story
-    // const story = await expandNarrationArc(narrationArc);
-    const story = await expandNarrationArcFake({ index: 0 });
+        await run.storeTextAsset({
+          name: "story.json",
+          contentType: "application/json",
+          text: JSON.stringify(story),
+        });
 
-    await run.storeTextAsset({
-      name: "story.json",
-      contentType: "application/json",
-      text: JSON.stringify(story),
-    });
+        const storyParts = [
+          ...story.introduction,
+          ...story.risingAction,
+          ...story.climax,
+          ...story.fallingAction,
+          ...story.conclusion,
+        ];
 
-    const storyParts = [
-      ...story.introduction,
-      ...story.risingAction,
-      ...story.climax,
-      ...story.fallingAction,
-      ...story.conclusion,
-    ];
+        // select voices
+        // const voices = await selectVoices(storyParts);
+        const voices = selectVoicesExamples[0];
 
-    // select voices
-    // const voices = await selectVoices(storyParts);
-    const voices = selectVoicesExamples[0];
+        // narrate the story:
+        for (let i = 0; i < storyParts.length; i++) {
+          const storyPart = storyParts[i];
 
-    // narrate the story:
-    for (let i = 0; i < storyParts.length; i++) {
-      const storyPart = storyParts[i];
+          // const narrationAudio = await narrateStoryPart({ storyPart, voices });
+          const narrationAudio = await narrateStoryPartFake({
+            path: `stories/002/story-002-${i}.mp3`,
+            delayInMs: 1000,
+          });
 
-      // const narrationAudio = await narrateStoryPart({ storyPart, voices });
-      const narrationAudio = await narrateStoryPartFake({
-        path: `stories/002/story-002-${i}.mp3`,
-        delayInMs: 1000,
-      });
+          const path = await run.storeDataAsset({
+            name: `story-part-${i}.mp3`,
+            data: narrationAudio,
+            contentType: "audio/mpeg",
+          });
 
-      const path = await run.storeDataAsset({
-        name: `story-part-${i}.mp3`,
-        data: narrationAudio,
-        contentType: "audio/mpeg",
-      });
-
-      run.publishEvent({ type: "generated-audio-part", index: i, path });
-    }
-
-    // TODO should not be part of the run (but handled by server)
-    await run.saveAssets();
+          run.publishEvent({ type: "generated-audio-part", index: i, path });
+        }
+      })(),
+    ]);
   },
 };
