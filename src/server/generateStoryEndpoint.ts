@@ -39,13 +39,7 @@ export const generateStoryEndpoing: Endpoint<
   inputSchema,
   eventSchema: applicationEventSchema,
 
-  async processRequest({
-    input,
-    run,
-  }: {
-    input: z.infer<typeof inputSchema>;
-    run: EndpointRun<z.infer<typeof applicationEventSchema>>;
-  }) {
+  async processRequest({ input, run }) {
     // generate high-level story arc
     // const narrationArc = await generateNarrationArc(input.topic);
     const narrationArc = await generateNarrationArcFake({ index: 0 });
