@@ -1,3 +1,11 @@
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { applicationEventSchema } from "@/lib/ApplicationEvent";
 import { readEvents } from "@/lib/readEvents";
 import React from "react";
@@ -68,26 +76,38 @@ export default function Home() {
       {waitingForUserInput ? (
         <button onClick={onSubmit}>Generate Story</button>
       ) : (
-        <>
-          {title && <h2>{title}</h2>}
-          {audioUrls[activePart] != null && (
-            <audio
-              autoPlay
-              controls
-              src={audioUrls[activePart]}
-              onEnded={(e) => {
-                setActivePart(activePart + 1);
-              }}
-            />
-          )}
-          {image && (
-            <img
-              src={`data:image/png;base64,${image}`}
-              alt={title ?? ""}
-              style={{ maxWidth: "100%" }}
-            />
-          )}
-        </>
+        <div className="mx-auto p-5 max-w-[542px]">
+          <Card>
+            <CardHeader>
+              <CardTitle>{title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {image && (
+                <div className="w-full">
+                  <AspectRatio ratio={1 / 1}>
+                    <img
+                      src={`data:image/png;base64,${image}`}
+                      alt={title ?? ""}
+                      className="rounded-md object-cover w-full"
+                    />
+                  </AspectRatio>
+                </div>
+              )}
+            </CardContent>
+            <CardFooter>
+              {audioUrls[activePart] != null && (
+                <audio
+                  autoPlay
+                  controls
+                  src={audioUrls[activePart]}
+                  onEnded={(e) => {
+                    setActivePart(activePart + 1);
+                  }}
+                />
+              )}
+            </CardFooter>
+          </Card>
+        </div>
       )}
     </>
   );
