@@ -58,10 +58,14 @@ const endpoint = {
     // const narrationArc = await generateNarrationArc(input.topic);
     const narrationArc = generateNarrationArcExamples[0];
 
+    await delay(2000); // delay for testing
+
     publishEvent({
       type: "titleGenerated",
       title: narrationArc.title,
     });
+
+    await delay(2000); // delay for testing
 
     // TODO error handling
     // TODO parallelize
@@ -93,6 +97,8 @@ const endpoint = {
     // const voices = await selectVoices(storyParts);
     const voices = selectVoicesExamples[0];
 
+    await delay(2000); // delay for testing
+
     // narrate
     for (let i = 0; i < storyParts.length; i++) {
       const part = storyParts[i];
@@ -118,7 +124,7 @@ const endpoint = {
         path,
       });
 
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // delay for testing
+      await delay(1000); // delay for testing
     }
   },
 };
@@ -260,3 +266,7 @@ async function main() {
 }
 
 main();
+
+function delay(delayInMs: number) {
+  return new Promise((resolve) => setTimeout(resolve, delayInMs));
+}

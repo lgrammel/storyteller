@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { applicationEventSchema } from "@/lib/ApplicationEvent";
 import { readEvents } from "@/lib/readEvents";
 import React from "react";
@@ -92,10 +93,12 @@ export default function Home() {
         <div className="mx-auto p-5 max-w-[542px]">
           <Card>
             <CardHeader>
-              <CardTitle>{title}</CardTitle>
+              <CardTitle>
+                {title ?? <Skeleton className="h-10 w-full" />}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              {image && (
+              {image != null ? (
                 <div className="w-full">
                   <AspectRatio ratio={1 / 1}>
                     <img
@@ -105,22 +108,28 @@ export default function Home() {
                     />
                   </AspectRatio>
                 </div>
+              ) : (
+                <Skeleton className="h-52 w-full" />
               )}
             </CardContent>
             <CardFooter className="flex justify-between items-center">
-              {audioUrls[activePart] != null && (
-                <audio
-                  controls
-                  controlsList="nodownload nofullscreen noremoteplayback"
-                  autoPlay={shouldAutoPlay}
-                  src={audioUrls[activePart]}
-                  onEnded={onPlaybackEnded}
-                />
+              {audioUrls[activePart] != null ? (
+                <>
+                  <audio
+                    controls
+                    controlsList="nodownload nofullscreen noremoteplayback"
+                    autoPlay={shouldAutoPlay}
+                    src={audioUrls[activePart]}
+                    onEnded={onPlaybackEnded}
+                  />
+                  <span>
+                    Part {activePart + 1} /{" "}
+                    {generatingStory ? "..." : audioUrls.length}
+                  </span>
+                </>
+              ) : (
+                <Skeleton className="h-12 w-full" />
               )}
-              <span>
-                Part {activePart + 1} /{" "}
-                {generatingStory ? "..." : audioUrls.length}
-              </span>
             </CardFooter>
           </Card>
         </div>
