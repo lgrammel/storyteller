@@ -24,31 +24,27 @@ import {
 import { nanoid as createId } from "nanoid";
 import { z } from "zod";
 import { Endpoint } from "./Endpoint";
+import { EndpointRun } from "./EndpointRun";
 
-const schema = z.object({
+const inputSchema = z.object({
   topic: z.string(),
 });
 
 export const generateStoryEndpoing: Endpoint<
-  z.infer<typeof schema>,
+  z.infer<typeof inputSchema>,
   z.infer<typeof applicationEventSchema>
 > = {
   name: "generate-story",
 
-  inputSchema: schema,
+  inputSchema,
   eventSchema: applicationEventSchema,
 
   async processRequest({
     input,
-    storeAsset,
-    publishEvent,
+    run,
   }: {
-    input: z.infer<typeof schema>;
-    publishEvent: (event: z.infer<typeof applicationEventSchema>) => void;
-    storeAsset: (options: {
-      data: Buffer;
-      contentType: string;
-    }) => Promise<string>;
+    input: z.infer<typeof inputSchema>;
+    run: EndpointRun<z.infer<typeof applicationEventSchema>>;
   }) {
     // generate high-level story arc
     // const narrationArc = await generateNarrationArc(input.topic);
@@ -56,7 +52,7 @@ export const generateStoryEndpoing: Endpoint<
 
     // TODO optionally save as asset
 
-    publishEvent({ type: "generated-title", title: narrationArc.title });
+    run.publishEvent({ type: "generated-title", title: narrationArc.title });
 
     // TODO error handling
     // TODO parallelize
@@ -69,7 +65,7 @@ export const generateStoryEndpoing: Endpoint<
 
     // TODO store as asset, get path
 
-    publishEvent({ type: "generated-image", image: storyImage });
+    run.publishEvent({ type: "generated-image", image: storyImage });
 
     // expand into story
     // const story = await expandNarrationArc(narrationArc);
@@ -104,12 +100,12 @@ export const generateStoryEndpoing: Endpoint<
         delayInMs: 1000,
       });
 
-      const path = await storeAsset({
+      const path = await run.storeAsset({
         data: narrationAudio,
         contentType: "audio/mpeg",
       });
 
-      publishEvent({ type: "generated-audio-part", index: i, path });
+      run.publishEvent({ type: "generated-audio-part", index: i, path });
     }
   },
 };

@@ -1,9 +1,7 @@
-import { AsyncQueue } from "@/lib/AsyncQueue";
 import cors from "@fastify/cors";
 import Fastify from "fastify";
-import { nanoid as createId } from "nanoid";
-import { z } from "zod";
 import { Endpoint } from "./Endpoint";
+import { EndpointRun } from "./EndpointRun";
 
 export async function runEndpointServer<INPUT, EVENT>({
   endpoint,
@@ -18,56 +16,31 @@ export async function runEndpointServer<INPUT, EVENT>({
 
   await server.register(cors, {});
 
-  const runs: Record<
-    string,
-    {
-      eventQueue: AsyncQueue<EVENT>;
-      storage: Storage;
-    }
-  > = {};
-
-  type Storage = Record<
-    string,
-    {
-      data: Buffer;
-      contentType: string;
-    }
-  >;
+  const runs: Record<string, EndpointRun<EVENT>> = {};
 
   server.post(`/${endpoint.name}`, async (request) => {
-    const runId = createId();
+    const run = new EndpointRun<EVENT>({
+      endpointName: endpoint.name,
+    });
 
-    const eventQueue = new AsyncQueue<z.infer<typeof endpoint.eventSchema>>();
-    const storage: Storage = {};
-
-    runs[runId] = {
-      eventQueue,
-      storage,
-    };
+    runs[run.runId] = run;
 
     // start longer-running process (no await):
     endpoint
       .processRequest({
         input: endpoint.inputSchema.parse(request.body),
-        publishEvent: (event) => {
-          eventQueue.push(event);
-        },
-        storeAsset: async (options: { data: Buffer; contentType: string }) => {
-          const id = createId();
-          storage[id] = options;
-          return `/${endpoint.name}/${runId}/assets/${id}`;
-        },
+        run,
       })
       .catch((err) => {
         console.error(err);
       })
       .finally(() => {
-        eventQueue.close();
+        run.finish();
       });
 
     return {
-      id: runId,
-      path: `/${endpoint.name}/${runId}/events`,
+      id: run.runId,
+      path: `/${endpoint.name}/${run.runId}/events`,
     };
   });
 
@@ -77,7 +50,7 @@ export async function runEndpointServer<INPUT, EVENT>({
       const runId = (request.params as any).runId; // TODO fix
       const assetId = (request.params as any).assetId; // TODO fix
 
-      const asset = runs[runId]?.storage[assetId];
+      const asset = runs[runId]?.assets[assetId];
 
       // TODO errors
       const headers = {
