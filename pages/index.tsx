@@ -17,11 +17,13 @@ export default function Home() {
   const [audioUrls, setAudioUrls] = React.useState<string[]>([]);
   const [activePart, setActivePart] = React.useState(0);
   const [generatingStory, setGeneratingStory] = React.useState(false);
+  const [shouldAutoPlay, setShouldAutoPlay] = React.useState(false);
 
   const onSubmit = async () => {
     try {
       setWaitingForUserInput(false);
       setGeneratingStory(true);
+      setShouldAutoPlay(true);
 
       const topic = "a tale about an elephant on vacation";
       const baseUrl = "http://localhost:3001";
@@ -99,13 +101,16 @@ export default function Home() {
             <CardFooter className="flex justify-between items-center">
               {audioUrls[activePart] != null && (
                 <audio
-                  autoPlay
+                  autoPlay={shouldAutoPlay}
                   controls
                   src={audioUrls[activePart]}
                   onEnded={(e) => {
-                    setActivePart(
-                      activePart === audioUrls.length - 1 ? 0 : activePart + 1
-                    );
+                    if (activePart === audioUrls.length - 1) {
+                      setActivePart(0);
+                      setShouldAutoPlay(false);
+                    } else {
+                      setActivePart(activePart + 1);
+                    }
                   }}
                 />
               )}
