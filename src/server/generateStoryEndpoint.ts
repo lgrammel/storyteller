@@ -39,13 +39,17 @@ export const generateStoryEndpoing: Endpoint<
 
     // generate image that represents story:
     // const storyImage = await generateStoryImage(narrationArc);
-    const storyImage = await generateStoryImageFake({
+    const storyImageBase64 = await generateStoryImageFake({
       path: "stories/002/story-002.png",
     });
 
-    // TODO store as asset, get path
+    const imagePath = await run.storeDataAsset({
+      name: "story.png",
+      data: Buffer.from(storyImageBase64, "base64"),
+      contentType: "image/png",
+    });
 
-    run.publishEvent({ type: "generated-image", image: storyImage });
+    run.publishEvent({ type: "generated-image", path: imagePath });
 
     // expand into story
     // const story = await expandNarrationArc(narrationArc);

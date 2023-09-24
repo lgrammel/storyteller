@@ -13,7 +13,7 @@ import React from "react";
 
 export default function Home() {
   const [waitingForUserInput, setWaitingForUserInput] = React.useState(true);
-  const [image, setImage] = React.useState<string | null>(null);
+  const [imageUrl, setImageUrl] = React.useState<string | null>(null);
   const [title, setTitle] = React.useState<string | null>(null);
   const [audioUrls, setAudioUrls] = React.useState<string[]>([]);
   const [activePart, setActivePart] = React.useState(0);
@@ -58,7 +58,7 @@ export default function Home() {
 
         switch (event.type) {
           case "generated-image": {
-            setImage(event.image);
+            setImageUrl(`${baseUrl}${event.path}`);
             break;
           }
           case "generated-title": {
@@ -98,11 +98,11 @@ export default function Home() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {image != null ? (
+              {imageUrl != null ? (
                 <div className="w-full">
                   <AspectRatio ratio={1 / 1}>
                     <img
-                      src={`data:image/png;base64,${image}`}
+                      src={imageUrl}
                       alt={title ?? ""}
                       className="rounded-md object-cover w-full"
                     />

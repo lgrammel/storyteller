@@ -7,7 +7,7 @@ export const applicationEventSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("generated-image"),
-    image: z.string(),
+    path: z.string(),
   }),
   z.object({
     type: z.literal("generated-audio-part"),
