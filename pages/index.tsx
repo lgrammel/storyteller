@@ -75,6 +75,15 @@ export default function Home() {
     }
   };
 
+  const onPlaybackEnded = () => {
+    if (activePart === audioUrls.length - 1) {
+      setActivePart(0);
+      setShouldAutoPlay(false);
+    } else {
+      setActivePart(activePart + 1);
+    }
+  };
+
   return (
     <>
       {waitingForUserInput ? (
@@ -101,17 +110,11 @@ export default function Home() {
             <CardFooter className="flex justify-between items-center">
               {audioUrls[activePart] != null && (
                 <audio
-                  autoPlay={shouldAutoPlay}
                   controls
+                  controlsList="nodownload nofullscreen noremoteplayback"
+                  autoPlay={shouldAutoPlay}
                   src={audioUrls[activePart]}
-                  onEnded={(e) => {
-                    if (activePart === audioUrls.length - 1) {
-                      setActivePart(0);
-                      setShouldAutoPlay(false);
-                    } else {
-                      setActivePart(activePart + 1);
-                    }
-                  }}
+                  onEnded={onPlaybackEnded}
                 />
               )}
               <span>
