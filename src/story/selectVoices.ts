@@ -11,9 +11,9 @@ import {
 import { voiceSchema } from "./voice";
 import { voices } from "./voices";
 import { z } from "zod";
-import { NarratedStoryParts } from "./expandNarrationArc";
+import { NarratedStoryPart } from "./NarratedStoryPart";
 
-export async function selectVoices(storyParts: NarratedStoryParts) {
+export async function selectVoices(storyParts: NarratedStoryPart[]) {
   const voicesIndex = await MemoryVectorIndex.deserialize({
     serializedData: JSON.stringify(voices),
     schema: voiceSchema,

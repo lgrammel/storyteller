@@ -1,6 +1,6 @@
 import { delay } from "@/lib/delay";
+import { NarratedStoryPart } from "./NarratedStoryPart";
 import { expandNarrationArcExamples } from "./expandNarrationArc.examples";
-import { NarratedStoryParts } from "./expandNarrationArc";
 
 export async function expandNarrationArcFake({
   index,
@@ -9,18 +9,18 @@ export async function expandNarrationArcFake({
   index: number;
   delayInMs?: number;
 }): Promise<{
-  introduction: NarratedStoryParts;
-  risingAction: NarratedStoryParts;
-  climax: NarratedStoryParts;
-  fallingAction: NarratedStoryParts;
-  conclusion: NarratedStoryParts;
+  introduction: NarratedStoryPart[];
+  risingAction: NarratedStoryPart[];
+  climax: NarratedStoryPart[];
+  fallingAction: NarratedStoryPart[];
+  conclusion: NarratedStoryPart[];
 }> {
   await delay(delayInMs);
   return expandNarrationArcExamples[index] as {
-    introduction: NarratedStoryParts;
-    risingAction: NarratedStoryParts;
-    climax: NarratedStoryParts;
-    fallingAction: NarratedStoryParts;
-    conclusion: NarratedStoryParts;
+    introduction: NarratedStoryPart[];
+    risingAction: NarratedStoryPart[];
+    climax: NarratedStoryPart[];
+    fallingAction: NarratedStoryPart[];
+    conclusion: NarratedStoryPart[];
   };
 }

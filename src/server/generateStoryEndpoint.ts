@@ -2,10 +2,11 @@ import { applicationEventSchema } from "@/lib/ApplicationEvent";
 import { expandNarrationArcFake } from "@/story/expandNarrationArc.fake";
 import { generateNarrationArcFake } from "@/story/generateNarrationArc.fake";
 import { generateStoryImageFake } from "@/story/generateStoryImage.fake";
-import { fakeNarrateStoryPart } from "@/story/narrateStoryPart.fake";
+import { narrateStoryPartFake } from "@/story/narrateStoryPart.fake";
 import { selectVoicesExamples } from "@/story/selectVoices.examples";
 import { z } from "zod";
 import { Endpoint } from "./Endpoint";
+import { narrateStoryPart } from "@/story/narrateStoryPart";
 
 const inputSchema = z.object({
   topic: z.string(),
@@ -72,13 +73,8 @@ export const generateStoryEndpoing: Endpoint<
     for (let i = 0; i < storyParts.length; i++) {
       const storyPart = storyParts[i];
 
-      // const narration: Buffer = await synthesizeSpeech(
-      //   new LmntSpeechSynthesisModel({
-      //     voice: voices[part.speaker as keyof typeof voices],
-      //   }),
-      //   part.content
-      // );
-      const narrationAudio = await fakeNarrateStoryPart({
+      // const narrationAudio = await narrateStoryPart({ storyPart, voices });
+      const narrationAudio = await narrateStoryPartFake({
         path: `stories/002/story-002-${i}.mp3`,
         delayInMs: 1000,
       });

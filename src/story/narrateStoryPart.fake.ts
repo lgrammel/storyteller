@@ -1,7 +1,7 @@
 import { delay } from "@/lib/delay";
 import { readFileSync } from "fs";
 
-export async function fakeNarrateStoryPart({
+export async function narrateStoryPartFake({
   path,
   delayInMs = 2000,
 }: {
