@@ -9,9 +9,9 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { applicationEventSchema } from "@/lib/ApplicationEvent";
-import { readEvents } from "@/lib/readEvents";
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { readEventSourceStream } from "modelfusion";
 
 export default function Home() {
   const [waitingForUserInput, setWaitingForUserInput] = React.useState(true);
@@ -44,11 +44,11 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
       });
 
-      const events = readEvents(
-        eventStreamResponse.body!,
-        applicationEventSchema,
-        { errorHandler: console.error }
-      );
+      const events = readEventSourceStream({
+        stream: eventStreamResponse.body!,
+        schema: applicationEventSchema,
+        errorHandler: console.error,
+      });
 
       for await (const event of events) {
         switch (event.type) {

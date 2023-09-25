@@ -1,6 +1,5 @@
-import { AsyncQueue } from "@/lib/AsyncQueue";
+import { AsyncQueue, Run } from "modelfusion";
 import { nanoid as createId } from "nanoid";
-import { Run } from "modelfusion";
 
 type Asset = {
   data: Buffer;

@@ -101,10 +101,6 @@ export async function runEndpointServer<INPUT, EVENT>({
 
     const textEncoder = new TextEncoder();
     for await (const event of eventQueue) {
-      if (event == null) {
-        continue;
-      }
-
       if (reply.raw.destroyed) {
         console.log("client disconnected");
         break;
