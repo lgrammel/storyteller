@@ -1,5 +1,6 @@
 import { AsyncQueue } from "@/lib/AsyncQueue";
 import { parseEventSourceReadableStream } from "@/lib/parseEventSourceReadableStream";
+import SecureJSON from "secure-json-parse";
 
 export function readEvents<T>(
   stream: ReadableStream<Uint8Array>,
@@ -11,27 +12,22 @@ export function readEvents<T>(
   const queue = new AsyncQueue<T>();
 
   // run async (no await on purpose):
-  parseEventSourceReadableStream({
-    stream,
-    callback: {
-      onClose() {
-        queue.close();
-      },
-      onError(error) {
-        options?.errorHandler(error);
-        queue.close();
-      },
-      onEvent(event) {
-        try {
-          // TODO SecureJSON
-          queue.push(schema.parse(JSON.parse(event.data)));
-        } catch (error) {
-          options?.errorHandler(error);
-          queue.close();
+  parseEventSourceReadableStream({ stream })
+    .then(async (events) => {
+      try {
+        for await (const event of events) {
+          queue.push(schema.parse(SecureJSON.parse(event.data)));
         }
-      },
-    },
-  });
+      } catch (error) {
+        options?.errorHandler(error);
+      } finally {
+        queue.close();
+      }
+    })
+    .catch((error) => {
+      options?.errorHandler(error);
+      queue.close();
+    });
 
   return queue;
 }

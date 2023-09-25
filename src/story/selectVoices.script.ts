@@ -1,12 +1,23 @@
 import dotenv from "dotenv";
 import { expandNarrationArcExamples } from "./expandNarrationArc.examples";
 import { selectVoices } from "./selectVoices";
+import { NarratedStoryPart } from "./NarratedStoryPart";
 
 dotenv.config();
 
 async function main() {
   try {
-    const speakerToVoiceId = await selectVoices(expandNarrationArcExamples[0]);
+    const story = expandNarrationArcExamples[0];
+
+    const storyParts = [
+      ...story.introduction,
+      ...story.risingAction,
+      ...story.climax,
+      ...story.fallingAction,
+      ...story.conclusion,
+    ] as NarratedStoryPart[];
+
+    const speakerToVoiceId = await selectVoices(storyParts);
 
     console.log(JSON.stringify(speakerToVoiceId, null, 2));
 
