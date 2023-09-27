@@ -1,4 +1,5 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,9 +10,9 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { applicationEventSchema } from "@/lib/ApplicationEvent";
-import React, { useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Loader2, Mic } from "lucide-react";
 import { readEventSourceStream } from "modelfusion";
+import { useRef, useState } from "react";
 
 export default function Home() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -135,7 +136,7 @@ export default function Home() {
           <CardHeader>
             <CardTitle>Story Teller</CardTitle>
             <CardDescription>
-              An automated story generation experiment.
+              Automatically generate stories for pre-school kids.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -148,7 +149,17 @@ export default function Home() {
               onContextMenu={(e) => e.preventDefault()}
               variant="outline"
             >
-              Generate Story for Pre-Schoolers
+              {!isRecording ? (
+                <>
+                  <Mic className="mr-2 h-4 w-4" />
+                  Record topic
+                </>
+              ) : (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <i>Recording…</i>
+                </>
+              )}
             </Button>
           </CardContent>
         </Card>
