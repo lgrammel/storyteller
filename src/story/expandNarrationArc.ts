@@ -8,7 +8,7 @@ import { z } from "zod";
 import { narratedStoryPartSchema } from "./NarratedStoryPart";
 import { NarrationArc } from "./generateNarrationArc";
 
-const structuredStorySchema = z.object({
+export const structuredStorySchema = z.object({
   introduction: z
     .array(narratedStoryPartSchema)
     .describe("Introduction. 5-150 words."),

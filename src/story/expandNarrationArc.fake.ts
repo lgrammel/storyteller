@@ -17,7 +17,6 @@ export async function expandNarrationArcFake({
 export async function expandNarrationArcFakeStream({
   delayInMs = 2000,
 }: {
-  index: number;
   delayInMs?: number;
 }): Promise<AsyncIterable<StructureStreamPart<StructuredStory>>> {
   const queue = new AsyncQueue<StructureStreamPart<StructuredStory>>();
@@ -70,6 +69,35 @@ export async function expandNarrationArcFakeStream({
         risingAction: [
           expandNarrationArcExamples[0].risingAction[0],
           expandNarrationArcExamples[0].risingAction[1],
+        ],
+      },
+    });
+
+    await delay(delayInMs);
+
+    queue.push({
+      isComplete: false,
+      value: {
+        introduction: expandNarrationArcExamples[0].introduction,
+        risingAction: [
+          expandNarrationArcExamples[0].risingAction[0],
+          expandNarrationArcExamples[0].risingAction[1],
+          expandNarrationArcExamples[0].risingAction[2],
+        ],
+      },
+    });
+
+    await delay(delayInMs);
+
+    queue.push({
+      isComplete: false,
+      value: {
+        introduction: expandNarrationArcExamples[0].introduction,
+        risingAction: [
+          expandNarrationArcExamples[0].risingAction[0],
+          expandNarrationArcExamples[0].risingAction[1],
+          expandNarrationArcExamples[0].risingAction[2],
+          expandNarrationArcExamples[0].risingAction[3],
         ],
       },
     });
