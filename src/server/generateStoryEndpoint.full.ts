@@ -16,39 +16,68 @@ import { z } from "zod";
 import { Endpoint } from "./Endpoint";
 import { OpenAITranscriptionModel, transcribe } from "modelfusion";
 
-export const generateStoryEndpoint: Endpoint<
+export const generateStoryEndpoingFull: Endpoint<
   z.infer<typeof applicationEventSchema>
 > = {
   name: "generate-story",
 
   eventSchema: applicationEventSchema,
 
+  // TODO error handling
   async processRequest({ input, run }) {
+    await run.storeDataAsset({
+      name: `input.mp3`,
+      data: input,
+      contentType: "audio/mpeg",
+    });
+
+    // transcribe:
     const transcription = await transcribe(
       new OpenAITranscriptionModel({ model: "whisper-1" }),
-      { type: "mp3", data: input },
-      { run }
+      { type: "mp3", data: input }
     );
+
+    await run.storeTextAsset({
+      name: "topic.txt",
+      contentType: "text/plain",
+      text: transcription,
+    });
 
     run.publishEvent({
       type: "transcribed-input",
       input: transcription,
     });
 
+    // generate high-level story arc:
     const narrationArc = await generateNarrationArc(transcription);
+    // const narrationArc = await generateNarrationArcFake({ index: 0 });
 
-    // Run in parallel:
+    await run.storeTextAsset({
+      name: "narration-arc.txt",
+      contentType: "text/plain",
+      text: narrationArc,
+    });
+
+    // Run image generation and story expansion in parallel:
     await Promise.all([
-      // generate title:
+      // generate title
       (async () => {
         const title = await generateTitle(narrationArc);
 
         run.publishEvent({ type: "generated-title", title });
-      })(),
 
+        await run.storeTextAsset({
+          name: "title.txt",
+          contentType: "text/plain",
+          text: title,
+        });
+      })(),
       // generate image that represents story:
       (async () => {
         const storyImageBase64 = await generateStoryImage(narrationArc);
+        // const storyImageBase64 = await generateStoryImageFake({
+        //   path: "stories/002/story-002.png",
+        // });
 
         const imagePath = await run.storeDataAsset({
           name: "story.png",
@@ -62,6 +91,9 @@ export const generateStoryEndpoint: Endpoint<
       // expand and narrate story:
       (async () => {
         const storyStream = await expandNarrationArc(narrationArc);
+        // const storyStream = await expandNarrationArcFakeStream({
+        //   delayInMs: 500,
+        // });
 
         const processedParts: Array<NarratedStoryPart> = [];
         const speakerToVoiceId = new Map<string, string>();
@@ -83,6 +115,10 @@ export const generateStoryEndpoint: Endpoint<
           }
 
           const narrationAudio = await narrateStoryPart({ storyPart, voiceId });
+          // const narrationAudio = await narrateStoryPartFake({
+          //   path: `stories/002/story-002-${i}.mp3`,
+          //   delayInMs: 250,
+          // });
 
           const path = await run.storeDataAsset({
             name: `story-part-${index}.mp3`,
