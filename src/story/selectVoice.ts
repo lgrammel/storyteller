@@ -1,62 +1,47 @@
 import {
   MemoryVectorIndex,
-  OpenAIChatMessage,
-  OpenAIChatModel,
   OpenAITextEmbeddingModel,
+  OpenAITextGenerationModel,
   VectorIndexRetriever,
-  ZodStructureDefinition,
-  generateStructure,
+  generateText,
   retrieve,
 } from "modelfusion";
 import { voiceSchema } from "./voice";
 import { voices } from "./voices";
-import { z } from "zod";
-import { NarratedStoryPart } from "./NarratedStoryPart";
 
-export async function selectVoices(storyParts: NarratedStoryPart[]) {
+export async function selectVoice({
+  story,
+  speaker,
+  unavailableVoiceIds,
+}: {
+  story: string;
+  speaker: string;
+  unavailableVoiceIds: string[];
+}): Promise<string> {
   const voicesIndex = await MemoryVectorIndex.deserialize({
     serializedData: JSON.stringify(voices),
     schema: voiceSchema,
   });
 
-  // extract all unique speakers:
-  const speakerSet = new Set<string>();
-  for (const part of storyParts) {
-    speakerSet.add(part.speaker);
-  }
-  const speakers = Array.from(speakerSet);
-
   // generate voice descriptions for the speakers:
-  const voiceDescriptions = await generateStructure(
-    new OpenAIChatModel({
-      model: "gpt-4",
+  const voiceDescription = await generateText(
+    new OpenAITextGenerationModel({
+      model: "gpt-3.5-turbo-instruct",
       temperature: 0,
-    }),
-    new ZodStructureDefinition({
-      name: "voices",
-      description: "Voice descriptions for an audio story for kids.",
-      schema: z.object(
-        Object.fromEntries(
-          speakers.map((speaker) => [
-            speaker,
-            z.object({
-              gender: z.enum(["M", "F"]),
-              voice: z.string(),
-            }),
-          ])
-        )
-      ),
+      stopSequences: ['"'],
     }),
     [
-      OpenAIChatMessage.user(
-        [
-          "Generate voice descriptions for each speaker from the following story for an audio book.",
-          "The voices should be appropriate for a preschooler listener.",
-        ].join("\n")
-      ),
-      OpenAIChatMessage.functionResult("story", JSON.stringify(storyParts)),
-    ]
+      `Generate a voice description for ${speaker} from the following story for an audio book.`,
+      "The voice should be appropriate for a preschooler listener.",
+      "Include the gender and age in the voice description.",
+      "",
+      `Story: ${story}`,
+      "",
+      'Voice description: "',
+    ].join("\n")
   );
+
+  console.log(voiceDescription);
 
   // retrieve the voice vectors from the index:
   // TODO need to be able to segment male / female voices via pre-filtering
@@ -69,28 +54,16 @@ export async function selectVoices(storyParts: NarratedStoryPart[]) {
     similarityThreshold: 0.2,
   });
 
-  const usedVoiceIds: string[] = [];
-  const speakerToVoiceId: Record<string, string> = {};
+  const potentialVoices = await retrieve(retriever, voiceDescription);
 
-  for (const speaker of speakers) {
-    const potentialVoices = await retrieve(
-      retriever,
-      (voiceDescriptions[speaker].gender === "M"
-        ? "Male voice. "
-        : "Female voice. ") + voiceDescriptions[speaker].voice
-    );
+  const voice = potentialVoices.find(
+    (voice) => !unavailableVoiceIds.includes(voice.id)
+  );
 
-    const voice = potentialVoices.find(
-      (voice) => !usedVoiceIds.includes(voice.id)
-    );
-
-    // TODO how to avoid / handle? reuse voices?
-    if (!voice) {
-      throw new Error(`No voice found for ${speaker}`);
-    }
-
-    usedVoiceIds.push(voice.id);
-    speakerToVoiceId[speaker] = voice.id;
+  // TODO how to avoid / handle? reuse voices?
+  if (!voice) {
+    throw new Error(`No voice found for ${speaker}`);
   }
-  return speakerToVoiceId;
+
+  return voice.id;
 }

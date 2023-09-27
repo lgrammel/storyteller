@@ -1,20 +1,19 @@
 import { applicationEventSchema } from "@/lib/ApplicationEvent";
 import {
-  expandNarrationArcFake,
-  expandNarrationArcFakeStream,
-} from "@/story/expandNarrationArc.fake";
-import { generateNarrationArcFake } from "@/story/generateNarrationArc.fake";
-import { generateStoryImageFake } from "@/story/generateStoryImage.fake";
-import { narrateStoryPartFake } from "@/story/narrateStoryPart.fake";
-import { selectVoicesExamples } from "@/story/selectVoices.examples";
-import { z } from "zod";
-import { Endpoint } from "./Endpoint";
-import { narrateStoryPart } from "@/story/narrateStoryPart";
-import { structuredStorySchema } from "@/story/expandNarrationArc";
-import {
   NarratedStoryPart,
   narratedStoryPartSchema,
 } from "@/story/NarratedStoryPart";
+import {
+  expandNarrationArc,
+  structuredStorySchema,
+} from "@/story/expandNarrationArc";
+import { generateNarrationArc } from "@/story/generateNarrationArc";
+import { generateStoryImage } from "@/story/generateStoryImage";
+import { generateTitle } from "@/story/generateTitle";
+import { narrateStoryPart } from "@/story/narrateStoryPart";
+import { selectVoice } from "@/story/selectVoice";
+import { z } from "zod";
+import { Endpoint } from "./Endpoint";
 
 const inputSchema = z.object({
   topic: z.string(),
@@ -32,25 +31,35 @@ export const generateStoryEndpoing: Endpoint<
   // TODO error handling
   async processRequest({ input, run }) {
     // generate high-level story arc:
-    // const narrationArc = await generateNarrationArc(input.topic);
-    const narrationArc = await generateNarrationArcFake({ index: 0 });
+    const narrationArc = await generateNarrationArc(input.topic);
+    // const narrationArc = await generateNarrationArcFake({ index: 0 });
 
     await run.storeTextAsset({
       name: "narration-arc.json",
-      contentType: "application/json",
+      contentType: "text/json",
       text: JSON.stringify(narrationArc),
     });
 
-    run.publishEvent({ type: "generated-title", title: narrationArc.title });
-
     // Run image generation and story expansion in parallel:
     await Promise.all([
+      // generate title
+      (async () => {
+        const title = await generateTitle(narrationArc);
+
+        run.publishEvent({ type: "generated-title", title });
+
+        await run.storeTextAsset({
+          name: "title.json",
+          contentType: "text/json",
+          text: JSON.stringify(title),
+        });
+      })(),
       // generate image that represents story:
       (async () => {
-        // const storyImage = await generateStoryImage(narrationArc);
-        const storyImageBase64 = await generateStoryImageFake({
-          path: "stories/002/story-002.png",
-        });
+        const storyImageBase64 = await generateStoryImage(narrationArc);
+        // const storyImageBase64 = await generateStoryImageFake({
+        //   path: "stories/002/story-002.png",
+        // });
 
         const imagePath = await run.storeDataAsset({
           name: "story.png",
@@ -63,15 +72,48 @@ export const generateStoryEndpoing: Endpoint<
 
       // expand and narrate story:
       (async () => {
-        // const story = await expandNarrationArc(narrationArc);
-        const storyStream = await expandNarrationArcFakeStream({
-          delayInMs: 500,
-        });
+        const storyStream = await expandNarrationArc(narrationArc);
+        // const storyStream = await expandNarrationArcFakeStream({
+        //   delayInMs: 500,
+        // });
 
         const processedParts: Array<NarratedStoryPart> = [];
         const speakerToVoiceId = new Map<string, string>();
 
-        async function processNewPart(part: NarratedStoryPart) {}
+        async function processNewPart(
+          storyPart: NarratedStoryPart,
+          index: number
+        ) {
+          const speaker = storyPart.speaker;
+
+          let voiceId = speakerToVoiceId.get(speaker);
+          if (voiceId == null) {
+            voiceId = await selectVoice({
+              speaker,
+              story: narrationArc,
+              unavailableVoiceIds: Array.from(speakerToVoiceId.values()),
+            });
+            speakerToVoiceId.set(speaker, voiceId);
+          }
+
+          const narrationAudio = await narrateStoryPart({ storyPart, voiceId });
+          // const narrationAudio = await narrateStoryPartFake({
+          //   path: `stories/002/story-002-${i}.mp3`,
+          //   delayInMs: 250,
+          // });
+
+          const path = await run.storeDataAsset({
+            name: `story-part-${index}.mp3`,
+            data: narrationAudio,
+            contentType: "audio/mpeg",
+          });
+
+          run.publishEvent({
+            type: "generated-audio-part",
+            index,
+            path,
+          });
+        }
 
         for await (const part of storyStream) {
           if (!part.isComplete) {
@@ -106,7 +148,7 @@ export const generateStoryEndpoing: Endpoint<
 
                 processedParts.push(...newParts);
                 for (const part of newParts) {
-                  await processNewPart(part);
+                  await processNewPart(part, processedParts.indexOf(part));
                 }
               }
             }
@@ -131,35 +173,8 @@ export const generateStoryEndpoing: Endpoint<
 
             processedParts.push(...newParts);
             for (const part of newParts) {
-              await processNewPart(part);
+              await processNewPart(part, processedParts.indexOf(part));
             }
-
-            //   // select voices
-            //   // const voices = await selectVoices(storyParts);
-            //   const voices = selectVoicesExamples[0];
-
-            //   // narrate the story:
-            //   for (let i = 0; i < storyParts.length; i++) {
-            //     const storyPart = storyParts[i];
-
-            //     // const narrationAudio = await narrateStoryPart({ storyPart, voices });
-            //     const narrationAudio = await narrateStoryPartFake({
-            //       path: `stories/002/story-002-${i}.mp3`,
-            //       delayInMs: 250,
-            //     });
-
-            //     const path = await run.storeDataAsset({
-            //       name: `story-part-${i}.mp3`,
-            //       data: narrationAudio,
-            //       contentType: "audio/mpeg",
-            //     });
-
-            //     run.publishEvent({
-            //       type: "generated-audio-part",
-            //       index: i,
-            //       path,
-            //     });
-            //   }
           }
         }
       })(),

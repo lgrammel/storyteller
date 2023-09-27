@@ -2,11 +2,10 @@ import {
   OpenAIChatMessage,
   OpenAIChatModel,
   ZodStructureDefinition,
-  generateStructure,
+  streamStructure,
 } from "modelfusion";
 import { z } from "zod";
 import { narratedStoryPartSchema } from "./NarratedStoryPart";
-import { NarrationArc } from "./generateNarrationArc";
 
 export const structuredStorySchema = z.object({
   introduction: z
@@ -26,8 +25,8 @@ export const structuredStorySchema = z.object({
 
 export type StructuredStory = z.infer<typeof structuredStorySchema>;
 
-export async function expandNarrationArc(narrationArc: NarrationArc) {
-  return generateStructure(
+export async function expandNarrationArc(narrationArc: string) {
+  return streamStructure(
     new OpenAIChatModel({
       model: "gpt-4",
       temperature: 0,
@@ -41,8 +40,11 @@ export async function expandNarrationArc(narrationArc: NarrationArc) {
       OpenAIChatMessage.user(
         [
           "Expand the following narration arc into a narrated audio story for preschoolers.",
+          "",
           "The audio story should include dialogue by the main characters.",
           "The language should be understandable by a preschooler.",
+          "",
+          "Add details to make the story parts longer.",
           "Add the speaker to each dialogue part. A dialogue part can only have one speaker.",
           "",
           "Use the following target lengths and hints for the different story parts:",
@@ -52,17 +54,9 @@ export async function expandNarrationArc(narrationArc: NarrationArc) {
           "- falling action: 300-400 words",
           "- conclusion: 100-200 words",
           "",
+          "Narration Arc:",
+          narrationArc,
         ].join("\n")
-      ),
-      OpenAIChatMessage.functionResult(
-        "narrationArc",
-        JSON.stringify({
-          introduction: narrationArc.introduction,
-          risingAction: narrationArc.risingAction,
-          climax: narrationArc.climax,
-          fallingAction: narrationArc.fallingAction,
-          conclusion: narrationArc.conclusion,
-        })
       ),
     ]
   );

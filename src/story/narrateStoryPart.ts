@@ -3,14 +3,14 @@ import { NarratedStoryPart } from "./NarratedStoryPart";
 
 export async function narrateStoryPart({
   storyPart,
-  voices,
+  voiceId,
 }: {
   storyPart: NarratedStoryPart;
-  voices: Record<string, string>;
+  voiceId: string;
 }) {
   return synthesizeSpeech(
     new LmntSpeechSynthesisModel({
-      voice: voices[storyPart.speaker as keyof typeof voices],
+      voice: voiceId,
     }),
     storyPart.content
   );

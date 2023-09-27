@@ -1,22 +1,14 @@
 import {
   OpenAIChatModel,
+  OpenAITextGenerationModel,
   StabilityImageGenerationModel,
   generateImage,
   generateText,
   mapInstructionPromptToOpenAIChatFormat,
+  mapInstructionPromptToTextFormat,
 } from "modelfusion";
-import { NarrationArc } from "./generateNarrationArc";
 
-export async function generateStoryImage(story: NarrationArc) {
-  const text = [
-    story.title,
-    story.introduction,
-    story.risingAction,
-    story.climax,
-    story.fallingAction,
-    story.conclusion,
-  ].join("\n\n");
-
+export async function generateStoryImage(story: string) {
   const imagePrompt = await generateText(
     new OpenAIChatModel({
       model: "gpt-4",
@@ -26,9 +18,11 @@ export async function generateStoryImage(story: NarrationArc) {
     {
       instruction:
         "Generate an short image generation prompt (only abstract keywords, max 8 keywords) for the following story:",
-      input: text,
+      input: story,
     }
   );
+
+  console.log(imagePrompt);
 
   return await generateImage(
     new StabilityImageGenerationModel({

@@ -1,12 +1,12 @@
 import dotenv from "dotenv";
 import fs from "node:fs";
-import { generateNarrationArcExamples } from "./generateNarrationArc.examples";
+import { generateNarrationArcTextExamples } from "./generateNarrationArc.examples";
 import { generateStoryImage } from "./generateStoryImage";
 
 dotenv.config();
 
 async function main() {
-  const story = generateNarrationArcExamples[0];
+  const story = generateNarrationArcTextExamples[0];
   const image = await generateStoryImage(story);
 
   const path = `./stability-image-example.png`;
