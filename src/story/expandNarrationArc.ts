@@ -8,6 +8,24 @@ import { z } from "zod";
 import { narratedStoryPartSchema } from "./NarratedStoryPart";
 import { NarrationArc } from "./generateNarrationArc";
 
+const structuredStorySchema = z.object({
+  introduction: z
+    .array(narratedStoryPartSchema)
+    .describe("Introduction. 50 - 150 words."),
+  risingAction: z
+    .array(narratedStoryPartSchema)
+    .describe("Rising action. 300 - 400 words."),
+  climax: z.array(narratedStoryPartSchema).describe("Climax. 300 - 400 words."),
+  fallingAction: z
+    .array(narratedStoryPartSchema)
+    .describe("Falling action. 200 - 300 words."),
+  conclusion: z
+    .array(narratedStoryPartSchema)
+    .describe("Conclusion. 100 - 200 words."),
+});
+
+export type StructuredStory = z.infer<typeof structuredStorySchema>;
+
 export async function expandNarrationArc(narrationArc: NarrationArc) {
   return generateStructure(
     new OpenAIChatModel({
@@ -17,23 +35,7 @@ export async function expandNarrationArc(narrationArc: NarrationArc) {
     new ZodStructureDefinition({
       name: "story",
       description: "Kids story with narration.",
-      schema: z.object({
-        introduction: z
-          .array(narratedStoryPartSchema)
-          .describe("Introduction. 50 - 150 words."),
-        risingAction: z
-          .array(narratedStoryPartSchema)
-          .describe("Rising action. 300 - 400 words."),
-        climax: z
-          .array(narratedStoryPartSchema)
-          .describe("Climax. 300 - 400 words."),
-        fallingAction: z
-          .array(narratedStoryPartSchema)
-          .describe("Falling action. 200 - 300 words."),
-        conclusion: z
-          .array(narratedStoryPartSchema)
-          .describe("Conclusion. 100 - 200 words."),
-      }),
+      schema: structuredStorySchema,
     }),
     [
       OpenAIChatMessage.user(
