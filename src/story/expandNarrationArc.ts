@@ -46,6 +46,8 @@ export async function expandNarrationArc(narrationArc: string) {
           "",
           "Add details to make the story parts longer.",
           "Add the speaker to each dialogue part. A dialogue part can only have one speaker.",
+          "There must only be one narrator.",
+          "Each spoken part must be a dialogue part with a speaker.",
           "",
           "Use the following target lengths and hints for the different story parts:",
           "- introduction: 50-150 words.",

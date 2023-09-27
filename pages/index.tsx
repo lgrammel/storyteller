@@ -9,65 +9,113 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { applicationEventSchema } from "@/lib/ApplicationEvent";
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { readEventSourceStream } from "modelfusion";
 
 export default function Home() {
-  const [waitingForUserInput, setWaitingForUserInput] = React.useState(true);
-  const [imageUrl, setImageUrl] = React.useState<string | null>(null);
-  const [title, setTitle] = React.useState<string | null>(null);
-  const [audioUrls, setAudioUrls] = React.useState<string[]>([]);
-  const [activePart, setActivePart] = React.useState(0);
-  const [generatingStory, setGeneratingStory] = React.useState(false);
-  const [shouldAutoPlay, setShouldAutoPlay] = React.useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [waitingForUserInput, setWaitingForUserInput] = useState(true);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [title, setTitle] = useState<string | null>(null);
+  const [input, setInput] = useState<string | null>(null);
+  const [audioUrls, setAudioUrls] = useState<string[]>([]);
+  const [activePart, setActivePart] = useState(0);
+  const [generatingStory, setGeneratingStory] = useState(false);
+  const [shouldAutoPlay, setShouldAutoPlay] = useState(false);
 
-  const onSubmit = async () => {
-    try {
-      setWaitingForUserInput(false);
-      setGeneratingStory(true);
-      setShouldAutoPlay(true);
+  const startRecording = () => {
+    if (isRecording) return;
 
-      const topic = "a tale about an elephant on vacation";
-      const baseUrl = "http://localhost:3001";
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
 
-      const generateStoryResponse = await fetch(`${baseUrl}/generate-story`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic }),
+        mediaRecorder.ondataavailable = (e) => {
+          audioChunksRef.current.push(e.data);
+        };
+
+        mediaRecorder.start();
+        setIsRecording(true);
+      })
+      .catch((error) => {
+        console.error("Error accessing microphone:", error);
       });
+  };
 
-      const path: string = (await generateStoryResponse.json()).path;
+  const stopRecording = () => {
+    const mediaRecorder = mediaRecorderRef.current;
 
-      const eventStreamResponse = await fetch(`${baseUrl}${path}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.onstop = async () => {
+        setWaitingForUserInput(false);
+        setGeneratingStory(true);
+        setShouldAutoPlay(true);
 
-      const events = readEventSourceStream({
-        stream: eventStreamResponse.body!,
-        schema: applicationEventSchema,
-        errorHandler: console.error,
-      });
+        try {
+          const audioBlob = new Blob(audioChunksRef.current, {
+            type: "audio/mp3",
+          });
+          const formData = new FormData();
+          formData.append("audio", audioBlob, "audio.mp3");
 
-      for await (const event of events) {
-        switch (event.type) {
-          case "generated-image": {
-            setImageUrl(`${baseUrl}${event.path}`);
-            break;
+          const baseUrl = "http://localhost:3001";
+
+          const response = await fetch(`${baseUrl}/generate-story`, {
+            method: "POST",
+            body: formData,
+          });
+
+          audioChunksRef.current = [];
+          mediaRecorder.stream?.getTracks().forEach((track) => track.stop()); // stop microphone access
+
+          const path: string = (await response.json()).path;
+
+          const eventStreamResponse = await fetch(`${baseUrl}${path}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          const events = readEventSourceStream({
+            stream: eventStreamResponse.body!,
+            schema: applicationEventSchema,
+            errorHandler: console.error,
+          });
+
+          for await (const event of events) {
+            switch (event.type) {
+              case "transcribed-input": {
+                setInput(event.input);
+                break;
+              }
+              case "generated-image": {
+                setImageUrl(`${baseUrl}${event.path}`);
+                break;
+              }
+              case "generated-title": {
+                setTitle(event.title);
+                break;
+              }
+              case "generated-audio-part": {
+                audioUrls[event.index] = `${baseUrl}${event.path}`;
+                setAudioUrls(audioUrls.slice());
+              }
+            }
           }
-          case "generated-title": {
-            setTitle(event.title);
-            break;
-          }
-          case "generated-audio-part": {
-            audioUrls[event.index] = `${baseUrl}${event.path}`;
-            setAudioUrls(audioUrls.slice());
-          }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setGeneratingStory(false);
         }
-      }
-    } finally {
-      setGeneratingStory(false);
+      };
+
+      mediaRecorder.stop();
+
+      setIsRecording(false);
     }
   };
 
@@ -91,7 +139,15 @@ export default function Home() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={onSubmit} variant="outline">
+            <Button
+              onTouchStart={startRecording}
+              onTouchEnd={stopRecording}
+              onMouseDown={startRecording}
+              onMouseUp={stopRecording}
+              onMouseLeave={stopRecording}
+              onContextMenu={(e) => e.preventDefault()}
+              variant="outline"
+            >
               Generate Story for Pre-Schoolers
             </Button>
           </CardContent>
@@ -99,6 +155,11 @@ export default function Home() {
       ) : (
         <Card>
           <CardHeader>
+            {input ? (
+              <CardDescription>&quot;{input}&quot;</CardDescription>
+            ) : (
+              <Skeleton className="h-5 w-full" />
+            )}
             <CardTitle>
               {title ?? <Skeleton className="h-10 w-full" />}
             </CardTitle>

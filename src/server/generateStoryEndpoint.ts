@@ -14,30 +14,48 @@ import { narrateStoryPart } from "@/story/narrateStoryPart";
 import { selectVoice } from "@/story/selectVoice";
 import { z } from "zod";
 import { Endpoint } from "./Endpoint";
-
-const inputSchema = z.object({
-  topic: z.string(),
-});
+import { OpenAITranscriptionModel, transcribe } from "modelfusion";
 
 export const generateStoryEndpoing: Endpoint<
-  z.infer<typeof inputSchema>,
   z.infer<typeof applicationEventSchema>
 > = {
   name: "generate-story",
 
-  inputSchema,
   eventSchema: applicationEventSchema,
 
   // TODO error handling
   async processRequest({ input, run }) {
+    await run.storeDataAsset({
+      name: `input.mp3`,
+      data: input,
+      contentType: "audio/mpeg",
+    });
+
+    // transcribe:
+    const transcription = await transcribe(
+      new OpenAITranscriptionModel({ model: "whisper-1" }),
+      { type: "mp3", data: input }
+    );
+
+    await run.storeTextAsset({
+      name: "topic.txt",
+      contentType: "text/plain",
+      text: transcription,
+    });
+
+    run.publishEvent({
+      type: "transcribed-input",
+      input: transcription,
+    });
+
     // generate high-level story arc:
-    const narrationArc = await generateNarrationArc(input.topic);
+    const narrationArc = await generateNarrationArc(transcription);
     // const narrationArc = await generateNarrationArcFake({ index: 0 });
 
     await run.storeTextAsset({
-      name: "narration-arc.json",
-      contentType: "text/json",
-      text: JSON.stringify(narrationArc),
+      name: "narration-arc.txt",
+      contentType: "text/plain",
+      text: narrationArc,
     });
 
     // Run image generation and story expansion in parallel:
@@ -49,9 +67,9 @@ export const generateStoryEndpoing: Endpoint<
         run.publishEvent({ type: "generated-title", title });
 
         await run.storeTextAsset({
-          name: "title.json",
-          contentType: "text/json",
-          text: JSON.stringify(title),
+          name: "title.txt",
+          contentType: "text/plain",
+          text: title,
         });
       })(),
       // generate image that represents story:

@@ -1,25 +1,44 @@
 import cors from "@fastify/cors";
+import multipart from "@fastify/multipart";
 import Fastify from "fastify";
 import { Endpoint } from "./Endpoint";
 import { EndpointRun } from "./EndpointRun";
 import { saveEndpointRunAssets } from "./saveEndpointRunAssets";
+import { Readable } from "stream";
 
-export async function runEndpointServer<INPUT, EVENT>({
+async function streamToBuffer(readable: Readable) {
+  let chunks = [];
+  for await (let chunk of readable) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}
+
+export async function runEndpointServer<EVENT>({
   endpoint,
   host = "0.0.0.0",
   port = 3001,
 }: {
-  endpoint: Endpoint<INPUT, EVENT>;
+  endpoint: Endpoint<EVENT>;
   host?: string;
   port?: number;
 }) {
   const server = Fastify();
 
   await server.register(cors, {});
+  await server.register(multipart, {});
 
   const runs: Record<string, EndpointRun<EVENT>> = {};
 
   server.post(`/${endpoint.name}`, async (request) => {
+    // load audio input into buffer:
+    const data = await request.file();
+    if (data == null) {
+      throw new Error("No file provided");
+    }
+    const file = data.file;
+    const buffer = await streamToBuffer(file);
+
     const run = new EndpointRun<EVENT>({
       endpointName: endpoint.name,
     });
@@ -29,7 +48,7 @@ export async function runEndpointServer<INPUT, EVENT>({
     // start longer-running process (no await):
     endpoint
       .processRequest({
-        input: endpoint.inputSchema.parse(request.body),
+        input: buffer, // endpoint.inputSchema.parse(request.body),
         run,
       })
       .catch((err) => {
@@ -119,6 +138,7 @@ export async function runEndpointServer<INPUT, EVENT>({
     await server.listen({ port, host });
     console.log("Server started");
   } catch (err) {
+    server.log.error("Failed to start server");
     server.log.error(err);
     process.exit(1);
   }

@@ -2,6 +2,10 @@ import { z } from "zod";
 
 export const applicationEventSchema = z.discriminatedUnion("type", [
   z.object({
+    type: z.literal("transcribed-input"),
+    input: z.string(),
+  }),
+  z.object({
     type: z.literal("generated-title"),
     title: z.string(),
   }),

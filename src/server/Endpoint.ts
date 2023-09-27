@@ -1,14 +1,13 @@
 import { z } from "zod";
 import { EndpointRun } from "./EndpointRun";
 
-export type Endpoint<INPUT, EVENT> = {
+export type Endpoint<EVENT> = {
   name: string;
 
-  inputSchema: z.ZodType<INPUT>;
   eventSchema: z.ZodType<EVENT>;
 
   processRequest: (options: {
-    input: INPUT;
+    input: Buffer;
     run: EndpointRun<EVENT>;
   }) => Promise<void>;
 };
