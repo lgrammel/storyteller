@@ -11,17 +11,17 @@ import { NarrationArc } from "./generateNarrationArc";
 const structuredStorySchema = z.object({
   introduction: z
     .array(narratedStoryPartSchema)
-    .describe("Introduction. 50 - 150 words."),
+    .describe("Introduction. 5-150 words."),
   risingAction: z
     .array(narratedStoryPartSchema)
-    .describe("Rising action. 300 - 400 words."),
-  climax: z.array(narratedStoryPartSchema).describe("Climax. 300 - 400 words."),
+    .describe("Rising action. 500-800 words."),
+  climax: z.array(narratedStoryPartSchema).describe("Climax. 400-600 words."),
   fallingAction: z
     .array(narratedStoryPartSchema)
-    .describe("Falling action. 200 - 300 words."),
+    .describe("Falling action. 300-400 words."),
   conclusion: z
     .array(narratedStoryPartSchema)
-    .describe("Conclusion. 100 - 200 words."),
+    .describe("Conclusion. 100-200 words."),
 });
 
 export type StructuredStory = z.infer<typeof structuredStorySchema>;
