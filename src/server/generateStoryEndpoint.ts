@@ -12,9 +12,9 @@ import { generateStoryImage } from "@/story/generateStoryImage";
 import { generateTitle } from "@/story/generateTitle";
 import { narrateStoryPart } from "@/story/narrateStoryPart";
 import { selectVoice } from "@/story/selectVoice";
+import { OpenAITranscriptionModel, transcribe } from "modelfusion";
 import { z } from "zod";
 import { Endpoint } from "./Endpoint";
-import { OpenAITranscriptionModel, transcribe } from "modelfusion";
 
 export const generateStoryEndpoint: Endpoint<
   z.infer<typeof applicationEventSchema>
@@ -66,37 +66,6 @@ export const generateStoryEndpoint: Endpoint<
         const processedParts: Array<NarratedStoryPart> = [];
         const speakerToVoiceId = new Map<string, string>();
 
-        async function processNewPart(
-          storyPart: NarratedStoryPart,
-          index: number
-        ) {
-          const speaker = storyPart.speaker;
-
-          let voiceId = speakerToVoiceId.get(speaker);
-          if (voiceId == null) {
-            voiceId = await selectVoice({
-              speaker,
-              story: narrationArc,
-              unavailableVoiceIds: Array.from(speakerToVoiceId.values()),
-            });
-            speakerToVoiceId.set(speaker, voiceId);
-          }
-
-          const narrationAudio = await narrateStoryPart({ storyPart, voiceId });
-
-          const path = await run.storeDataAsset({
-            name: `story-part-${index}.mp3`,
-            data: narrationAudio,
-            contentType: "audio/mpeg",
-          });
-
-          run.publishEvent({
-            type: "generated-audio-part",
-            index,
-            path,
-          });
-        }
-
         for await (const part of storyStream) {
           if (!part.isComplete) {
             const parseResult = structuredStorySchema
@@ -104,34 +73,17 @@ export const generateStoryEndpoint: Endpoint<
               .safeParse(part.value);
 
             if (parseResult.success) {
-              const partialStory = parseResult.data;
+              const partialParts = (parseResult.data.parts ?? [])
+                // the last story part might not be complete yet:
+                .slice(0, -1);
 
-              let partialStoryParts = [
-                ...(partialStory.introduction ?? []),
-                ...(partialStory.risingAction ?? []),
-                ...(partialStory.climax ?? []),
-                ...(partialStory.fallingAction ?? []),
-                ...(partialStory.conclusion ?? []),
-              ];
-
-              // the last story part might not be complete yet:
-              partialStoryParts = partialStoryParts.slice(0, -1);
-
-              // the remaining story parts should be complete:
-              const partsParseResult = z
+              // ensure that the remaining story parts are complete:
+              const partialPartsParseResult = z
                 .array(narratedStoryPartSchema)
-                .safeParse(partialStoryParts);
+                .safeParse(partialParts);
 
-              if (partsParseResult.success) {
-                const completeParts = partsParseResult.data;
-
-                // limit to new ones:
-                const newParts = completeParts.slice(processedParts.length);
-
-                processedParts.push(...newParts);
-                for (const part of newParts) {
-                  await processNewPart(part, processedParts.indexOf(part));
-                }
+              if (partialPartsParseResult.success) {
+                await processNewParts(partialPartsParseResult.data);
               }
             }
           } else {
@@ -143,20 +95,46 @@ export const generateStoryEndpoint: Endpoint<
               text: JSON.stringify(story),
             });
 
-            const storyParts = [
-              ...story.introduction,
-              ...story.risingAction,
-              ...story.climax,
-              ...story.fallingAction,
-              ...story.conclusion,
-            ];
+            await processNewParts(story.parts);
+          }
+        }
 
-            const newParts = storyParts.slice(processedParts.length);
+        async function processNewParts(parts: NarratedStoryPart[]) {
+          const newParts = parts.slice(processedParts.length);
 
-            processedParts.push(...newParts);
-            for (const part of newParts) {
-              await processNewPart(part, processedParts.indexOf(part));
+          processedParts.push(...newParts);
+          for (const part of newParts) {
+            const index = processedParts.indexOf(part);
+            const speaker = part.speaker;
+
+            let voiceId = speakerToVoiceId.get(speaker);
+
+            if (voiceId == null) {
+              voiceId = await selectVoice({
+                speaker,
+                story: narrationArc,
+                unavailableVoiceIds: Array.from(speakerToVoiceId.values()),
+              });
+
+              speakerToVoiceId.set(speaker, voiceId);
             }
+
+            const narrationAudio = await narrateStoryPart({
+              storyPart: part,
+              voiceId,
+            });
+
+            const path = await run.storeDataAsset({
+              name: `story-part-${index}.mp3`,
+              data: narrationAudio,
+              contentType: "audio/mpeg",
+            });
+
+            run.publishEvent({
+              type: "generated-audio-part",
+              index,
+              path,
+            });
           }
         }
       })(),

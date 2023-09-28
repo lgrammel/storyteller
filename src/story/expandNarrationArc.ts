@@ -8,19 +8,7 @@ import { z } from "zod";
 import { narratedStoryPartSchema } from "./NarratedStoryPart";
 
 export const structuredStorySchema = z.object({
-  introduction: z
-    .array(narratedStoryPartSchema)
-    .describe("Introduction. 5-150 words."),
-  risingAction: z
-    .array(narratedStoryPartSchema)
-    .describe("Rising action. 500-800 words."),
-  climax: z.array(narratedStoryPartSchema).describe("Climax. 400-600 words."),
-  fallingAction: z
-    .array(narratedStoryPartSchema)
-    .describe("Falling action. 300-400 words."),
-  conclusion: z
-    .array(narratedStoryPartSchema)
-    .describe("Conclusion. 100-200 words."),
+  parts: z.array(narratedStoryPartSchema),
 });
 
 export type StructuredStory = z.infer<typeof structuredStorySchema>;
@@ -48,13 +36,6 @@ export async function expandNarrationArc(narrationArc: string) {
           "Add the speaker to each dialogue part. A dialogue part can only have one speaker.",
           "There must only be one narrator.",
           "Each spoken part must be a dialogue part with a speaker.",
-          "",
-          "Use the following target lengths and hints for the different story parts:",
-          "- introduction: 50-150 words.",
-          "- rising action: 500-800 words.",
-          "- climax: 400-600 words.",
-          "- falling action: 300-400 words",
-          "- conclusion: 100-200 words",
           "",
           "Narration Arc:",
           narrationArc,
