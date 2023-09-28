@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { applicationEventSchema } from "@/lib/ApplicationEvent";
+import { delay } from "@/lib/delay";
 import { Loader2, Mic } from "lucide-react";
 import { readEventSourceStream } from "modelfusion";
 import { useRef, useState } from "react";
@@ -120,11 +121,12 @@ export default function Home() {
     }
   };
 
-  const onPlaybackEnded = () => {
+  const onPlaybackEnded = async () => {
     if (activePart === audioUrls.length - 1) {
       setActivePart(0);
       setShouldAutoPlay(false);
     } else {
+      await delay(1000);
       setActivePart(activePart + 1);
     }
   };
