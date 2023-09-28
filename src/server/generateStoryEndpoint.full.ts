@@ -11,7 +11,7 @@ import { generateStory } from "@/story/generateStory";
 import { generateStoryImage } from "@/story/generateStoryImage";
 import { generateTitle } from "@/story/generateTitle";
 import { narrateStoryPart } from "@/story/narrateStoryPart";
-import { selectVoice } from "@/story/selectVoice";
+import { selectVoice } from "@/story/selectVoice.1";
 import { z } from "zod";
 import { Endpoint } from "./Endpoint";
 import { OpenAITranscriptionModel, transcribe } from "modelfusion";

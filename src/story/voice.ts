@@ -1,9 +1,10 @@
 import { z } from "zod";
 
 export const voiceSchema = z.object({
-  id: z.string(),
+  provider: z.enum(["lmnt", "elevenlabs"]),
+  voiceId: z.string(),
+  name: z.string(),
   gender: z.enum(["M", "F"]),
-  tags: z.array(z.string()),
   description: z.string(),
 });
 

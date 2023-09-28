@@ -1,17 +1,26 @@
-import { LmntSpeechSynthesisModel, synthesizeSpeech } from "modelfusion";
+import {
+  ElevenLabsSpeechSynthesisModel,
+  LmntSpeechSynthesisModel,
+  synthesizeSpeech,
+} from "modelfusion";
 import { NarratedStoryPart } from "./NarratedStoryPart";
+import { Voice } from "./voice";
 
 export async function narrateStoryPart({
   storyPart,
-  voiceId,
+  voice,
 }: {
   storyPart: NarratedStoryPart;
-  voiceId: string;
+  voice: Voice;
 }) {
   return synthesizeSpeech(
-    new LmntSpeechSynthesisModel({
-      voice: voiceId,
-    }),
+    voice.provider === "elevenlabs"
+      ? new ElevenLabsSpeechSynthesisModel({
+          voice: voice.voiceId,
+        })
+      : new LmntSpeechSynthesisModel({
+          voice: voice.voiceId,
+        }),
     storyPart.content
   );
 }

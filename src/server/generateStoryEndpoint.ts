@@ -11,7 +11,8 @@ import { generateStory } from "@/story/generateStory";
 import { generateStoryImage } from "@/story/generateStoryImage";
 import { generateTitle } from "@/story/generateTitle";
 import { narrateStoryPart } from "@/story/narrateStoryPart";
-import { selectVoice } from "@/story/selectVoice";
+import { FullVoiceId, selectVoice } from "@/story/selectVoice";
+import { Voice } from "@/story/voice";
 import { OpenAITranscriptionModel, transcribe } from "modelfusion";
 import { z } from "zod";
 import { Endpoint } from "./Endpoint";
@@ -64,7 +65,7 @@ export const generateStoryEndpoint: Endpoint<
         const audioStoryStream = await generateAudioStory(story);
 
         const processedParts: Array<NarratedStoryPart> = [];
-        const speakerToVoiceId = new Map<string, string>();
+        const speakerToVoice = new Map<string, Voice>();
 
         for await (const part of audioStoryStream) {
           if (!part.isComplete) {
@@ -107,21 +108,23 @@ export const generateStoryEndpoint: Endpoint<
             const index = processedParts.indexOf(part);
             const speaker = part.speaker;
 
-            let voiceId = speakerToVoiceId.get(speaker);
+            let voice = speakerToVoice.get(speaker);
 
-            if (voiceId == null) {
-              voiceId = await selectVoice({
+            if (voice == null) {
+              voice = await selectVoice({
                 speaker,
-                story: story,
-                unavailableVoiceIds: Array.from(speakerToVoiceId.values()),
+                story,
+                unavailableVoices: Array.from(speakerToVoice.values()).map(
+                  (voice) => `${voice.provider}:${voice.voiceId}`
+                ) as FullVoiceId[],
               });
 
-              speakerToVoiceId.set(speaker, voiceId);
+              speakerToVoice.set(speaker, voice);
             }
 
             const narrationAudio = await narrateStoryPart({
               storyPart: part,
-              voiceId,
+              voice,
             });
 
             const path = await run.storeDataAsset({

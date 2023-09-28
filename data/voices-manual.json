@@ -3,7 +3,7 @@
     "provider": "lmnt",
     "name": "Curtis",
     "id": "curtis",
-    "gender": "male",
+    "gender": "M",
     "descriptions": [
       "male, narrator, warm, wisom, middle age, curious, enthusiastic, ebb and flow, exciting"
     ]
@@ -12,7 +12,7 @@
     "provider": "lmnt",
     "name": "Dalton",
     "id": "dalton",
-    "gender": "male",
+    "gender": "M",
     "descriptions": [
       "male, southern-drawl, languid, lazy, charming, soothing, warm, deep south"
     ]
