@@ -22,8 +22,6 @@ export async function generateStoryImage(story: string) {
     }
   );
 
-  console.log(imagePrompt);
-
   return await generateImage(
     new StabilityImageGenerationModel({
       model: "stable-diffusion-xl-1024-v1-0",
@@ -36,7 +34,10 @@ export async function generateStoryImage(story: string) {
     }),
     [
       { text: imagePrompt },
-      { text: "style of illustration for a preschooler story", weight: 0.8 },
+      {
+        text: "style of colorful illustration for a preschooler story",
+        weight: 0.8,
+      },
     ]
   );
 }
