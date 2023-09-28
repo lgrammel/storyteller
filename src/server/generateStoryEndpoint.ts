@@ -24,14 +24,13 @@ export const generateStoryEndpoint: Endpoint<
 
   eventSchema: applicationEventSchema,
 
-  async processRequest({ input, run }) {
+  async processRequest({ input: audioRecording, publishEvent, storeAsset }) {
     const transcription = await transcribe(
       new OpenAITranscriptionModel({ model: "whisper-1" }),
-      { type: "mp3", data: input },
-      { run }
+      { type: "mp3", data: audioRecording }
     );
 
-    run.publishEvent({
+    publishEvent({
       type: "transcribed-input",
       input: transcription,
     });
@@ -44,20 +43,20 @@ export const generateStoryEndpoint: Endpoint<
       (async () => {
         const title = await generateTitle(story);
 
-        run.publishEvent({ type: "generated-title", title });
+        publishEvent({ type: "generated-title", title });
       })(),
 
       // generate image that represents story:
       (async () => {
         const storyImageBase64 = await generateStoryImage(story);
 
-        const imagePath = await run.storeDataAsset({
+        const imagePath = await storeAsset({
           name: "story.png",
           data: Buffer.from(storyImageBase64, "base64"),
           contentType: "image/png",
         });
 
-        run.publishEvent({ type: "generated-image", path: imagePath });
+        publishEvent({ type: "generated-image", path: imagePath });
       })(),
 
       // expand and narrate story:
@@ -88,15 +87,7 @@ export const generateStoryEndpoint: Endpoint<
               }
             }
           } else {
-            const story = part.value;
-
-            await run.storeTextAsset({
-              name: "story.json",
-              contentType: "application/json",
-              text: JSON.stringify(story),
-            });
-
-            await processNewParts(story.parts);
+            await processNewParts(part.value.parts);
           }
         }
 
@@ -122,22 +113,15 @@ export const generateStoryEndpoint: Endpoint<
               speakerToVoice.set(speaker, voice);
             }
 
-            const narrationAudio = await narrateStoryPart({
-              storyPart: part,
-              voice,
-            });
+            const narrationAudio = await narrateStoryPart({ part, voice });
 
-            const path = await run.storeDataAsset({
+            const path = await storeAsset({
               name: `story-part-${index}.mp3`,
               data: narrationAudio,
               contentType: "audio/mpeg",
             });
 
-            run.publishEvent({
-              type: "generated-audio-part",
-              index,
-              path,
-            });
+            publishEvent({ type: "generated-audio-part", index, path });
           }
         }
       })(),

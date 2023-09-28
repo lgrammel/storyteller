@@ -1,7 +1,7 @@
 import { AsyncQueue, Run } from "modelfusion";
 import { nanoid as createId } from "nanoid";
 
-type Asset = {
+export type Asset = {
   data: Buffer;
   contentType: string;
   name: string;

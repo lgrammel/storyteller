@@ -114,7 +114,10 @@ export const generateStoryEndpoingFull: Endpoint<
             speakerToVoiceId.set(speaker, voiceId);
           }
 
-          const narrationAudio = await narrateStoryPart({ storyPart, voiceId });
+          const narrationAudio = await narrateStoryPart({
+            part: storyPart,
+            voiceId,
+          });
           // const narrationAudio = await narrateStoryPartFake({
           //   path: `stories/002/story-002-${i}.mp3`,
           //   delayInMs: 250,

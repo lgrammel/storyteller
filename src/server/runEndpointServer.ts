@@ -49,7 +49,12 @@ export async function runEndpointServer<EVENT>({
     endpoint
       .processRequest({
         input: buffer, // endpoint.inputSchema.parse(request.body),
-        run,
+        storeAsset: async (asset) => {
+          return run.storeDataAsset(asset);
+        },
+        publishEvent: (event) => {
+          run.publishEvent(event);
+        },
       })
       .catch((err) => {
         console.error(err);
@@ -76,17 +81,16 @@ export async function runEndpointServer<EVENT>({
   server.get(
     `/${endpoint.name}/:runId/assets/:assetName`,
     async (request, reply) => {
-      const runId = (request.params as any).runId; // TODO fix
-      const assetName = (request.params as any).assetName; // TODO fix
+      const runId = (request.params as any).runId;
+      const assetName = (request.params as any).assetName;
 
       const asset = runs[runId]?.assets[assetName];
 
-      // TODO errors
       const headers = {
         "Access-Control-Allow-Origin": "*",
         "Content-Length": asset.data.length,
         "Content-Type": asset.contentType,
-        "Cache-Control": "no-cache", // TODO
+        "Cache-Control": "no-cache",
       };
 
       reply.raw.writeHead(200, headers);
@@ -97,7 +101,7 @@ export async function runEndpointServer<EVENT>({
   );
 
   server.get(`/${endpoint.name}/:id/events`, async (request, reply) => {
-    const runId = (request.params as any).id; // TODO fix
+    const runId = (request.params as any).id;
 
     const eventQueue = runs[runId]?.eventQueue;
 

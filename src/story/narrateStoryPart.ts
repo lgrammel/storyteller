@@ -7,10 +7,10 @@ import { NarratedStoryPart } from "./NarratedStoryPart";
 import { Voice } from "./voice";
 
 export async function narrateStoryPart({
-  storyPart,
+  part,
   voice,
 }: {
-  storyPart: NarratedStoryPart;
+  part: NarratedStoryPart;
   voice: Voice;
 }) {
   return synthesizeSpeech(
@@ -21,6 +21,6 @@ export async function narrateStoryPart({
       : new LmntSpeechSynthesisModel({
           voice: voice.voiceId,
         }),
-    storyPart.content
+    part.content
   );
 }

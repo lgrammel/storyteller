@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { EndpointRun } from "./EndpointRun";
+import { Asset, EndpointRun } from "./EndpointRun";
 
 export type Endpoint<EVENT> = {
   name: string;
@@ -8,6 +8,7 @@ export type Endpoint<EVENT> = {
 
   processRequest: (options: {
     input: Buffer;
-    run: EndpointRun<EVENT>;
+    storeAsset: (asset: Asset) => Promise<string>;
+    publishEvent: (event: EVENT) => void;
   }) => Promise<void>;
 };
