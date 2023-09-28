@@ -13,7 +13,7 @@ export const structuredStorySchema = z.object({
 
 export type StructuredStory = z.infer<typeof structuredStorySchema>;
 
-export async function expandNarrationArc(narrationArc: string) {
+export async function generateAudioStory(story: string) {
   return streamStructure(
     new OpenAIChatModel({
       model: "gpt-4",
@@ -27,7 +27,7 @@ export async function expandNarrationArc(narrationArc: string) {
     [
       OpenAIChatMessage.user(
         [
-          "Expand the following narration arc into a narrated audio story for preschoolers.",
+          "Expand the following story into a longer, narrated audio story for preschoolers.",
           "",
           "The audio story should include dialogue by the main characters.",
           "The language should be understandable by a preschooler.",
@@ -37,8 +37,8 @@ export async function expandNarrationArc(narrationArc: string) {
           "There must only be one narrator.",
           "Each spoken part must be a dialogue part with a speaker.",
           "",
-          "Narration Arc:",
-          narrationArc,
+          "Story:",
+          story,
         ].join("\n")
       ),
     ]

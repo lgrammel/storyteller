@@ -4,10 +4,10 @@ import {
   narratedStoryPartSchema,
 } from "@/story/NarratedStoryPart";
 import {
-  expandNarrationArc,
+  generateAudioStory,
   structuredStorySchema,
-} from "@/story/expandNarrationArc";
-import { generateNarrationArc } from "@/story/generateNarrationArc";
+} from "@/story/generateAudioStory";
+import { generateStory } from "@/story/generateStory";
 import { generateStoryImage } from "@/story/generateStoryImage";
 import { generateTitle } from "@/story/generateTitle";
 import { narrateStoryPart } from "@/story/narrateStoryPart";
@@ -49,7 +49,7 @@ export const generateStoryEndpoingFull: Endpoint<
     });
 
     // generate high-level story arc:
-    const narrationArc = await generateNarrationArc(transcription);
+    const narrationArc = await generateStory(transcription);
     // const narrationArc = await generateNarrationArcFake({ index: 0 });
 
     await run.storeTextAsset({
@@ -90,7 +90,7 @@ export const generateStoryEndpoingFull: Endpoint<
 
       // expand and narrate story:
       (async () => {
-        const storyStream = await expandNarrationArc(narrationArc);
+        const storyStream = await generateAudioStory(narrationArc);
         // const storyStream = await expandNarrationArcFakeStream({
         //   delayInMs: 500,
         // });

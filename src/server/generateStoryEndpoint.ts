@@ -4,10 +4,10 @@ import {
   narratedStoryPartSchema,
 } from "@/story/NarratedStoryPart";
 import {
-  expandNarrationArc,
+  generateAudioStory,
   structuredStorySchema,
-} from "@/story/expandNarrationArc";
-import { generateNarrationArc } from "@/story/generateNarrationArc";
+} from "@/story/generateAudioStory";
+import { generateStory } from "@/story/generateStory";
 import { generateStoryImage } from "@/story/generateStoryImage";
 import { generateTitle } from "@/story/generateTitle";
 import { narrateStoryPart } from "@/story/narrateStoryPart";
@@ -35,20 +35,20 @@ export const generateStoryEndpoint: Endpoint<
       input: transcription,
     });
 
-    const narrationArc = await generateNarrationArc(transcription);
+    const story = await generateStory(transcription);
 
     // Run in parallel:
     await Promise.all([
       // generate title:
       (async () => {
-        const title = await generateTitle(narrationArc);
+        const title = await generateTitle(story);
 
         run.publishEvent({ type: "generated-title", title });
       })(),
 
       // generate image that represents story:
       (async () => {
-        const storyImageBase64 = await generateStoryImage(narrationArc);
+        const storyImageBase64 = await generateStoryImage(story);
 
         const imagePath = await run.storeDataAsset({
           name: "story.png",
@@ -61,12 +61,12 @@ export const generateStoryEndpoint: Endpoint<
 
       // expand and narrate story:
       (async () => {
-        const storyStream = await expandNarrationArc(narrationArc);
+        const audioStoryStream = await generateAudioStory(story);
 
         const processedParts: Array<NarratedStoryPart> = [];
         const speakerToVoiceId = new Map<string, string>();
 
-        for await (const part of storyStream) {
+        for await (const part of audioStoryStream) {
           if (!part.isComplete) {
             const parseResult = structuredStorySchema
               .deepPartial()
@@ -112,7 +112,7 @@ export const generateStoryEndpoint: Endpoint<
             if (voiceId == null) {
               voiceId = await selectVoice({
                 speaker,
-                story: narrationArc,
+                story: story,
                 unavailableVoiceIds: Array.from(speakerToVoiceId.values()),
               });
 

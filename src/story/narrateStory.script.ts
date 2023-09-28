@@ -5,12 +5,12 @@ import {
   synthesizeSpeech,
 } from "modelfusion";
 import fs from "node:fs";
-import { expandNarrationArcExamples } from "./expandNarrationArc.examples";
+import { generateAudioStoryExamples } from "./generateAudioStory.examples";
 
 dotenv.config();
 
 async function main() {
-  const story = expandNarrationArcExamples[0];
+  const story = generateAudioStoryExamples[0];
 
   // {
   //   Narrator: "pNInz6obpgDQGcFmaJgB", // Adam

@@ -1,6 +1,6 @@
 import { OpenAITextGenerationModel, generateText } from "modelfusion";
 
-export async function generateNarrationArc(topic: string) {
+export async function generateStory(topic: string) {
   return generateText(
     new OpenAITextGenerationModel({
       model: "gpt-3.5-turbo-instruct",

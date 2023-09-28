@@ -1,13 +1,11 @@
 import dotenv from "dotenv";
-import { expandNarrationArc } from "./expandNarrationArc";
-import { generateNarrationArcTextExamples } from "./generateNarrationArc.examples";
+import { generateAudioStory } from "./generateAudioStory";
+import { generateStoryExamples } from "./generateStory.examples";
 
 dotenv.config();
 
 async function main() {
-  const storyStream = await expandNarrationArc(
-    generateNarrationArcTextExamples[0]
-  );
+  const storyStream = await generateAudioStory(generateStoryExamples[0]);
 
   for await (const part of storyStream) {
     if (!part.isComplete) {
