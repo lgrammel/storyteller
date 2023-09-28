@@ -1,11 +1,9 @@
 import {
   OpenAIChatModel,
-  OpenAITextGenerationModel,
   StabilityImageGenerationModel,
   generateImage,
   generateText,
   mapInstructionPromptToOpenAIChatFormat,
-  mapInstructionPromptToTextFormat,
 } from "modelfusion";
 
 export async function generateStoryImage(story: string) {
