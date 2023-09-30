@@ -7,8 +7,8 @@ import { saveEndpointRunAssets } from "./saveEndpointRunAssets";
 import { Readable } from "stream";
 
 async function streamToBuffer(readable: Readable) {
-  let chunks = [];
-  for await (let chunk of readable) {
+  const chunks = [];
+  for await (const chunk of readable) {
     chunks.push(chunk);
   }
   return Buffer.concat(chunks);
