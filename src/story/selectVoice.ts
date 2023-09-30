@@ -78,10 +78,11 @@ export async function selectVoice({
       }),
       maxResults: 5,
       similarityThreshold: 0.2,
-      filter: (value) =>
-        ["M", "F"].includes(voiceDescription.gender)
-          ? value.gender === voiceDescription.gender
-          : true,
+      filter: (indexVoice) =>
+        indexVoice.provider === "elevenlabs" &&
+        (["M", "F"].includes(voiceDescription.gender)
+          ? indexVoice.gender === voiceDescription.gender
+          : true),
     }),
     voiceDescription.description
   );

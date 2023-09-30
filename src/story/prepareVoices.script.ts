@@ -73,15 +73,17 @@ async function addElevenLabsVoices(vectorIndex: MemoryVectorIndex<Voice>) {
     JSON.parse(data).voices
   );
 
-  const voices: Voice[] = elevenLabsVoices.map((voice) => ({
-    voiceId: voice.voice_id,
-    name: voice.name,
-    provider: "elevenlabs",
-    gender: voice.labels.gender === "female" ? "F" : "M",
-    description: Object.entries(voice.labels)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join(", "),
-  }));
+  const voices: Voice[] = elevenLabsVoices
+    .filter((voice) => voice.labels.age === "young")
+    .map((voice) => ({
+      voiceId: voice.voice_id,
+      name: voice.name,
+      provider: "elevenlabs",
+      gender: voice.labels.gender === "female" ? "F" : "M",
+      description: Object.entries(voice.labels)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(", "),
+    }));
 
   await upsertIntoVectorIndex({
     vectorIndex,
