@@ -171,10 +171,10 @@ export default function Home() {
             {input ? (
               <CardDescription>&quot;{input}&quot;</CardDescription>
             ) : (
-              <Skeleton className="h-5 w-full" />
+              <Skeleton className="h-4 w-full" />
             )}
             <CardTitle>
-              {title ?? <Skeleton className="h-10 w-full" />}
+              {title ?? <Skeleton className="h-8 w-full" />}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -189,7 +189,7 @@ export default function Home() {
                 </AspectRatio>
               </div>
             ) : (
-              <Skeleton className="h-52 w-full" />
+              <Skeleton className="h-96 w-full" />
             )}
           </CardContent>
           <CardFooter className="flex justify-between items-center">
@@ -208,7 +208,7 @@ export default function Home() {
                 </span>
               </>
             ) : (
-              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-16 w-full" />
             )}
           </CardFooter>
         </Card>
