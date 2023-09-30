@@ -7,7 +7,7 @@ export const narratedStoryPartSchema = z.object({
   speaker: z
     .string()
     .describe(
-      "Speaker of a dialogue (direct speech) part. Must be a single speaker. Set to null for narration parts."
+      "Speaker of a dialogue (direct speech) part. Must be a single speaker."
     ),
   content: z.string().describe("Content of the story part"),
 });
