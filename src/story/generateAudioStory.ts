@@ -29,10 +29,10 @@ export async function generateAudioStory(story: string) {
         [
           "Expand the following story into a longer, narrated audio story for preschoolers.",
           "",
-          "The audio story should include dialogue by the main characters.",
+          "The audio story should include interesting dialogue by the main characters.",
           "The language should be understandable by a preschooler.",
           "",
-          "Add details to make the story parts longer.",
+          "Add details and dialoge to make the story parts longer.",
           "Add the speaker to each dialogue part. A dialogue part can only have one speaker.",
           "There must only be one narrator.",
           "Each spoken part must be a dialogue part with a speaker.",

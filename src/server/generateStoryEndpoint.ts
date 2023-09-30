@@ -12,10 +12,17 @@ import { generateStoryImage } from "@/story/generateStoryImage";
 import { generateTitle } from "@/story/generateTitle";
 import { narrateStoryPart } from "@/story/narrateStoryPart";
 import { FullVoiceId, selectVoice } from "@/story/selectVoice";
-import { Voice } from "@/story/voice";
-import { OpenAITranscriptionModel, transcribe } from "modelfusion";
+import { Voice, voiceSchema } from "@/story/voice";
+import {
+  MemoryVectorIndex,
+  OpenAITranscriptionModel,
+  transcribe,
+} from "modelfusion";
+import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { Endpoint } from "./Endpoint";
+
+const voicesData = readFileSync("./data/voices.index.json", "utf8");
 
 export const generateStoryEndpoint: Endpoint<
   z.infer<typeof applicationEventSchema>
@@ -25,6 +32,11 @@ export const generateStoryEndpoint: Endpoint<
   eventSchema: applicationEventSchema,
 
   async processRequest({ input: audioRecording, publishEvent, storeAsset }) {
+    const voiceIndex = await MemoryVectorIndex.deserialize({
+      serializedData: voicesData,
+      schema: voiceSchema,
+    });
+
     const transcription = await transcribe(
       new OpenAITranscriptionModel({ model: "whisper-1" }),
       { type: "mp3", data: audioRecording }
@@ -63,8 +75,8 @@ export const generateStoryEndpoint: Endpoint<
       (async () => {
         const audioStoryStream = await generateAudioStory(story);
 
-        const processedParts: Array<NarratedStoryPart> = [];
         const speakerToVoice = new Map<string, Voice>();
+        const processedParts: Array<NarratedStoryPart> = [];
 
         for await (const part of audioStoryStream) {
           if (!part.isComplete) {
@@ -108,6 +120,7 @@ export const generateStoryEndpoint: Endpoint<
                 unavailableVoices: Array.from(speakerToVoice.values()).map(
                   (voice) => `${voice.provider}:${voice.voiceId}`
                 ) as FullVoiceId[],
+                voiceIndex,
               });
 
               speakerToVoice.set(speaker, voice);

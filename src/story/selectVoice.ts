@@ -1,32 +1,29 @@
 import {
   MemoryVectorIndex,
+  OpenAIChatMessage,
+  OpenAIChatModel,
   OpenAITextEmbeddingModel,
-  OpenAITextGenerationModel,
   VectorIndexRetriever,
-  generateText,
+  ZodStructureDefinition,
+  generateStructure,
   retrieve,
 } from "modelfusion";
-import { Voice, voiceSchema } from "./voice";
-import { readFileSync } from "node:fs";
+import { z } from "zod";
+import { Voice } from "./voice";
 
 export type FullVoiceId = `${"lmnt" | "elevenlabs"}:${string}`;
-
-const voicesData = readFileSync("./data/voices.index.json", "utf8");
 
 export async function selectVoice({
   story,
   speaker,
   unavailableVoices,
+  voiceIndex,
 }: {
   story: string;
   speaker: string;
   unavailableVoices: FullVoiceId[];
+  voiceIndex: MemoryVectorIndex<Voice>;
 }): Promise<Voice> {
-  const voicesIndex = await MemoryVectorIndex.deserialize({
-    serializedData: voicesData,
-    schema: voiceSchema,
-  });
-
   // pre-determined narrator voice:
   if (speaker.toLowerCase() === "narrator") {
     return {
@@ -40,46 +37,59 @@ export async function selectVoice({
   }
 
   // generate voice descriptions for the speakers:
-  const voiceDescription = await generateText(
-    new OpenAITextGenerationModel({
-      model: "gpt-3.5-turbo-instruct",
+  const voiceDescription = await generateStructure(
+    new OpenAIChatModel({
+      model: "gpt-3.5-turbo",
       temperature: 0,
     }),
+    new ZodStructureDefinition({
+      name: "voice",
+      schema: z.object({
+        gender: z.string().describe("M for male, F for female)"),
+        description: z.string().describe("Voice description"),
+      }),
+    }),
     [
-      `## Task`,
-      `Generate a voice description for ${speaker} from the following story for an audio book.`,
-      "The voice should be appropriate for a preschooler listener.",
-      "Include the gender and age in the voice description.",
-      "",
-      "## Story",
-      story,
-      "",
-      "## Speaker",
-      speaker,
-      "",
-      "## Voice description (incl. age, gender)",
-    ].join("\n")
+      OpenAIChatMessage.user(
+        [
+          `## Task`,
+          `Generate a voice description for ${speaker} from the following story for an audio book.`,
+          "The voice should be appropriate for a preschooler listener.",
+          "Include the gender and age in the voice description.",
+          "",
+          "## Story",
+          story,
+          "",
+          "## Speaker",
+          speaker,
+          "",
+          "## Voice description (incl. age, gender)",
+        ].join("\n")
+      ),
+    ]
   );
 
-  console.log(voiceDescription);
-
   // retrieve the voice vectors from the index:
-  const retriever = new VectorIndexRetriever({
-    vectorIndex: voicesIndex,
-    embeddingModel: new OpenAITextEmbeddingModel({
-      model: "text-embedding-ada-002",
+  const potentialVoices = await retrieve(
+    new VectorIndexRetriever({
+      vectorIndex: voiceIndex,
+      embeddingModel: new OpenAITextEmbeddingModel({
+        model: "text-embedding-ada-002",
+      }),
+      maxResults: 5,
+      similarityThreshold: 0.2,
+      filter: (value) =>
+        ["M", "F"].includes(voiceDescription.gender)
+          ? value.gender === voiceDescription.gender
+          : true,
     }),
-    maxResults: 5,
-    similarityThreshold: 0.2,
-  });
-
-  const potentialVoices = await retrieve(retriever, voiceDescription);
+    voiceDescription.description
+  );
 
   const voice = potentialVoices.find(
     (voice) => !unavailableVoices.includes(`${voice.provider}:${voice.voiceId}`)
   );
 
-  // TODO how to avoid / handle? reuse voices?
   if (!voice) {
     throw new Error(`No voice found for ${speaker}`);
   }
