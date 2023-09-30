@@ -24,17 +24,14 @@ export async function generateStoryImage(story: string) {
     new StabilityImageGenerationModel({
       model: "stable-diffusion-xl-1024-v1-0",
       cfgScale: 7,
-      clipGuidancePreset: "FAST_BLUE",
       height: 1024,
       width: 1024,
       samples: 1,
       steps: 30,
     }),
     [
-      { text: imagePrompt },
       {
-        text: "style of colorful illustration for a preschooler story",
-        weight: 0.8,
+        text: `${imagePrompt} style of colorful illustration for a preschooler story`,
       },
     ]
   );
