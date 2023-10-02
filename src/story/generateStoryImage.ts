@@ -11,7 +11,7 @@ export async function generateStoryImage(story: string) {
     new OpenAIChatModel({
       model: "gpt-4",
       temperature: 0,
-      maxCompletionTokens: 500, // enough tokens for prompt
+      maxCompletionTokens: 500,
     }).withPromptFormat(mapInstructionPromptToOpenAIChatFormat()),
     {
       instruction:

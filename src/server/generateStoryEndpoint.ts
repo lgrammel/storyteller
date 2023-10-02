@@ -73,16 +73,16 @@ export const generateStoryEndpoint: Endpoint<
 
       // expand and narrate story:
       (async () => {
-        const audioStoryStream = await generateAudioStory(story);
-
         const speakerToVoice = new Map<string, Voice>();
         const processedParts: Array<NarratedStoryPart> = [];
 
-        for await (const part of audioStoryStream) {
-          if (!part.isComplete) {
+        const audioStoryFragments = await generateAudioStory(story);
+
+        for await (const fragment of audioStoryFragments) {
+          if (!fragment.isComplete) {
             const parseResult = structuredStorySchema
               .deepPartial()
-              .safeParse(part.value);
+              .safeParse(fragment.value);
 
             if (parseResult.success) {
               const partialParts = (parseResult.data.parts ?? [])
@@ -99,7 +99,7 @@ export const generateStoryEndpoint: Endpoint<
               }
             }
           } else {
-            await processNewParts(part.value.parts);
+            await processNewParts(fragment.value.parts);
           }
         }
 
