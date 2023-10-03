@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { delay } from "@/lib/delay";
-import { readEventSource } from "@/lib/readEventSource";
 import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
 import { Loader2, Mic } from "lucide-react";
+import { ZodSchema, readEventSource } from "modelfusion";
 import { useRef, useState } from "react";
 
 export default function Home() {
@@ -79,7 +79,7 @@ export default function Home() {
 
           readEventSource({
             url: `${baseUrl}${path}`,
-            eventSchema: storytellerEventSchema,
+            schema: new ZodSchema(storytellerEventSchema),
             onEvent(event, eventSource) {
               switch (event.type) {
                 case "transcribed-input": {
@@ -105,9 +105,6 @@ export default function Home() {
                   break;
                 }
               }
-            },
-            onError(error) {
-              console.error(error);
             },
           });
         } catch (error) {
