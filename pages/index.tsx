@@ -10,38 +10,10 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { delay } from "@/lib/delay";
+import { readEventSource } from "@/lib/readEventSource";
 import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
 import { Loader2, Mic } from "lucide-react";
 import { useRef, useState } from "react";
-import { z } from "zod";
-
-function readEventSource<T>({
-  url,
-  eventSchema,
-  onEvent,
-  onError,
-}: {
-  url: string;
-  eventSchema: z.ZodSchema<T>;
-  onEvent: (event: T, eventSource: EventSource) => void;
-  onError: (error: unknown, eventSource: EventSource) => void;
-}) {
-  const eventSource = new EventSource(url);
-
-  eventSource.onmessage = (e) => {
-    try {
-      // TODO secureJSON
-      const event = eventSchema.parse(JSON.parse(e.data));
-      onEvent(event, eventSource);
-    } catch (error) {
-      onError(error, eventSource);
-    }
-  };
-
-  eventSource.onerror = (e) => {
-    onError(e, eventSource);
-  };
-}
 
 export default function Home() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -154,7 +126,7 @@ export default function Home() {
       setActivePart(0);
       setShouldAutoPlay(false);
     } else {
-      await delay(1000);
+      await delay(1000); // delay between parts to improve the quality of the story
       setActivePart(activePart + 1);
     }
   };
