@@ -1,18 +1,10 @@
+import { streamToBuffer } from "@/lib/streamToBuffer";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import Fastify from "fastify";
 import { Endpoint } from "./Endpoint";
 import { EndpointRun } from "./EndpointRun";
 import { saveEndpointRunAssets } from "./saveEndpointRunAssets";
-import { Readable } from "stream";
-
-async function streamToBuffer(readable: Readable) {
-  const chunks = [];
-  for await (const chunk of readable) {
-    chunks.push(chunk);
-  }
-  return Buffer.concat(chunks);
-}
 
 export async function runEndpointServer<EVENT>({
   endpoint,
