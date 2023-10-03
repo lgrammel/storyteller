@@ -16,6 +16,7 @@ import { Voice, voiceSchema } from "@/storyteller/voice";
 import {
   MemoryVectorIndex,
   OpenAITranscriptionModel,
+  ZodSchema,
   transcribe,
 } from "modelfusion";
 import { readFileSync } from "node:fs";
@@ -34,7 +35,7 @@ export const generateStoryEndpoint: Endpoint<
   async processRequest({ input: audioRecording, run }) {
     const voiceIndex = await MemoryVectorIndex.deserialize({
       serializedData: voicesData,
-      schema: voiceSchema,
+      schema: new ZodSchema(voiceSchema),
     });
 
     const transcription = await transcribe(
