@@ -145,5 +145,7 @@ export const generateStoryEndpoint: Endpoint<
         }
       })(),
     ]);
+
+    run.publishEvent({ type: "finished-generation" });
   },
 };

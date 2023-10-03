@@ -9,11 +9,39 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
 import { delay } from "@/lib/delay";
+import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
 import { Loader2, Mic } from "lucide-react";
-import { readEventSourceStream } from "modelfusion";
 import { useRef, useState } from "react";
+import { z } from "zod";
+
+function readEventSource<T>({
+  url,
+  eventSchema,
+  onEvent,
+  onError,
+}: {
+  url: string;
+  eventSchema: z.ZodSchema<T>;
+  onEvent: (event: T, eventSource: EventSource) => void;
+  onError: (error: unknown, eventSource: EventSource) => void;
+}) {
+  const eventSource = new EventSource(url);
+
+  eventSource.onmessage = (e) => {
+    try {
+      // TODO secureJSON
+      const event = eventSchema.parse(JSON.parse(e.data));
+      onEvent(event, eventSource);
+    } catch (error) {
+      onError(error, eventSource);
+    }
+  };
+
+  eventSource.onerror = (e) => {
+    onError(e, eventSource);
+  };
+}
 
 export default function Home() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -77,41 +105,41 @@ export default function Home() {
 
           const path: string = (await response.json()).path;
 
-          const eventStreamResponse = await fetch(`${baseUrl}${path}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
+          readEventSource({
+            url: `${baseUrl}${path}`,
+            eventSchema: storytellerEventSchema,
+            onEvent(event, eventSource) {
+              switch (event.type) {
+                case "transcribed-input": {
+                  setInput(event.input);
+                  break;
+                }
+                case "generated-image": {
+                  setImageUrl(`${baseUrl}${event.path}`);
+                  break;
+                }
+                case "generated-title": {
+                  setTitle(event.title);
+                  break;
+                }
+                case "generated-audio-part": {
+                  audioUrls[event.index] = `${baseUrl}${event.path}`;
+                  setAudioUrls(audioUrls.slice());
+                  break;
+                }
+                case "finished-generation": {
+                  setGeneratingStory(false);
+                  eventSource.close();
+                  break;
+                }
+              }
+            },
+            onError(error) {
+              console.error(error);
+            },
           });
-
-          const events = readEventSourceStream({
-            stream: eventStreamResponse.body!,
-            schema: storytellerEventSchema,
-            errorHandler: console.error,
-          });
-
-          for await (const event of events) {
-            switch (event.type) {
-              case "transcribed-input": {
-                setInput(event.input);
-                break;
-              }
-              case "generated-image": {
-                setImageUrl(`${baseUrl}${event.path}`);
-                break;
-              }
-              case "generated-title": {
-                setTitle(event.title);
-                break;
-              }
-              case "generated-audio-part": {
-                audioUrls[event.index] = `${baseUrl}${event.path}`;
-                setAudioUrls(audioUrls.slice());
-              }
-            }
-          }
         } catch (error) {
           console.error(error);
-        } finally {
-          setGeneratingStory(false);
         }
       };
 

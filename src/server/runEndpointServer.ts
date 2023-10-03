@@ -31,9 +31,7 @@ export async function runEndpointServer<EVENT>({
     const file = data.file;
     const buffer = await streamToBuffer(file);
 
-    const run = new EndpointRun<EVENT>({
-      endpointName: endpoint.name,
-    });
+    const run = new EndpointRun<EVENT>({ endpointName: endpoint.name });
 
     runs[run.runId] = run;
 

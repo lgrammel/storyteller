@@ -18,6 +18,9 @@ export const storytellerEventSchema = z.discriminatedUnion("type", [
     index: z.number(),
     path: z.string(),
   }),
+  z.object({
+    type: z.literal("finished-generation"),
+  }),
 ]);
 
 export type StorytellerEvent = z.infer<typeof storytellerEventSchema>;
