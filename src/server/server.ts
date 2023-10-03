@@ -5,7 +5,7 @@ import { runEndpointServer } from "./runEndpointServer";
 
 dotenv.config();
 
-setGlobalFunctionLogging("detailed-object");
+setGlobalFunctionLogging("basic-text");
 
 runEndpointServer({
   endpoint: generateStoryEndpoint,

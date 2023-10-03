@@ -49,12 +49,7 @@ export async function runEndpointServer<EVENT>({
     endpoint
       .processRequest({
         input: buffer, // endpoint.inputSchema.parse(request.body),
-        storeAsset: async (asset) => {
-          return run.storeDataAsset(asset);
-        },
-        publishEvent: (event) => {
-          run.publishEvent(event);
-        },
+        run,
       })
       .catch((err) => {
         console.error(err);

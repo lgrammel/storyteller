@@ -1,6 +1,6 @@
-import { OpenAITextGenerationModel, generateText } from "modelfusion";
+import { OpenAITextGenerationModel, Run, generateText } from "modelfusion";
 
-export async function generateTitle(story: string) {
+export async function generateTitle(story: string, { run }: { run: Run }) {
   return generateText(
     new OpenAITextGenerationModel({
       model: "gpt-3.5-turbo-instruct",
@@ -14,6 +14,7 @@ export async function generateTitle(story: string) {
       `'${story}'.`,
       "",
       'Title: "',
-    ].join("\n")
+    ].join("\n"),
+    { functionId: "generate-title", run }
   );
 }

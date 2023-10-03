@@ -1,5 +1,4 @@
-import { AsyncQueue, Run } from "modelfusion";
-import { nanoid as createId } from "nanoid";
+import { AsyncQueue, DefaultRun } from "modelfusion";
 
 export type Asset = {
   data: Buffer;
@@ -7,13 +6,13 @@ export type Asset = {
   name: string;
 };
 
-export class EndpointRun<EVENT> implements Run {
-  readonly runId = createId();
+export class EndpointRun<EVENT> extends DefaultRun {
   readonly eventQueue: AsyncQueue<EVENT> = new AsyncQueue();
   readonly assets: Record<string, Asset> = {};
   readonly endpointName: string;
 
   constructor({ endpointName }: { endpointName: string }) {
+    super();
     this.endpointName = endpointName;
   }
 

@@ -1,6 +1,7 @@
 import {
   OpenAIChatMessage,
   OpenAIChatModel,
+  Run,
   ZodStructureDefinition,
   streamStructure,
 } from "modelfusion";
@@ -13,7 +14,7 @@ export const structuredStorySchema = z.object({
 
 export type StructuredStory = z.infer<typeof structuredStorySchema>;
 
-export async function generateAudioStory(story: string) {
+export async function generateAudioStory(story: string, { run }: { run: Run }) {
   return streamStructure(
     new OpenAIChatModel({
       model: "gpt-4",
@@ -41,6 +42,7 @@ export async function generateAudioStory(story: string) {
           story,
         ].join("\n")
       ),
-    ]
+    ],
+    { functionId: "generate-audio-story", run }
   );
 }

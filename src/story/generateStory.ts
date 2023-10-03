@@ -1,6 +1,6 @@
-import { OpenAITextGenerationModel, generateText } from "modelfusion";
+import { OpenAITextGenerationModel, Run, generateText } from "modelfusion";
 
-export async function generateStory(topic: string) {
+export async function generateStory(topic: string, { run }: { run: Run }) {
   return generateText(
     new OpenAITextGenerationModel({
       model: "gpt-3.5-turbo-instruct",
@@ -10,6 +10,7 @@ export async function generateStory(topic: string) {
     [
       "Generate a story aimed at preschoolers on the following topic: ",
       `'${topic}'.`,
-    ].join("\n")
+    ].join("\n"),
+    { functionId: "generate-story", run }
   );
 }
