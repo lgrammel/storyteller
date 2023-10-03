@@ -1,18 +1,18 @@
-import { applicationEventSchema } from "@/lib/ApplicationEvent";
 import {
   NarratedStoryPart,
   narratedStoryPartSchema,
-} from "@/story/NarratedStoryPart";
+} from "@/storyteller/NarratedStoryPart";
+import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
 import {
   generateAudioStory,
   structuredStorySchema,
-} from "@/story/generateAudioStory";
-import { generateStory } from "@/story/generateStory";
-import { generateStoryImage } from "@/story/generateStoryImage";
-import { generateTitle } from "@/story/generateTitle";
-import { narrateStoryPart } from "@/story/narrateStoryPart";
-import { FullVoiceId, selectVoice } from "@/story/selectVoice";
-import { Voice, voiceSchema } from "@/story/voice";
+} from "@/storyteller/generateAudioStory";
+import { generateStory } from "@/storyteller/generateStory";
+import { generateStoryImage } from "@/storyteller/generateStoryImage";
+import { generateTitle } from "@/storyteller/generateTitle";
+import { narrateStoryPart } from "@/storyteller/narrateStoryPart";
+import { FullVoiceId, selectVoice } from "@/storyteller/selectVoice";
+import { Voice, voiceSchema } from "@/storyteller/voice";
 import {
   MemoryVectorIndex,
   OpenAITranscriptionModel,
@@ -20,16 +20,16 @@ import {
 } from "modelfusion";
 import { readFileSync } from "node:fs";
 import { z } from "zod";
-import { Endpoint } from "./Endpoint";
+import { Endpoint } from "../server/Endpoint";
 
 const voicesData = readFileSync("./data/voices.index.json", "utf8");
 
 export const generateStoryEndpoint: Endpoint<
-  z.infer<typeof applicationEventSchema>
+  z.infer<typeof storytellerEventSchema>
 > = {
   name: "generate-story",
 
-  eventSchema: applicationEventSchema,
+  eventSchema: storytellerEventSchema,
 
   async processRequest({ input: audioRecording, run }) {
     const voiceIndex = await MemoryVectorIndex.deserialize({

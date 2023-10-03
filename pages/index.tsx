@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { applicationEventSchema } from "@/lib/ApplicationEvent";
+import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
 import { delay } from "@/lib/delay";
 import { Loader2, Mic } from "lucide-react";
 import { readEventSourceStream } from "modelfusion";
@@ -84,7 +84,7 @@ export default function Home() {
 
           const events = readEventSourceStream({
             stream: eventStreamResponse.body!,
-            schema: applicationEventSchema,
+            schema: storytellerEventSchema,
             errorHandler: console.error,
           });
 

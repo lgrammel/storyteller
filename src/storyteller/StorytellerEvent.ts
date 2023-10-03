@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const applicationEventSchema = z.discriminatedUnion("type", [
+export const storytellerEventSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("transcribed-input"),
     input: z.string(),
@@ -20,4 +20,4 @@ export const applicationEventSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
-export type ApplicationEvent = z.infer<typeof applicationEventSchema>;
+export type StorytellerEvent = z.infer<typeof storytellerEventSchema>;

@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { setGlobalFunctionLogging } from "modelfusion";
-import { generateStoryEndpoint } from "./generateStoryEndpoint";
+import { generateStoryEndpoint } from "../storyteller/generateStoryEndpoint";
 import { runEndpointServer } from "./runEndpointServer";
 
 dotenv.config();
