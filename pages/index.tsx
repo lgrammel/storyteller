@@ -43,7 +43,10 @@ export default function Home() {
           audioChunksRef.current.push(e.data);
         };
 
-        mediaRecorder.start();
+        // .start(1000): workaround for Safari/iphone
+        // see https://community.openai.com/t/whisper-api-completely-wrong-for-mp4/289256/12
+        mediaRecorder.start(1000);
+
         setIsRecording(true);
       })
       .catch((error) => {

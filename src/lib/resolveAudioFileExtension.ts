@@ -12,6 +12,13 @@ export function resolveAudioFileExtension(mimetype: string) {
     case "audio/mpeg":
     case "audio/mpga":
       return "mpeg";
+    case "audio/ogg":
+    case "audio/oga":
+      return "ogg";
+    case "audio/flac":
+      return "flac";
+    case "audio/m4a":
+      return "m4a";
     default:
       throw new Error(`Unsupported audio format: ${mimetype}`);
   }
