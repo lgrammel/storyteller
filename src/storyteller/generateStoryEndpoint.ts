@@ -17,12 +17,12 @@ import {
   MemoryVectorIndex,
   OpenAITranscriptionModel,
   ZodSchema,
+  getAudioFileExtension,
   transcribe,
 } from "modelfusion";
 import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { Endpoint } from "../server/Endpoint";
-import { resolveAudioFileExtension } from "../lib/resolveAudioFileExtension";
 
 const voicesData = readFileSync("./data/voices.index.json", "utf8");
 
@@ -41,7 +41,7 @@ export const generateStoryEndpoint: Endpoint<
 
     const transcription = await transcribe(
       new OpenAITranscriptionModel({ model: "whisper-1" }),
-      { type: resolveAudioFileExtension(mimetype), data: audioRecording },
+      { type: getAudioFileExtension(mimetype), data: audioRecording },
       { functionId: "transcribe", run }
     );
 
