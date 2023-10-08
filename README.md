@@ -2,7 +2,7 @@
 
 StoryTeller is an exploratory web application that creates short audio stories for pre-school kids.
 
-<table style="width:100%; background-color:white;">
+<table style="width:100%;">
 <tr>
 <td><img src="example/example-3.png"></td>
 <td><img src="example/example-1.png"></td>
