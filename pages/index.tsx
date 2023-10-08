@@ -15,6 +15,8 @@ import { Loader2, Mic } from "lucide-react";
 import { ZodSchema, readEventSource } from "modelfusion";
 import { useRef, useState } from "react";
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
 export default function Home() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -64,8 +66,6 @@ export default function Home() {
           });
           const formData = new FormData();
           formData.append("audio", audioBlob, "audio.mp3");
-
-          const baseUrl = "http://localhost:3001";
 
           const response = await fetch(`${baseUrl}/generate-story`, {
             method: "POST",
