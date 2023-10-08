@@ -66,7 +66,7 @@ The following AI APIs are used:
 
 ## Limitations
 
-- Tested on Chrome. Other browsers may not work.
+- Tested on Chrome Desktop (Mac). Other browsers & operating systems (in particular mobile) may not work.
 - No persistent execution with error handling
 - No user accounts / persistent data (only storage of image and audio files)
 - No user authentication / authorization
