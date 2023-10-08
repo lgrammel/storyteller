@@ -35,7 +35,7 @@
     "eventsource-parser": "1.1.1",
     "fastify": "^4.23.2",
     "lucide-react": "^0.276.0",
-    "modelfusion": "*",
+    "modelfusion": "0.41.1",
     "next": "13.4.19",
     "postcss": "8.4.29",
     "react": "18.2.0",
