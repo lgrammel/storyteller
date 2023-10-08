@@ -47,6 +47,23 @@ StoryTeller can be deployed as a [Render](https://render.com/) web service.
 - Configure the `NEXT_PUBLIC_BASE_URL` environment variable to the Render service URL (**base url must not have trailing slash**)
 - Add the API keys to the Render Environment settings.
 
+## Used Libraries and AI services
+
+StoryTeller is built with the following libraries:
+
+- [ModelFusion](https://modelfusion.dev/)
+- [Fastify](https://www.fastify.io/)
+- [Next.js](https://nextjs.org/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Zod](https://zod.dev/)
+
+The following AI APIs are used:
+
+- [OpenAI](https://platform.openai.com/)
+- [Eleven Labs](https://elevenlabs.io/)
+- [Lmnt](https://lmnt.com/)
+- [Stability](https://platform.stability.ai/)
+
 ## Limitations
 
 - No persistent execution with error handling
