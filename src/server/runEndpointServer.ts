@@ -36,6 +36,7 @@ export async function runEndpointServer<EVENT>({
     }
     const file = data.file;
     const buffer = await streamToBuffer(file);
+    const mimetype = data.mimetype;
 
     const run = new EndpointRun<EVENT>({ endpointName: endpoint.name });
 
@@ -44,7 +45,7 @@ export async function runEndpointServer<EVENT>({
     // start longer-running process (no await):
     endpoint
       .processRequest({
-        input: buffer, // endpoint.inputSchema.parse(request.body),
+        input: { mimetype, data: buffer },
         run,
       })
       .catch((err) => {

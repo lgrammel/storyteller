@@ -7,7 +7,10 @@ export type Endpoint<EVENT> = {
   eventSchema: z.ZodType<EVENT>;
 
   processRequest: (options: {
-    input: Buffer;
+    input: {
+      mimetype: string;
+      data: Buffer;
+    };
     run: EndpointRun<EVENT>;
   }) => Promise<void>;
 };

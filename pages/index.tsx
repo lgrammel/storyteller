@@ -62,7 +62,7 @@ export default function Home() {
 
         try {
           const audioBlob = new Blob(audioChunksRef.current, {
-            type: "audio/mp3",
+            type: mediaRecorder.mimeType,
           });
           const formData = new FormData();
           formData.append("audio", audioBlob, "audio.mp3");

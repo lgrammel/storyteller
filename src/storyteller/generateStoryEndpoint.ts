@@ -22,6 +22,7 @@ import {
 import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { Endpoint } from "../server/Endpoint";
+import { resolveAudioFileExtension } from "../lib/resolveAudioFileExtension";
 
 const voicesData = readFileSync("./data/voices.index.json", "utf8");
 
@@ -32,7 +33,7 @@ export const generateStoryEndpoint: Endpoint<
 
   eventSchema: storytellerEventSchema,
 
-  async processRequest({ input: audioRecording, run }) {
+  async processRequest({ input: { mimetype, data: audioRecording }, run }) {
     const voiceIndex = await MemoryVectorIndex.deserialize({
       serializedData: voicesData,
       schema: new ZodSchema(voiceSchema),
@@ -40,7 +41,7 @@ export const generateStoryEndpoint: Endpoint<
 
     const transcription = await transcribe(
       new OpenAITranscriptionModel({ model: "whisper-1" }),
-      { type: "mp3", data: audioRecording },
+      { type: resolveAudioFileExtension(mimetype), data: audioRecording },
       { functionId: "transcribe", run }
     );
 
