@@ -19,6 +19,9 @@
     "start": "npx tsx src/server/server.ts",
     "lint": "next lint"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@fastify/cors": "^8.4.0",
     "@fastify/multipart": "^7.7.3",
