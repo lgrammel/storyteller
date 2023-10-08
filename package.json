@@ -1,9 +1,20 @@
 {
   "name": "storyteller",
+  "description": "StoryTeller: generate short audio stories for pre-school kids.",
+  "author": "Lars Grammel",
+  "license": "MIT",
+  "keywords": [
+    "modelfusion",
+    "multimodal",
+    "openai",
+    "whisper",
+    "ai"
+  ],
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "next": "next dev",
+    "fastify": "npx tsx src/server/server.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
