@@ -1,13 +1,22 @@
 # Storyteller
 
-StoryTeller is am exploratory web application that creates short audio stories for pre-school kids.
+StoryTeller is an exploratory web application that creates short audio stories for pre-school kids.
+
+<table style="width:100%; background-color:white;">
+<tr>
+<td><img src="example/example-3.png"></td>
+<td><img src="example/example-1.png"></td>
+<td><img src="example/example-2.png"></td>
+</tr>
+</table>
 
 ## Development
 
 1. Install dependencies: `npm i`
-1. Setup `.env` with required keys:
+1. Setup `.env` with required keys and base url:
 
    ```
+    NEXT_PUBLIC_BASE_URL="http://localhost:3001"
     OPENAI_API_KEY="sk-..."
     ELEVENLABS_API_KEY="..."
     LMNT_API_KEY="..."
@@ -28,6 +37,15 @@ StoryTeller is am exploratory web application that creates short audio stories f
 ## Deployment
 
 1. Build the Next.js app: `npm run build`. This exports the app to the `out` folder, so it can be served by Fastify.
+
+### Deploy to Render
+
+StoryTeller can be deployed as a [Render](https://render.com/) web service.
+
+- Build command: `npm i; npm run build`
+- Start command: `npm start`
+- Configure the `NEXT_PUBLIC_BASE_URL` environment variable to the Render service URL (**base url must not have trailing slash**)
+- Add the API keys to the Render Environment settings.
 
 ## Limitations
 
