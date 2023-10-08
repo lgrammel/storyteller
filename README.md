@@ -1,6 +1,6 @@
 # Storyteller
 
-StoryTeller is a web application that creates short audio stories for pre-school kids.
+StoryTeller is am exploratory web application that creates short audio stories for pre-school kids.
 
 ## Development
 
@@ -27,6 +27,7 @@ StoryTeller is a web application that creates short audio stories for pre-school
 
 ## Limitations
 
-- Limit error handling
+- No persistent execution with error handling
 - No user accounts / persistent data (only storage of image and audio files)
 - No user authentication / authorization
+- Limited error handling on the client
