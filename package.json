@@ -16,12 +16,13 @@
     "next": "next dev",
     "fastify": "npx tsx src/server/server.ts",
     "build": "next build",
-    "start": "next start",
+    "start": "npx tsx src/server/server.ts",
     "lint": "next lint"
   },
   "dependencies": {
     "@fastify/cors": "^8.4.0",
     "@fastify/multipart": "^7.7.3",
+    "@fastify/static": "^6.11.2",
     "@radix-ui/react-aspect-ratio": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@types/node": "20.6.0",

@@ -25,6 +25,10 @@ StoryTeller is am exploratory web application that creates short audio stories f
 1. Start Next.js server for UI (runs on port 3000): `npm run next`
 1. Go to [localhost:3000](http://localhost:3000)
 
+## Deployment
+
+1. Build the Next.js app: `npm run build`. This exports the app to the `out` folder, so it can be served by Fastify.
+
 ## Limitations
 
 - No persistent execution with error handling

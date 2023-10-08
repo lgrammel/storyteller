@@ -1,7 +1,9 @@
 import { streamToBuffer } from "@/lib/streamToBuffer";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
+import fastifyStatic from "@fastify/static";
 import Fastify from "fastify";
+import path from "node:path";
 import { Endpoint } from "./Endpoint";
 import { EndpointRun } from "./EndpointRun";
 import { saveEndpointRunAssets } from "./saveEndpointRunAssets";
@@ -19,6 +21,10 @@ export async function runEndpointServer<EVENT>({
 
   await server.register(cors, {});
   await server.register(multipart, {});
+  await server.register(fastifyStatic, {
+    root: path.join(__dirname, "..", "..", "out"),
+    prefix: "/",
+  });
 
   const runs: Record<string, EndpointRun<EVENT>> = {};
 
