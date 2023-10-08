@@ -140,11 +140,7 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             <Button
-              onTouchStart={startRecording}
-              onTouchEnd={stopRecording}
-              onMouseDown={startRecording}
-              onMouseUp={stopRecording}
-              onMouseLeave={stopRecording}
+              onClick={isRecording ? stopRecording : startRecording}
               onContextMenu={(e) => e.preventDefault()}
               variant="outline"
             >
