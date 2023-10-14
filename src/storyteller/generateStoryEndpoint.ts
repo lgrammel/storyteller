@@ -92,7 +92,7 @@ export const generateStoryEndpoint: Endpoint<
             stopSequences: ['"'],
           }),
           [
-            "Generate short title for the following story for pre-school children: ",
+            "Generate a short title for the following story for pre-school children: ",
             "",
             `'${story}'.`,
             "",
@@ -114,7 +114,8 @@ export const generateStoryEndpoint: Endpoint<
           }).withPromptFormat(mapInstructionPromptToOpenAIChatFormat()),
           {
             instruction:
-              "Generate an short image generation prompt (only abstract keywords, max 8 keywords) for the following story:",
+              "Generate a short image generation prompt " +
+              "(only abstract keywords, max 8 keywords) for the following story:",
             input: story,
           },
           { functionId: "generate-story-image-prompt" }
