@@ -7,7 +7,7 @@ import {
   mapInstructionPromptToOpenAIChatFormat,
 } from "modelfusion";
 
-export async function generateStoryImage(story: string, { run }: { run: Run }) {
+export async function generateStoryImage(story: string) {
   const imagePrompt = await generateText(
     new OpenAIChatModel({
       model: "gpt-4",
@@ -19,7 +19,7 @@ export async function generateStoryImage(story: string, { run }: { run: Run }) {
         "Generate an short image generation prompt (only abstract keywords, max 8 keywords) for the following story:",
       input: story,
     },
-    { functionId: "generate-story-image-prompt", run }
+    { functionId: "generate-story-image-prompt" }
   );
 
   return await generateImage(
@@ -36,6 +36,6 @@ export async function generateStoryImage(story: string, { run }: { run: Run }) {
         text: `${imagePrompt} style of colorful illustration for a preschooler story`,
       },
     ],
-    { functionId: "generate-story-image", run }
+    { functionId: "generate-story-image" }
   );
 }

@@ -7,6 +7,7 @@ import path from "node:path";
 import { Endpoint } from "./Endpoint";
 import { EndpointRun } from "./EndpointRun";
 import { saveEndpointRunAssets } from "./saveEndpointRunAssets";
+import { withRun } from "modelfusion";
 
 export async function runEndpointServer<EVENT>({
   endpoint,
@@ -43,26 +44,30 @@ export async function runEndpointServer<EVENT>({
     runs[run.runId] = run;
 
     // start longer-running process (no await):
-    endpoint
-      .processRequest({
-        input: { mimetype, data: buffer },
-        run,
-      })
-      .catch((err) => {
-        console.error(err);
-      })
-      .finally(async () => {
-        run.finish();
-
-        try {
-          await saveEndpointRunAssets({
-            basePath: "stories",
-            run,
-          });
-        } catch (err) {
+    withRun(run, async () => {
+      endpoint
+        .processRequest({
+          input: { mimetype, data: buffer },
+          run,
+        })
+        .catch((err) => {
           console.error(err);
-        }
-      });
+        })
+        .finally(async () => {
+          run.finish();
+
+          console.log(run.events);
+
+          try {
+            await saveEndpointRunAssets({
+              basePath: "stories",
+              run,
+            });
+          } catch (err) {
+            console.error(err);
+          }
+        });
+    });
 
     return {
       id: run.runId,

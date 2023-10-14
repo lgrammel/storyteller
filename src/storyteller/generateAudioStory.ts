@@ -14,7 +14,7 @@ export const structuredStorySchema = z.object({
 
 export type StructuredStory = z.infer<typeof structuredStorySchema>;
 
-export async function generateAudioStory(story: string, { run }: { run: Run }) {
+export async function generateAudioStory(story: string) {
   return streamStructure(
     new OpenAIChatModel({
       model: "gpt-4",
@@ -43,6 +43,6 @@ export async function generateAudioStory(story: string, { run }: { run: Run }) {
         ].join("\n")
       ),
     ],
-    { functionId: "generate-audio-story", run }
+    { functionId: "generate-audio-story" }
   );
 }

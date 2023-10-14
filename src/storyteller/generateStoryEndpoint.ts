@@ -42,7 +42,7 @@ export const generateStoryEndpoint: Endpoint<
     const transcription = await transcribe(
       new OpenAITranscriptionModel({ model: "whisper-1" }),
       { type: getAudioFileExtension(mimetype), data: audioRecording },
-      { functionId: "transcribe", run }
+      { functionId: "transcribe" }
     );
 
     run.publishEvent({
@@ -50,19 +50,19 @@ export const generateStoryEndpoint: Endpoint<
       input: transcription,
     });
 
-    const story = await generateStory(transcription, { run });
+    const story = await generateStory(transcription);
 
     // Run in parallel:
     await Promise.all([
       // generate title:
       (async () => {
-        const title = await generateTitle(story, { run });
+        const title = await generateTitle(story);
         run.publishEvent({ type: "generated-title", title });
       })(),
 
       // generate image that represents story:
       (async () => {
-        const storyImageBase64 = await generateStoryImage(story, { run });
+        const storyImageBase64 = await generateStoryImage(story);
 
         const imagePath = await run.storeDataAsset({
           name: "story.png",
@@ -78,7 +78,7 @@ export const generateStoryEndpoint: Endpoint<
         const speakerToVoice = new Map<string, Voice>();
         const processedParts: Array<NarratedStoryPart> = [];
 
-        const audioStoryFragments = await generateAudioStory(story, { run });
+        const audioStoryFragments = await generateAudioStory(story);
 
         for await (const fragment of audioStoryFragments) {
           if (!fragment.isComplete) {
@@ -116,25 +116,19 @@ export const generateStoryEndpoint: Endpoint<
             let voice = speakerToVoice.get(speaker);
 
             if (voice == null) {
-              voice = await selectVoice(
-                {
-                  speaker,
-                  story,
-                  unavailableVoices: Array.from(speakerToVoice.values()).map(
-                    (voice) => `${voice.provider}:${voice.voiceId}`
-                  ) as FullVoiceId[],
-                  voiceIndex,
-                },
-                { run }
-              );
+              voice = await selectVoice({
+                speaker,
+                story,
+                unavailableVoices: Array.from(speakerToVoice.values()).map(
+                  (voice) => `${voice.provider}:${voice.voiceId}`
+                ) as FullVoiceId[],
+                voiceIndex,
+              });
 
               speakerToVoice.set(speaker, voice);
             }
 
-            const narrationAudio = await narrateStoryPart(
-              { part, voice },
-              { run }
-            );
+            const narrationAudio = await narrateStoryPart({ part, voice });
 
             const path = await run.storeDataAsset({
               name: `story-part-${index}.mp3`,

@@ -14,20 +14,17 @@ import { Voice } from "./voice";
 
 export type FullVoiceId = `${"lmnt" | "elevenlabs"}:${string}`;
 
-export async function selectVoice(
-  {
-    story,
-    speaker,
-    unavailableVoices,
-    voiceIndex,
-  }: {
-    story: string;
-    speaker: string;
-    unavailableVoices: FullVoiceId[];
-    voiceIndex: MemoryVectorIndex<Voice>;
-  },
-  { run }: { run: Run }
-): Promise<Voice> {
+export async function selectVoice({
+  story,
+  speaker,
+  unavailableVoices,
+  voiceIndex,
+}: {
+  story: string;
+  speaker: string;
+  unavailableVoices: FullVoiceId[];
+  voiceIndex: MemoryVectorIndex<Voice>;
+}): Promise<Voice> {
   // pre-determined narrator voice:
   if (speaker.toLowerCase() === "narrator") {
     return {
@@ -71,7 +68,7 @@ export async function selectVoice(
         ].join("\n")
       ),
     ],
-    { functionId: "generate-voice-description", run }
+    { functionId: "generate-voice-description" }
   );
 
   // retrieve the voice vectors from the index:
@@ -90,7 +87,7 @@ export async function selectVoice(
           : true),
     }),
     voiceDescription.description,
-    { functionId: "retrieve-voice", run }
+    { functionId: "retrieve-voice" }
   );
 
   const voice = potentialVoices.find(
