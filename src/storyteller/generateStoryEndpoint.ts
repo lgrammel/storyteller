@@ -8,7 +8,6 @@ import {
   structuredStorySchema,
 } from "@/storyteller/generateAudioStory";
 import { generateStoryImage } from "@/storyteller/generateStoryImage";
-import { generateTitle } from "@/storyteller/generateTitle";
 import { narrateStoryPart } from "@/storyteller/narrateStoryPart";
 import { FullVoiceId, selectVoice } from "@/storyteller/selectVoice";
 import { Voice, voiceSchema } from "@/storyteller/voice";
@@ -40,19 +39,16 @@ export const generateStoryEndpoint: Endpoint<
       schema: new ZodSchema(voiceSchema),
     });
 
-    // 1. Transcribe the user voice input:
+    // Transcribe the user voice input:
     const transcription = await transcribe(
       new OpenAITranscriptionModel({ model: "whisper-1" }),
       { type: getAudioFileExtension(mimetype), data: audioRecording },
       { functionId: "transcribe" }
     );
 
-    run.publishEvent({
-      type: "transcribed-input",
-      input: transcription,
-    });
+    run.publishEvent({ type: "transcribed-input", input: transcription });
 
-    // 2. Generate a story based on the transcription:
+    // Generate a story based on the transcription:
     const story = await generateText(
       new OpenAITextGenerationModel({
         model: "gpt-3.5-turbo-instruct",
@@ -68,9 +64,25 @@ export const generateStoryEndpoint: Endpoint<
 
     // Run in parallel:
     await Promise.all([
-      // generate title:
+      // Generate title:
       (async () => {
-        const title = await generateTitle(story);
+        const title = await generateText(
+          new OpenAITextGenerationModel({
+            model: "gpt-3.5-turbo-instruct",
+            temperature: 0.7,
+            maxCompletionTokens: 200,
+            stopSequences: ['"'],
+          }),
+          [
+            "Generate short title for the following story for pre-school children: ",
+            "",
+            `'${story}'.`,
+            "",
+            'Title: "',
+          ].join("\n"),
+          { functionId: "generate-title" }
+        );
+
         run.publishEvent({ type: "generated-title", title });
       })(),
 
