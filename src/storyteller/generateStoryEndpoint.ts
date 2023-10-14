@@ -3,24 +3,23 @@ import {
   narratedStoryPartSchema,
 } from "@/storyteller/NarratedStoryPart";
 import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
-import {
-  generateAudioStory,
-  structuredStorySchema,
-} from "@/storyteller/generateAudioStory";
 import { narrateStoryPart } from "@/storyteller/narrateStoryPart";
 import { FullVoiceId, selectVoice } from "@/storyteller/selectVoice";
 import { Voice, voiceSchema } from "@/storyteller/voice";
 import {
   MemoryVectorIndex,
+  OpenAIChatMessage,
   OpenAIChatModel,
   OpenAITextGenerationModel,
   OpenAITranscriptionModel,
   StabilityImageGenerationModel,
   ZodSchema,
+  ZodStructureDefinition,
   generateImage,
   generateText,
   getAudioFileExtension,
   mapInstructionPromptToOpenAIChatFormat,
+  streamStructure,
   transcribe,
 } from "modelfusion";
 import { readFileSync } from "node:fs";
@@ -28,6 +27,10 @@ import { z } from "zod";
 import { Endpoint } from "../server/Endpoint";
 
 const voicesData = readFileSync("./data/voices.index.json", "utf8");
+
+const structuredStorySchema = z.object({
+  parts: z.array(narratedStoryPartSchema),
+});
 
 export const generateStoryEndpoint: Endpoint<
   z.infer<typeof storytellerEventSchema>
@@ -136,7 +139,36 @@ export const generateStoryEndpoint: Endpoint<
         const speakerToVoice = new Map<string, Voice>();
         const processedParts: Array<NarratedStoryPart> = [];
 
-        const audioStoryFragments = await generateAudioStory(story);
+        const audioStoryFragments = await streamStructure(
+          new OpenAIChatModel({
+            model: "gpt-4",
+            temperature: 0,
+          }),
+          new ZodStructureDefinition({
+            name: "story",
+            description: "Kids story with narration.",
+            schema: structuredStorySchema,
+          }),
+          [
+            OpenAIChatMessage.user(
+              [
+                "Expand the following story into a longer, narrated audio story for preschoolers.",
+                "",
+                "The audio story should include interesting dialogue by the main characters.",
+                "The language should be understandable by a preschooler.",
+                "",
+                "Add details and dialoge to make the story parts longer.",
+                "Add the speaker to each dialogue part. A dialogue part can only have one speaker.",
+                "There must only be one narrator.",
+                "Each spoken part must be a dialogue part with a speaker.",
+                "",
+                "Story:",
+                story,
+              ].join("\n")
+            ),
+          ],
+          { functionId: "generate-audio-story" }
+        );
 
         for await (const fragment of audioStoryFragments) {
           if (!fragment.isComplete) {
