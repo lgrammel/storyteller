@@ -7,7 +7,6 @@ import {
   generateAudioStory,
   structuredStorySchema,
 } from "@/storyteller/generateAudioStory";
-import { generateStory } from "@/storyteller/generateStory";
 import { generateStoryImage } from "@/storyteller/generateStoryImage";
 import { generateTitle } from "@/storyteller/generateTitle";
 import { narrateStoryPart } from "@/storyteller/narrateStoryPart";
@@ -15,8 +14,10 @@ import { FullVoiceId, selectVoice } from "@/storyteller/selectVoice";
 import { Voice, voiceSchema } from "@/storyteller/voice";
 import {
   MemoryVectorIndex,
+  OpenAITextGenerationModel,
   OpenAITranscriptionModel,
   ZodSchema,
+  generateText,
   getAudioFileExtension,
   transcribe,
 } from "modelfusion";
@@ -39,6 +40,7 @@ export const generateStoryEndpoint: Endpoint<
       schema: new ZodSchema(voiceSchema),
     });
 
+    // 1. Transcribe the user voice input:
     const transcription = await transcribe(
       new OpenAITranscriptionModel({ model: "whisper-1" }),
       { type: getAudioFileExtension(mimetype), data: audioRecording },
@@ -50,7 +52,19 @@ export const generateStoryEndpoint: Endpoint<
       input: transcription,
     });
 
-    const story = await generateStory(transcription);
+    // 2. Generate a story based on the transcription:
+    const story = await generateText(
+      new OpenAITextGenerationModel({
+        model: "gpt-3.5-turbo-instruct",
+        temperature: 1.2,
+        maxCompletionTokens: 1000,
+      }),
+      [
+        "Generate a story aimed at preschoolers on the following topic: ",
+        `'${transcription}'.`,
+      ].join("\n"),
+      { functionId: "generate-story" }
+    );
 
     // Run in parallel:
     await Promise.all([
