@@ -55,9 +55,6 @@ export async function runEndpointServer<EVENT>({
         })
         .finally(async () => {
           run.finish();
-
-          console.log(run.events);
-
           try {
             await saveEndpointRunAssets({
               basePath: "stories",
