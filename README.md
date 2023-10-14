@@ -10,6 +10,12 @@ StoryTeller is an exploratory web application that creates short audio stories f
 </tr>
 </table>
 
+## Example
+
+
+https://github.com/lgrammel/storyteller/assets/205036/963df672-a4fc-4d0f-a74c-1e37c1246763
+
+
 ## Development
 
 1. Install dependencies: `npm i`
