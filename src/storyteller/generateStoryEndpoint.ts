@@ -129,7 +129,17 @@ export const generateStoryEndpoint: Endpoint<
 
       // expand and narrate story:
       (async () => {
-        const voiceManager = await VoiceManager.fromFile("./data/voices.json");
+        const voiceManager = await VoiceManager.fromFile({
+          voicesPath: "./data/voices.json",
+          narrator: {
+            voiceId: "c8ea4f2a-06e6-4d7b-9484-db941bf7c657",
+            name: "Joe",
+            provider: "lmnt",
+            gender: "M",
+            description: "Male voice. Middle-aged.",
+          },
+        });
+
         const processedParts: Array<NarratedStoryPart> = [];
 
         const audioStoryFragments = await streamStructure(
