@@ -20,7 +20,7 @@ export class EndpointRun<EVENT> extends DefaultRun {
     this.eventQueue.push(event);
   }
 
-  async storeDataAsset(asset: Asset): Promise<string> {
+  async storeBinaryAsset(asset: Asset): Promise<string> {
     this.assets[asset.name] = asset;
     return `/${this.endpointName}/${this.runId}/assets/${asset.name}`;
   }
@@ -30,7 +30,7 @@ export class EndpointRun<EVENT> extends DefaultRun {
     contentType: string;
     name: string;
   }) {
-    return this.storeDataAsset({
+    return this.storeBinaryAsset({
       data: Buffer.from(asset.text),
       contentType: asset.contentType,
       name: asset.name,

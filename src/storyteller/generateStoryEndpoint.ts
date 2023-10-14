@@ -100,7 +100,7 @@ export const generateStoryEndpoint: Endpoint<
           { functionId: "generate-story-image" }
         );
 
-        const imagePath = await run.storeDataAsset({
+        const imagePath = await run.storeBinaryAsset({
           name: "story.png",
           data: Buffer.from(storyImageBase64, "base64"),
           contentType: "image/png",
@@ -212,7 +212,7 @@ export const generateStoryEndpoint: Endpoint<
               { functionId: "narrate-story-part" }
             );
 
-            const path = await run.storeDataAsset({
+            const path = await run.storeBinaryAsset({
               name: `story-part-${index}.mp3`,
               data: narrationAudio,
               contentType: "audio/mpeg",
