@@ -83,7 +83,7 @@ export const generateStoryEndpoint: Endpoint<
           { functionId: "generate-story-image-prompt" }
         );
 
-        const storyImageBase64 = await generateImage(
+        const storyImage = await generateImage(
           new StabilityImageGenerationModel({
             model: "stable-diffusion-xl-1024-v1-0",
             cfgScale: 7,
@@ -91,18 +91,14 @@ export const generateStoryEndpoint: Endpoint<
             width: 1024,
             samples: 1,
             steps: 30,
-          }),
-          [
-            {
-              text: `${imagePrompt} style of colorful illustration for a preschooler story`,
-            },
-          ],
+          }).withBasicPrompt(),
+          `${imagePrompt} style of colorful illustration for a preschooler story`,
           { functionId: "generate-story-image" }
         );
 
         const imagePath = await run.storeBinaryAsset({
           name: "story.png",
-          data: Buffer.from(storyImageBase64, "base64"),
+          data: storyImage,
           contentType: "image/png",
         });
 
