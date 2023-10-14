@@ -1,12 +1,9 @@
-import {
-  NarratedStoryPart,
-  narratedStoryPartSchema,
-} from "@/storyteller/NarratedStoryPart";
 import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
-import { narrateStoryPart } from "@/storyteller/narrateStoryPart";
 import { FullVoiceId, selectVoice } from "@/storyteller/selectVoice";
 import { Voice, voiceSchema } from "@/storyteller/voice";
 import {
+  ElevenLabsSpeechSynthesisModel,
+  LmntSpeechSynthesisModel,
   MemoryVectorIndex,
   OpenAIChatMessage,
   OpenAIChatModel,
@@ -20,6 +17,7 @@ import {
   getAudioFileExtension,
   mapInstructionPromptToOpenAIChatFormat,
   streamStructure,
+  synthesizeSpeech,
   transcribe,
 } from "modelfusion";
 import { readFileSync } from "node:fs";
@@ -27,6 +25,20 @@ import { z } from "zod";
 import { Endpoint } from "../server/Endpoint";
 
 const voicesData = readFileSync("./data/voices.index.json", "utf8");
+
+export const narratedStoryPartSchema = z.object({
+  type: z
+    .enum(["narration", "dialogue"])
+    .describe("Type of story part. Either 'narration' or 'dialogue'."),
+  speaker: z
+    .string()
+    .describe(
+      "Speaker of a dialogue (direct speech) part. Must be a single speaker."
+    ),
+  content: z.string().describe("Content of the story part"),
+});
+
+export type NarratedStoryPart = z.infer<typeof narratedStoryPartSchema>;
 
 const structuredStorySchema = z.object({
   parts: z.array(narratedStoryPartSchema),
@@ -218,7 +230,11 @@ export const generateStoryEndpoint: Endpoint<
               speakerToVoice.set(speaker, voice);
             }
 
-            const narrationAudio = await narrateStoryPart({ part, voice });
+            const narrationAudio = await synthesizeSpeech(
+              getVoiceModel(voice),
+              part.content,
+              { functionId: "narrate-story-part" }
+            );
 
             const path = await run.storeDataAsset({
               name: `story-part-${index}.mp3`,
@@ -235,3 +251,14 @@ export const generateStoryEndpoint: Endpoint<
     run.publishEvent({ type: "finished-generation" });
   },
 };
+
+function getVoiceModel(voice: Voice) {
+  switch (voice.provider) {
+    case "lmnt":
+      return new LmntSpeechSynthesisModel({ voice: voice.voiceId });
+    case "elevenlabs":
+      return new ElevenLabsSpeechSynthesisModel({ voice: voice.voiceId });
+    default:
+      throw new Error(`Unknown voice provider: ${voice.provider}`);
+  }
+}
