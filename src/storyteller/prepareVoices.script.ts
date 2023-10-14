@@ -6,7 +6,7 @@ import {
   upsertIntoVectorIndex,
 } from "modelfusion";
 import { z } from "zod";
-import { Voice } from "./voice";
+import { Voice } from "./VoiceManager";
 
 dotenv.config();
 

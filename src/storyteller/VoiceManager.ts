@@ -1,15 +1,74 @@
+import { readFile } from "fs/promises";
 import {
+  ElevenLabsSpeechSynthesisModel,
+  LmntSpeechSynthesisModel,
   MemoryVectorIndex,
   OpenAIChatMessage,
   OpenAIChatModel,
   OpenAITextEmbeddingModel,
+  SpeechSynthesisModel,
   VectorIndexRetriever,
+  ZodSchema,
   ZodStructureDefinition,
   generateStructure,
   retrieve,
 } from "modelfusion";
 import { z } from "zod";
-import { Voice } from "./voice";
+
+export const voiceSchema = z.object({
+  provider: z.enum(["lmnt", "elevenlabs"]),
+  voiceId: z.string(),
+  name: z.string(),
+  gender: z.enum(["M", "F"]),
+  description: z.string(),
+});
+
+export type Voice = z.infer<typeof voiceSchema>;
+
+export class VoiceManager {
+  private readonly voiceIndex: MemoryVectorIndex<Voice>;
+  speakerToVoice = new Map<string, Voice>();
+
+  static async fromFile(path: string): Promise<VoiceManager> {
+    const voicesData = await readFile(path, "utf8");
+
+    const voiceIndex = await MemoryVectorIndex.deserialize({
+      serializedData: voicesData,
+      schema: new ZodSchema(voiceSchema),
+    });
+
+    return new VoiceManager(voiceIndex);
+  }
+
+  constructor(voiceIndex: MemoryVectorIndex<Voice>) {
+    this.voiceIndex = voiceIndex;
+  }
+
+  async getVoiceModel({
+    speaker,
+    story,
+  }: {
+    speaker: string;
+    story: string;
+  }): Promise<SpeechSynthesisModel> {
+    let voice = this.speakerToVoice.get(speaker);
+
+    if (voice == null) {
+      voice = await selectVoice({
+        speaker,
+        story,
+        unavailableVoices: Array.from(this.speakerToVoice.values()).map(
+          (voice) => `${voice.provider}:${voice.voiceId}`
+        ) as FullVoiceId[],
+        voiceIndex: this.voiceIndex,
+      });
+
+      this.speakerToVoice.set(speaker, voice);
+    }
+
+    return getVoiceModel(voice);
+  }
+}
 
 export type FullVoiceId = `${"lmnt" | "elevenlabs"}:${string}`;
 
@@ -98,4 +157,15 @@ export async function selectVoice({
   }
 
   return voice;
+}
+
+function getVoiceModel(voice: Voice) {
+  switch (voice.provider) {
+    case "lmnt":
+      return new LmntSpeechSynthesisModel({ voice: voice.voiceId });
+    case "elevenlabs":
+      return new ElevenLabsSpeechSynthesisModel({ voice: voice.voiceId });
+    default:
+      throw new Error(`Unknown voice provider: ${voice.provider}`);
+  }
 }

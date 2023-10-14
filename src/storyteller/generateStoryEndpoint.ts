@@ -1,16 +1,10 @@
 import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
-import { FullVoiceId, selectVoice } from "@/storyteller/selectVoice";
-import { Voice, voiceSchema } from "@/storyteller/voice";
 import {
-  ElevenLabsSpeechSynthesisModel,
-  LmntSpeechSynthesisModel,
-  MemoryVectorIndex,
   OpenAIChatMessage,
   OpenAIChatModel,
   OpenAITextGenerationModel,
   OpenAITranscriptionModel,
   StabilityImageGenerationModel,
-  ZodSchema,
   ZodStructureDefinition,
   generateImage,
   generateText,
@@ -19,11 +13,9 @@ import {
   synthesizeSpeech,
   transcribe,
 } from "modelfusion";
-import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { Endpoint } from "../server/Endpoint";
-
-const voicesData = readFileSync("./data/voices.index.json", "utf8");
+import { VoiceManager } from "./VoiceManager";
 
 export const narratedStoryPartSchema = z.object({
   type: z
@@ -51,11 +43,6 @@ export const generateStoryEndpoint: Endpoint<
   eventSchema: storytellerEventSchema,
 
   async processRequest({ input: { mimetype, data: audioRecording }, run }) {
-    const voiceIndex = await MemoryVectorIndex.deserialize({
-      serializedData: voicesData,
-      schema: new ZodSchema(voiceSchema),
-    });
-
     // Transcribe the user voice input:
     const transcription = await transcribe(
       new OpenAITranscriptionModel({ model: "whisper-1" }),
@@ -142,7 +129,7 @@ export const generateStoryEndpoint: Endpoint<
 
       // expand and narrate story:
       (async () => {
-        const speakerToVoice = new Map<string, Voice>();
+        const voiceManager = await VoiceManager.fromFile("./data/voices.json");
         const processedParts: Array<NarratedStoryPart> = [];
 
         const audioStoryFragments = await streamStructure(
@@ -209,25 +196,12 @@ export const generateStoryEndpoint: Endpoint<
             const index = processedParts.indexOf(part);
             const speaker = part.speaker;
 
-            let voice = speakerToVoice.get(speaker);
-
-            if (voice == null) {
-              voice = await selectVoice({
-                speaker,
-                story,
-                unavailableVoices: Array.from(speakerToVoice.values()).map(
-                  (voice) => `${voice.provider}:${voice.voiceId}`
-                ) as FullVoiceId[],
-                voiceIndex,
-              });
-
-              speakerToVoice.set(speaker, voice);
-            }
-
             const narrationAudio = await synthesizeSpeech(
-              getVoiceModel(voice),
+              await voiceManager.getVoiceModel({ speaker, story }),
               part.content,
-              { functionId: "narrate-story-part" }
+              {
+                functionId: "narrate-story-part",
+              }
             );
 
             const path = await run.storeDataAsset({
@@ -245,14 +219,3 @@ export const generateStoryEndpoint: Endpoint<
     run.publishEvent({ type: "finished-generation" });
   },
 };
-
-function getVoiceModel(voice: Voice) {
-  switch (voice.provider) {
-    case "lmnt":
-      return new LmntSpeechSynthesisModel({ voice: voice.voiceId });
-    case "elevenlabs":
-      return new ElevenLabsSpeechSynthesisModel({ voice: voice.voiceId });
-    default:
-      throw new Error(`Unknown voice provider: ${voice.provider}`);
-  }
-}
