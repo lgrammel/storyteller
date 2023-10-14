@@ -200,8 +200,8 @@ export const generateStoryEndpoint: Endpoint<
 
         async function processNewParts(parts: NarratedStoryPart[]) {
           const newParts = parts.slice(processedParts.length);
-
           processedParts.push(...newParts);
+
           for (const part of newParts) {
             const index = processedParts.indexOf(part);
             const speaker = part.speaker;
@@ -209,9 +209,7 @@ export const generateStoryEndpoint: Endpoint<
             const narrationAudio = await synthesizeSpeech(
               await voiceManager.getVoiceModel({ speaker, story }),
               part.content,
-              {
-                functionId: "narrate-story-part",
-              }
+              { functionId: "narrate-story-part" }
             );
 
             const path = await run.storeDataAsset({
