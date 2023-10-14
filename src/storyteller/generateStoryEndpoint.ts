@@ -15,7 +15,6 @@ import {
   generateImage,
   generateText,
   getAudioFileExtension,
-  mapInstructionPromptToOpenAIChatFormat,
   streamStructure,
   synthesizeSpeech,
   transcribe,
@@ -73,10 +72,8 @@ export const generateStoryEndpoint: Endpoint<
         temperature: 1.2,
         maxCompletionTokens: 1000,
       }),
-      [
-        "Generate a story aimed at preschoolers on the following topic: ",
+      "Generate a story aimed at preschoolers on the following topic: \n" +
         `'${transcription}'.`,
-      ].join("\n"),
       { functionId: "generate-story" }
     );
 
@@ -91,13 +88,9 @@ export const generateStoryEndpoint: Endpoint<
             maxCompletionTokens: 200,
             stopSequences: ['"'],
           }),
-          [
-            "Generate a short title for the following story for pre-school children: ",
-            "",
-            `'${story}'.`,
-            "",
+          "Generate a short title for the following story for pre-school children: \n\n" +
+            `'${story}'.\n\n` +
             'Title: "',
-          ].join("\n"),
           { functionId: "generate-title" }
         );
 
@@ -111,7 +104,7 @@ export const generateStoryEndpoint: Endpoint<
             model: "gpt-4",
             temperature: 0,
             maxCompletionTokens: 500,
-          }).withPromptFormat(mapInstructionPromptToOpenAIChatFormat()),
+          }).withInstructionPrompt(),
           {
             instruction:
               "Generate a short image generation prompt " +
