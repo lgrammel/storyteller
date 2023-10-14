@@ -17,24 +17,6 @@ import { z } from "zod";
 import { Endpoint } from "../server/Endpoint";
 import { VoiceManager } from "./VoiceManager";
 
-export const narratedStoryPartSchema = z.object({
-  type: z
-    .enum(["narration", "dialogue"])
-    .describe("Type of story part. Either 'narration' or 'dialogue'."),
-  speaker: z
-    .string()
-    .describe(
-      "Speaker of a dialogue (direct speech) part. Must be a single speaker."
-    ),
-  content: z.string().describe("Content of the story part"),
-});
-
-export type NarratedStoryPart = z.infer<typeof narratedStoryPartSchema>;
-
-const structuredStorySchema = z.object({
-  parts: z.array(narratedStoryPartSchema),
-});
-
 export const generateStoryEndpoint: Endpoint<
   z.infer<typeof storytellerEventSchema>
 > = {
@@ -138,6 +120,24 @@ export const generateStoryEndpoint: Endpoint<
             gender: "M",
             description: "Male voice. Middle-aged.",
           },
+        });
+
+        const narratedStoryPartSchema = z.object({
+          type: z
+            .enum(["narration", "dialogue"])
+            .describe("Type of story part. Either 'narration' or 'dialogue'."),
+          speaker: z
+            .string()
+            .describe(
+              "Speaker of a dialogue (direct speech) part. Must be a single speaker."
+            ),
+          content: z.string().describe("Content of the story part"),
+        });
+
+        type NarratedStoryPart = z.infer<typeof narratedStoryPartSchema>;
+
+        const structuredStorySchema = z.object({
+          parts: z.array(narratedStoryPartSchema),
         });
 
         const processedParts: Array<NarratedStoryPart> = [];
