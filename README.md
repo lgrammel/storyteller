@@ -10,11 +10,15 @@ StoryTeller is an exploratory web application that creates short audio stories f
 </tr>
 </table>
 
-## Example
-
+## Example Story
 
 https://github.com/lgrammel/storyteller/assets/205036/963df672-a4fc-4d0f-a74c-1e37c1246763
 
+## How it works
+
+![full](https://github.com/lgrammel/storyteller/assets/205036/c11ec999-0fae-4d69-8610-34932e75555f)
+
+The main flow from the diagram can be found in [generateStoryEndpoint](https://github.com/lgrammel/storyteller/blob/main/src/storyteller/generateStoryEndpoint.ts). Most of the UI is implemented in [index.tsx](https://github.com/lgrammel/storyteller/blob/main/pages/index.tsx).
 
 ## Development
 
