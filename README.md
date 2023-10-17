@@ -1,6 +1,6 @@
 # Storyteller
 
-StoryTeller is an exploratory web application that creates short audio stories for pre-school kids.
+StoryTeller is an experimental web application that creates short audio stories for pre-school kids.
 
 <table style="width:100%;">
 <tr>
