@@ -1,12 +1,12 @@
 import { readFile } from "fs/promises";
 import {
-  ElevenLabsSpeechSynthesisModel,
-  LmntSpeechSynthesisModel,
+  ElevenLabsSpeechModel,
+  LmntSpeechModel,
   MemoryVectorIndex,
   OpenAIChatMessage,
   OpenAIChatModel,
   OpenAITextEmbeddingModel,
-  SpeechSynthesisModel,
+  SpeechGenerationModel,
   VectorIndexRetriever,
   ZodSchema,
   ZodStructureDefinition,
@@ -64,7 +64,7 @@ export class VoiceManager {
   }: {
     speaker: string;
     story: string;
-  }): Promise<SpeechSynthesisModel> {
+  }): Promise<SpeechGenerationModel> {
     let voice = this.speakerToVoice.get(speaker);
 
     if (voice == null) {
@@ -74,9 +74,9 @@ export class VoiceManager {
 
     switch (voice.provider) {
       case "lmnt":
-        return new LmntSpeechSynthesisModel({ voice: voice.voiceId });
+        return new LmntSpeechModel({ voice: voice.voiceId });
       case "elevenlabs":
-        return new ElevenLabsSpeechSynthesisModel({ voice: voice.voiceId });
+        return new ElevenLabsSpeechModel({ voice: voice.voiceId });
       default:
         throw new Error(`Unknown voice provider: ${voice.provider}`);
     }
