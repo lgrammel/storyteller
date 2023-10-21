@@ -2,16 +2,16 @@ import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
 import {
   OpenAIChatMessage,
   OpenAIChatModel,
-  OpenAITextGenerationModel,
+  OpenAICompletionModel,
   OpenAITranscriptionModel,
   StabilityImageGenerationModel,
   ZodStructureDefinition,
   generateImage,
+  generateSpeech,
   generateText,
+  generateTranscription,
   getAudioFileExtension,
   streamStructure,
-  synthesizeSpeech,
-  transcribe,
 } from "modelfusion";
 import { z } from "zod";
 import { Endpoint } from "../server/Endpoint";
@@ -26,7 +26,7 @@ export const generateStoryEndpoint: Endpoint<
 
   async processRequest({ input: { mimetype, data: audioRecording }, run }) {
     // Transcribe the user voice input:
-    const transcription = await transcribe(
+    const transcription = await generateTranscription(
       new OpenAITranscriptionModel({ model: "whisper-1" }),
       { type: getAudioFileExtension(mimetype), data: audioRecording },
       { functionId: "transcribe" }
@@ -36,7 +36,7 @@ export const generateStoryEndpoint: Endpoint<
 
     // Generate a story based on the transcription:
     const story = await generateText(
-      new OpenAITextGenerationModel({
+      new OpenAICompletionModel({
         model: "gpt-3.5-turbo-instruct",
         temperature: 1.2,
         maxCompletionTokens: 1000,
@@ -51,7 +51,7 @@ export const generateStoryEndpoint: Endpoint<
       // Generate title:
       (async () => {
         const title = await generateText(
-          new OpenAITextGenerationModel({
+          new OpenAICompletionModel({
             model: "gpt-3.5-turbo-instruct",
             temperature: 0.7,
             maxCompletionTokens: 200,
@@ -202,7 +202,7 @@ export const generateStoryEndpoint: Endpoint<
             const index = processedParts.indexOf(part);
             const speaker = part.speaker;
 
-            const narrationAudio = await synthesizeSpeech(
+            const narrationAudio = await generateSpeech(
               await voiceManager.getVoiceModel({ speaker, story }),
               part.content,
               { functionId: "narrate-story-part" }
