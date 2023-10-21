@@ -203,7 +203,7 @@ export const generateStoryEndpoint: Endpoint<
             const speaker = part.speaker;
 
             const narrationAudio = await generateSpeech(
-              await voiceManager.getVoiceModel({ speaker, story }),
+              await voiceManager.getSpeechModel({ speaker, story }),
               part.content,
               { functionId: "narrate-story-part" }
             );

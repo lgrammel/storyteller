@@ -58,7 +58,7 @@ export class VoiceManager {
     this.narrator = narrator;
   }
 
-  async getVoiceModel({
+  async getSpeechModel({
     speaker,
     story,
   }: {
