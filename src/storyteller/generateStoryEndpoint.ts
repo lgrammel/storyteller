@@ -47,7 +47,7 @@ export const generateStoryEndpoint: Endpoint<
     );
 
     // Run in parallel:
-    await Promise.all([
+    await Promise.allSettled([
       // Generate title:
       (async () => {
         const title = await generateText(
