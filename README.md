@@ -61,7 +61,7 @@ StoryTeller can be deployed as a [Render](https://render.com/) web service.
 
 StoryTeller is built with the following libraries:
 
-- [ModelFusion](https://modelfusion.dev/)
+- [ModelFusion](https://github.com/lgrammel/modelfusion)
 - [Fastify](https://www.fastify.io/)
 - [Next.js](https://nextjs.org/)
 - [shadcn/ui](https://ui.shadcn.com/)
