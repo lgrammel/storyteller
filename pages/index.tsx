@@ -9,10 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { delay } from "@/lib/delay";
+import { convertBlobToBase64 } from "@/lib/convertBlobToBase64";
 import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
 import { Loader2, Mic } from "lucide-react";
-import { ZodSchema, readEventSource } from "modelfusion";
+import { ZodSchema, delay, readEventSource } from "modelfusion";
 import { useRef, useState } from "react";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -64,15 +64,17 @@ export default function Home() {
         setShouldAutoPlay(true);
 
         try {
-          const audioBlob = new Blob(audioChunksRef.current, {
-            type: mediaRecorder.mimeType,
-          });
-          const formData = new FormData();
-          formData.append("audio", audioBlob, "audio.mp3");
-
           const response = await fetch(`${baseUrl}/generate-story`, {
             method: "POST",
-            body: formData,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              mimeType: mediaRecorder.mimeType,
+              audioData: await convertBlobToBase64(
+                new Blob(audioChunksRef.current, {
+                  type: mediaRecorder.mimeType,
+                })
+              ),
+            }),
           });
 
           audioChunksRef.current = [];

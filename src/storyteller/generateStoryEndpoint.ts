@@ -17,18 +17,31 @@ import { z } from "zod";
 import { Endpoint } from "../server/Endpoint";
 import { VoiceManager } from "./VoiceManager";
 
+export const storytellerInputSchema = z.object({
+  mimeType: z.string(),
+  audioData: z.string(),
+});
+
 export const generateStoryEndpoint: Endpoint<
+  z.infer<typeof storytellerInputSchema>,
   z.infer<typeof storytellerEventSchema>
 > = {
   name: "generate-story",
 
+  inputSchema: storytellerInputSchema,
   eventSchema: storytellerEventSchema,
 
-  async processRequest({ input: { mimetype, data: audioRecording }, run }) {
+  async processRequest({ input: { mimeType, audioData }, run }) {
+    const audioRecording = Buffer.from(audioData, "base64");
+
     // Transcribe the user voice input:
+    const audioFileExtension = getAudioFileExtension(mimeType);
+
+    console.log(audioFileExtension);
+
     const transcription = await generateTranscription(
       new OpenAITranscriptionModel({ model: "whisper-1" }),
-      { type: getAudioFileExtension(mimetype), data: audioRecording },
+      { type: audioFileExtension, data: audioRecording },
       { functionId: "transcribe" }
     );
 

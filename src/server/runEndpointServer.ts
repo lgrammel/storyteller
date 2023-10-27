@@ -1,27 +1,24 @@
-import { streamToBuffer } from "@/lib/streamToBuffer";
 import cors from "@fastify/cors";
-import multipart from "@fastify/multipart";
 import fastifyStatic from "@fastify/static";
 import Fastify from "fastify";
+import { withRun } from "modelfusion";
 import path from "node:path";
 import { Endpoint } from "./Endpoint";
 import { EndpointRun } from "./EndpointRun";
 import { saveEndpointRunAssets } from "./saveEndpointRunAssets";
-import { withRun } from "modelfusion";
 
-export async function runEndpointServer<EVENT>({
+export async function runEndpointServer<INPUT, EVENT>({
   endpoint,
   host = "0.0.0.0",
   port = 3001,
 }: {
-  endpoint: Endpoint<EVENT>;
+  endpoint: Endpoint<INPUT, EVENT>;
   host?: string;
   port?: number;
 }) {
   const server = Fastify();
 
   await server.register(cors, {});
-  await server.register(multipart, {});
   await server.register(fastifyStatic, {
     root: path.join(__dirname, "..", "..", "out"),
     prefix: "/",
@@ -30,24 +27,18 @@ export async function runEndpointServer<EVENT>({
   const runs: Record<string, EndpointRun<EVENT>> = {};
 
   server.post(`/${endpoint.name}`, async (request) => {
-    // load audio input into buffer:
-    const data = await request.file();
-    if (data == null) {
-      throw new Error("No file provided");
-    }
-    const file = data.file;
-    const buffer = await streamToBuffer(file);
-    const mimetype = data.mimetype;
-
     const run = new EndpointRun<EVENT>({ endpointName: endpoint.name });
 
     runs[run.runId] = run;
+
+    // body the request body is json, parse and validate it:
+    const input = endpoint.inputSchema.parse(request.body);
 
     // start longer-running process (no await):
     withRun(run, async () => {
       endpoint
         .processRequest({
-          input: { mimetype, data: buffer },
+          input,
           run,
         })
         .catch((err) => {
