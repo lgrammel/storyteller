@@ -32,16 +32,13 @@ export const generateStoryEndpoint: Endpoint<
   eventSchema: storytellerEventSchema,
 
   async processRequest({ input: { mimeType, audioData }, run }) {
-    const audioRecording = Buffer.from(audioData, "base64");
-
     // Transcribe the user voice input:
-    const audioFileExtension = getAudioFileExtension(mimeType);
-
-    console.log(audioFileExtension);
-
     const transcription = await generateTranscription(
       new OpenAITranscriptionModel({ model: "whisper-1" }),
-      { type: audioFileExtension, data: audioRecording },
+      {
+        type: getAudioFileExtension(mimeType),
+        data: Buffer.from(audioData, "base64"),
+      },
       { functionId: "transcribe" }
     );
 
