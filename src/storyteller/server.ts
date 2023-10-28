@@ -32,17 +32,15 @@ export async function main() {
       path: (run) => join(basePath, run.runId, "logs"),
     });
 
-    server.register(
-      createModelFusionFlowPlugin({
-        path: "/generate-story",
-        flow: generateStoryFlow,
+    server.register(createModelFusionFlowPlugin(), {
+      path: "/generate-story",
+      flow: generateStoryFlow,
+      logger,
+      assetStorage: new FileSystemAssetStorage({
+        path: (run) => join(basePath, run.runId, "assets"),
         logger,
-        assetStorage: new FileSystemAssetStorage({
-          path: (run) => join(basePath, run.runId, "assets"),
-          logger,
-        }),
-      })
-    );
+      }),
+    });
 
     console.log(`Starting server on port ${port}...`);
     await server.listen({ port, host });

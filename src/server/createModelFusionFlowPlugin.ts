@@ -1,4 +1,4 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyPluginAsync } from "fastify";
 import { withRun } from "modelfusion";
 import type { AssetStorage } from "./AssetStorage.js";
 import { Flow } from "./Flow.ts.js";
@@ -6,20 +6,26 @@ import { FlowRun } from "./FlowRun.js";
 import { Logger } from "./Logger.js";
 import { PathProvider } from "./PathProvider.js";
 
-export function createModelFusionFlowPlugin<INPUT, EVENT>({
-  flow,
-  path,
-  assetStorage,
-  logger,
-}: {
+export interface ModelFusionFlowPluginOptions<INPUT, EVENT> {
   flow: Flow<INPUT, EVENT>;
   path: string;
   assetStorage: AssetStorage;
   logger: Logger;
-}) {
-  const paths = new PathProvider(path);
+}
 
-  return (fastify: FastifyInstance, opts: unknown, done: () => void) => {
+export function createModelFusionFlowPlugin<INPUT, EVENT>(): FastifyPluginAsync<
+  ModelFusionFlowPluginOptions<INPUT, EVENT>
+> {
+  return async (
+    fastify: FastifyInstance,
+    {
+      flow,
+      path,
+      assetStorage,
+      logger,
+    }: ModelFusionFlowPluginOptions<INPUT, EVENT>
+  ) => {
+    const paths = new PathProvider(path);
     const runs: Record<string, FlowRun<EVENT>> = {};
 
     fastify.post(paths.basePath, async (request) => {
@@ -123,7 +129,5 @@ export function createModelFusionFlowPlugin<INPUT, EVENT>({
 
       reply.raw.end();
     });
-
-    done();
   };
 }
