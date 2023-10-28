@@ -2,19 +2,19 @@ import { FunctionEvent } from "modelfusion";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 import { Asset } from "./Asset";
-import { EndpointRun } from "./EndpointRun";
+import { FlowRun } from "./FlowRun";
 import type { Storage } from "./Storage";
 
 export class FileSystemStorage implements Storage {
-  private readonly logPath: (run: EndpointRun<unknown>) => string;
-  private readonly assetPath: (run: EndpointRun<unknown>) => string;
+  private readonly logPath: (run: FlowRun<unknown>) => string;
+  private readonly assetPath: (run: FlowRun<unknown>) => string;
 
   constructor({
     logPath,
     assetPath,
   }: {
-    logPath: (run: EndpointRun<unknown>) => string;
-    assetPath: (run: EndpointRun<unknown>) => string;
+    logPath: (run: FlowRun<unknown>) => string;
+    assetPath: (run: FlowRun<unknown>) => string;
   }) {
     this.logPath = logPath;
     this.assetPath = assetPath;
@@ -24,7 +24,7 @@ export class FileSystemStorage implements Storage {
     run,
     asset,
   }: {
-    run: EndpointRun<unknown>;
+    run: FlowRun<unknown>;
     asset: Asset;
   }): Promise<void> {
     try {
@@ -38,7 +38,7 @@ export class FileSystemStorage implements Storage {
   }
 
   readAsset(options: {
-    run: EndpointRun<unknown>;
+    run: FlowRun<unknown>;
     assetName: string;
   }): Promise<Buffer | null> {
     try {
@@ -55,7 +55,7 @@ export class FileSystemStorage implements Storage {
     run,
     event,
   }: {
-    run: EndpointRun<unknown>;
+    run: FlowRun<unknown>;
     event: FunctionEvent;
   }): Promise<void> {
     const timestamp = event.startTimestamp.getTime();
@@ -77,10 +77,7 @@ export class FileSystemStorage implements Storage {
     }
   }
 
-  logError(options: {
-    run: EndpointRun<unknown>;
-    error: unknown;
-  }): Promise<void> {
+  logError(options: { run: FlowRun<unknown>; error: unknown }): Promise<void> {
     throw new Error("Method not implemented.");
   }
 }

@@ -5,8 +5,8 @@ import Fastify from "fastify";
 import { setGlobalFunctionLogging } from "modelfusion";
 import path from "node:path";
 import { join } from "path";
-import { generateStoryEndpoint } from "../storyteller/generateStoryEndpoint";
-import { createEndpointPlugin } from "./createEndpointPlugin";
+import { generateStoryFlow } from "../storyteller/generateStoryFlow";
+import { createModelFusionFlowPlugin } from "./createModelFusionFlowPlugin";
 import { FileSystemStorage } from "./FileSystemStorage";
 
 dotenv.config();
@@ -28,12 +28,11 @@ export async function main() {
     });
 
     server.register(
-      createEndpointPlugin({
-        endpoint: generateStoryEndpoint,
+      createModelFusionFlowPlugin({
+        flow: generateStoryFlow,
         storage: new FileSystemStorage({
-          assetPath: (run) =>
-            join(basePath, run.endpointName, run.runId, "assets"),
-          logPath: (run) => join(basePath, run.endpointName, run.runId, "logs"),
+          assetPath: (run) => join(basePath, run.flowName, run.runId, "assets"),
+          logPath: (run) => join(basePath, run.flowName, run.runId, "logs"),
         }),
       })
     );

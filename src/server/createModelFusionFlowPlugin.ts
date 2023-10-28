@@ -1,34 +1,34 @@
 import { FastifyInstance } from "fastify";
 import { withRun } from "modelfusion";
-import { Endpoint } from "./Endpoint";
-import { EndpointRun } from "./EndpointRun";
-import type { Storage } from "./Storage";
+import { Flow } from "./Flow.ts.js";
+import { FlowRun } from "./FlowRun.js";
+import type { Storage } from "./Storage.js";
 
-export function createEndpointPlugin<INPUT, EVENT>({
-  endpoint,
+export function createModelFusionFlowPlugin<INPUT, EVENT>({
+  flow,
   storage,
 }: {
-  endpoint: Endpoint<INPUT, EVENT>;
+  flow: Flow<INPUT, EVENT>;
   storage: Storage;
 }) {
   return (fastify: FastifyInstance, opts: unknown, done: () => void) => {
-    const runs: Record<string, EndpointRun<EVENT>> = {};
+    const runs: Record<string, FlowRun<EVENT>> = {};
 
-    fastify.post(`/${endpoint.name}`, async (request) => {
-      const run = new EndpointRun<EVENT>({
-        endpointName: endpoint.name,
+    fastify.post(`/${flow.name}`, async (request) => {
+      const run = new FlowRun<EVENT>({
+        flowName: flow.name,
         storage,
       });
 
       runs[run.runId] = run;
 
       // body the request body is json, parse and validate it:
-      const input = endpoint.inputSchema.parse(request.body);
+      const input = flow.inputSchema.parse(request.body);
 
       // start longer-running process (no await):
       withRun(run, async () => {
-        endpoint
-          .processRequest({
+        flow
+          .process({
             input,
             run,
           })
@@ -42,12 +42,12 @@ export function createEndpointPlugin<INPUT, EVENT>({
 
       return {
         id: run.runId,
-        path: `/${endpoint.name}/${run.runId}/events`,
+        path: `/${flow.name}/${run.runId}/events`,
       };
     });
 
     fastify.get(
-      `/${endpoint.name}/:runId/assets/:assetName`,
+      `/${flow.name}/:runId/assets/:assetName`,
       async (request, reply) => {
         const runId = (request.params as any).runId;
         const assetName = (request.params as any).assetName;
@@ -68,7 +68,7 @@ export function createEndpointPlugin<INPUT, EVENT>({
       }
     );
 
-    fastify.get(`/${endpoint.name}/:id/events`, async (request, reply) => {
+    fastify.get(`/${flow.name}/:id/events`, async (request, reply) => {
       const runId = (request.params as any).id;
 
       const eventQueue = runs[runId]?.eventQueue;

@@ -14,15 +14,15 @@ import {
   streamStructure,
 } from "modelfusion";
 import { z } from "zod";
-import { Endpoint } from "../server/Endpoint";
-import { VoiceManager } from "./VoiceManager";
+import { Flow } from "../server/Flow.ts.js";
+import { VoiceManager } from "./VoiceManager.js";
 
 export const storytellerInputSchema = z.object({
   mimeType: z.string(),
   audioData: z.string(),
 });
 
-export const generateStoryEndpoint: Endpoint<
+export const generateStoryFlow: Flow<
   z.infer<typeof storytellerInputSchema>,
   z.infer<typeof storytellerEventSchema>
 > = {
@@ -31,7 +31,7 @@ export const generateStoryEndpoint: Endpoint<
   inputSchema: storytellerInputSchema,
   eventSchema: storytellerEventSchema,
 
-  async processRequest({ input: { mimeType, audioData }, run }) {
+  async process({ input: { mimeType, audioData }, run }) {
     // Transcribe the user voice input:
     const transcription = await generateTranscription(
       new OpenAITranscriptionModel({ model: "whisper-1" }),

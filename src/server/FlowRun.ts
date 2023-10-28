@@ -2,23 +2,17 @@ import { AsyncQueue, DefaultRun, FunctionEvent } from "modelfusion";
 import { Asset } from "./Asset";
 import type { Storage } from "./Storage";
 
-export class EndpointRun<EVENT> extends DefaultRun {
+export class FlowRun<EVENT> extends DefaultRun {
   readonly eventQueue: AsyncQueue<EVENT> = new AsyncQueue();
   readonly assets: Record<string, Asset> = {};
 
-  readonly endpointName: string;
+  readonly flowName: string;
   private readonly storage: Storage;
 
-  constructor({
-    endpointName,
-    storage,
-  }: {
-    endpointName: string;
-    storage: Storage;
-  }) {
+  constructor({ flowName, storage }: { flowName: string; storage: Storage }) {
     super();
 
-    this.endpointName = endpointName;
+    this.flowName = flowName;
     this.storage = storage;
   }
 
@@ -43,7 +37,7 @@ export class EndpointRun<EVENT> extends DefaultRun {
       asset,
     });
 
-    return `/${this.endpointName}/${this.runId}/assets/${asset.name}`;
+    return `/${this.flowName}/${this.runId}/assets/${asset.name}`;
   }
 
   async storeTextAsset(asset: {
