@@ -1,4 +1,5 @@
 import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
+import { Flow } from "@modelfusion/server/fastify-plugin";
 import {
   OpenAIChatMessage,
   OpenAIChatModel,
@@ -14,7 +15,6 @@ import {
   streamStructure,
 } from "modelfusion";
 import { z } from "zod";
-import { Flow } from "../server/Flow.ts.js";
 import { VoiceManager } from "./VoiceManager.js";
 
 export const storytellerInputSchema = z.object({

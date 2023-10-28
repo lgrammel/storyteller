@@ -22,6 +22,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@modelfusion/server": "0.0.1",
     "@fastify/cors": "^8.4.0",
     "@fastify/static": "^6.11.2",
     "@radix-ui/react-aspect-ratio": "^1.0.3",

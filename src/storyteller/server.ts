@@ -4,11 +4,12 @@ import dotenv from "dotenv";
 import Fastify from "fastify";
 import { setGlobalFunctionLogging } from "modelfusion";
 import path from "node:path";
-import { join } from "path";
-import { FileSystemLogger } from "../server/FileSystemLogger";
-import { modelFusionFlowPlugin } from "../server/modelFusionFlowPlugin";
 import { generateStoryFlow } from "./generateStoryFlow";
-import { FileSystemAssetStorage } from "@/server/FileSystemAssetStorage";
+import {
+  modelFusionFlowPlugin,
+  FileSystemAssetStorage,
+  FileSystemLogger,
+} from "@modelfusion/server/fastify-plugin";
 
 dotenv.config();
 
@@ -20,30 +21,30 @@ const basePath = process.env.BASE_PATH || "runs";
 
 export async function main() {
   try {
-    const server = Fastify();
+    const fastify = Fastify();
 
-    await server.register(cors, {});
-    await server.register(fastifyStatic, {
+    await fastify.register(cors, {});
+    await fastify.register(fastifyStatic, {
       root: path.join(__dirname, "..", "..", "out"),
       prefix: "/",
     });
 
     const logger = new FileSystemLogger({
-      path: (run) => join(basePath, run.runId, "logs"),
+      path: (run) => path.join(basePath, run.runId, "logs"),
     });
 
-    server.register(modelFusionFlowPlugin, {
+    fastify.register(modelFusionFlowPlugin, {
       path: "/generate-story",
       flow: generateStoryFlow,
       logger,
       assetStorage: new FileSystemAssetStorage({
-        path: (run) => join(basePath, run.runId, "assets"),
+        path: (run) => path.join(basePath, run.runId, "assets"),
         logger,
       }),
     });
 
     console.log(`Starting server on port ${port}...`);
-    await server.listen({ port, host });
+    await fastify.listen({ port, host });
     console.log("Server started");
   } catch (error) {
     console.error("Failed to start server");
