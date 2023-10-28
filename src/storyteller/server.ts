@@ -5,9 +5,10 @@ import Fastify from "fastify";
 import { setGlobalFunctionLogging } from "modelfusion";
 import path from "node:path";
 import { join } from "path";
-import { FileSystemStorage } from "../server/FileSystemStorage";
+import { FileSystemLogger } from "../server/FileSystemLogger";
 import { createModelFusionFlowPlugin } from "../server/createModelFusionFlowPlugin";
 import { generateStoryFlow } from "./generateStoryFlow";
+import { FileSystemAssetStorage } from "@/server/FileSystemAssetStorage";
 
 dotenv.config();
 
@@ -27,13 +28,18 @@ export async function main() {
       prefix: "/",
     });
 
+    const logger = new FileSystemLogger({
+      path: (run) => join(basePath, run.runId, "logs"),
+    });
+
     server.register(
       createModelFusionFlowPlugin({
         path: "/generate-story",
         flow: generateStoryFlow,
-        storage: new FileSystemStorage({
-          assetPath: (run) => join(basePath, run.runId, "assets"),
-          logPath: (run) => join(basePath, run.runId, "logs"),
+        logger,
+        assetStorage: new FileSystemAssetStorage({
+          path: (run) => join(basePath, run.runId, "assets"),
+          logger,
         }),
       })
     );

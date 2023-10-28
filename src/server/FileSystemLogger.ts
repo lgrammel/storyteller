@@ -1,61 +1,14 @@
 import { FunctionEvent } from "modelfusion";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
-import { Asset } from "./Asset";
 import { FlowRun } from "./FlowRun";
-import type { Storage } from "./Storage";
+import { Logger } from "./Logger";
 
-export class FileSystemStorage implements Storage {
+export class FileSystemLogger implements Logger {
   private readonly logPath: (run: FlowRun<unknown>) => string;
-  private readonly assetPath: (run: FlowRun<unknown>) => string;
 
-  constructor({
-    logPath,
-    assetPath,
-  }: {
-    logPath: (run: FlowRun<unknown>) => string;
-    assetPath: (run: FlowRun<unknown>) => string;
-  }) {
-    this.logPath = logPath;
-    this.assetPath = assetPath;
-  }
-
-  async storeAsset({
-    run,
-    asset,
-  }: {
-    run: FlowRun<unknown>;
-    asset: Asset;
-  }): Promise<void> {
-    try {
-      const assetPath = this.assetPath(run);
-      await fs.mkdir(assetPath, { recursive: true });
-      await fs.writeFile(join(assetPath, asset.name), asset.data);
-    } catch (error) {
-      this.logError({
-        run,
-        message: `Failed to store asset ${asset.name}`,
-        error,
-      });
-      throw error;
-    }
-  }
-
-  readAsset(options: {
-    run: FlowRun<unknown>;
-    assetName: string;
-  }): Promise<Buffer | null> {
-    try {
-      const assetPath = this.assetPath(options.run);
-      return fs.readFile(join(assetPath, options.assetName));
-    } catch (error) {
-      this.logError({
-        run: options.run,
-        message: `Failed to read asset ${options.assetName}`,
-        error,
-      });
-      throw error;
-    }
+  constructor({ path }: { path: (run: FlowRun<unknown>) => string }) {
+    this.logPath = path;
   }
 
   async logFunctionEvent({

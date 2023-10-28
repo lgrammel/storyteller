@@ -1,25 +1,35 @@
 import { AsyncQueue, DefaultRun, FunctionEvent } from "modelfusion";
-import { Asset } from "./Asset";
+import type { Asset, AssetStorage } from "./AssetStorage";
+import { Logger } from "./Logger";
 import { PathProvider } from "./PathProvider";
-import type { Storage } from "./Storage";
 
 export class FlowRun<EVENT> extends DefaultRun {
   readonly eventQueue: AsyncQueue<EVENT> = new AsyncQueue();
   readonly assets: Record<string, Asset> = {};
 
-  private readonly storage: Storage;
+  private readonly assetStorage: AssetStorage;
+  private readonly logger: Logger;
   private readonly paths: PathProvider;
 
-  constructor({ paths, storage }: { paths: PathProvider; storage: Storage }) {
+  constructor({
+    paths,
+    assetStorage,
+    logger,
+  }: {
+    paths: PathProvider;
+    assetStorage: AssetStorage;
+    logger: Logger;
+  }) {
     super();
 
     this.paths = paths;
-    this.storage = storage;
+    this.assetStorage = assetStorage;
+    this.logger = logger;
   }
 
   readonly functionObserver = {
     onFunctionEvent: async (event: FunctionEvent) => {
-      this.storage.logFunctionEvent({
+      this.logger.logFunctionEvent({
         run: this,
         event,
       });
@@ -33,7 +43,7 @@ export class FlowRun<EVENT> extends DefaultRun {
   async storeBinaryAsset(asset: Asset): Promise<string> {
     this.assets[asset.name] = asset;
 
-    this.storage.storeAsset({
+    this.assetStorage.storeAsset({
       run: this,
       asset,
     });

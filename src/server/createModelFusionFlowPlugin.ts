@@ -2,17 +2,20 @@ import { FastifyInstance } from "fastify";
 import { withRun } from "modelfusion";
 import { Flow } from "./Flow.ts.js";
 import { FlowRun } from "./FlowRun.js";
+import { Logger } from "./Logger.js";
 import { PathProvider } from "./PathProvider.js";
-import type { Storage } from "./Storage.js";
+import type { AssetStorage } from "./AssetStorage.js";
 
 export function createModelFusionFlowPlugin<INPUT, EVENT>({
   flow,
   path,
-  storage,
+  assetStorage,
+  logger,
 }: {
   flow: Flow<INPUT, EVENT>;
   path: string;
-  storage: Storage;
+  assetStorage: AssetStorage;
+  logger: Logger;
 }) {
   const paths = new PathProvider(path);
 
@@ -20,7 +23,7 @@ export function createModelFusionFlowPlugin<INPUT, EVENT>({
     const runs: Record<string, FlowRun<EVENT>> = {};
 
     fastify.post(paths.basePath, async (request) => {
-      const run = new FlowRun<EVENT>({ paths, storage });
+      const run = new FlowRun<EVENT>({ paths, assetStorage, logger });
 
       runs[run.runId] = run;
 
@@ -35,7 +38,7 @@ export function createModelFusionFlowPlugin<INPUT, EVENT>({
             run,
           })
           .catch((error) => {
-            storage.logError({
+            logger.logError({
               run,
               message: "Failed to process flow",
               error,
