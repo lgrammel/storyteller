@@ -26,8 +26,6 @@ export const generateStoryFlow: Flow<
   z.infer<typeof storytellerInputSchema>,
   z.infer<typeof storytellerEventSchema>
 > = {
-  name: "generate-story",
-
   inputSchema: storytellerInputSchema,
   eventSchema: storytellerEventSchema,
 

@@ -2,8 +2,6 @@ import { z } from "zod";
 import { FlowRun } from "./FlowRun";
 
 export type Flow<INPUT, EVENT> = {
-  readonly name: string;
-
   readonly inputSchema: z.ZodType<INPUT>;
   readonly eventSchema: z.ZodType<EVENT>;
 

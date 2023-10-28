@@ -2,23 +2,25 @@ import { FastifyInstance } from "fastify";
 import { withRun } from "modelfusion";
 import { Flow } from "./Flow.ts.js";
 import { FlowRun } from "./FlowRun.js";
+import { PathProvider } from "./PathProvider.js";
 import type { Storage } from "./Storage.js";
 
 export function createModelFusionFlowPlugin<INPUT, EVENT>({
   flow,
+  path,
   storage,
 }: {
   flow: Flow<INPUT, EVENT>;
+  path: string;
   storage: Storage;
 }) {
+  const paths = new PathProvider(path);
+
   return (fastify: FastifyInstance, opts: unknown, done: () => void) => {
     const runs: Record<string, FlowRun<EVENT>> = {};
 
-    fastify.post(`/${flow.name}`, async (request) => {
-      const run = new FlowRun<EVENT>({
-        flowName: flow.name,
-        storage,
-      });
+    fastify.post(paths.basePath, async (request) => {
+      const run = new FlowRun<EVENT>({ paths, storage });
 
       runs[run.runId] = run;
 
@@ -46,34 +48,31 @@ export function createModelFusionFlowPlugin<INPUT, EVENT>({
 
       return {
         id: run.runId,
-        path: `/${flow.name}/${run.runId}/events`,
+        path: paths.getEventsPath(run.runId),
       };
     });
 
-    fastify.get(
-      `/${flow.name}/:runId/assets/:assetName`,
-      async (request, reply) => {
-        const runId = (request.params as any).runId;
-        const assetName = (request.params as any).assetName;
+    fastify.get(paths.getAssetPathTemplate(), async (request, reply) => {
+      const runId = (request.params as any).runId;
+      const assetName = (request.params as any).assetName;
 
-        const asset = runs[runId]?.assets[assetName];
+      const asset = runs[runId]?.assets[assetName];
 
-        const headers = {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Length": asset.data.length,
-          "Content-Type": asset.contentType,
-          "Cache-Control": "no-cache",
-        };
+      const headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Length": asset.data.length,
+        "Content-Type": asset.contentType,
+        "Cache-Control": "no-cache",
+      };
 
-        reply.raw.writeHead(200, headers);
+      reply.raw.writeHead(200, headers);
 
-        reply.raw.write(asset.data);
-        reply.raw.end();
-      }
-    );
+      reply.raw.write(asset.data);
+      reply.raw.end();
+    });
 
-    fastify.get(`/${flow.name}/:id/events`, async (request, reply) => {
-      const runId = (request.params as any).id;
+    fastify.get(paths.getEventsPathTemplate(), async (request, reply) => {
+      const runId = (request.params as any).runId;
 
       const eventQueue = runs[runId]?.eventQueue;
 

@@ -1,18 +1,19 @@
 import { AsyncQueue, DefaultRun, FunctionEvent } from "modelfusion";
 import { Asset } from "./Asset";
+import { PathProvider } from "./PathProvider";
 import type { Storage } from "./Storage";
 
 export class FlowRun<EVENT> extends DefaultRun {
   readonly eventQueue: AsyncQueue<EVENT> = new AsyncQueue();
   readonly assets: Record<string, Asset> = {};
 
-  readonly flowName: string;
   private readonly storage: Storage;
+  private readonly paths: PathProvider;
 
-  constructor({ flowName, storage }: { flowName: string; storage: Storage }) {
+  constructor({ paths, storage }: { paths: PathProvider; storage: Storage }) {
     super();
 
-    this.flowName = flowName;
+    this.paths = paths;
     this.storage = storage;
   }
 
@@ -37,7 +38,7 @@ export class FlowRun<EVENT> extends DefaultRun {
       asset,
     });
 
-    return `/${this.flowName}/${this.runId}/assets/${asset.name}`;
+    return this.paths.getAssetPath(this.runId, asset.name);
   }
 
   async storeTextAsset(asset: {

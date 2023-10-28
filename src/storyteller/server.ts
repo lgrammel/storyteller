@@ -29,10 +29,11 @@ export async function main() {
 
     server.register(
       createModelFusionFlowPlugin({
+        path: "/generate-story",
         flow: generateStoryFlow,
         storage: new FileSystemStorage({
-          assetPath: (run) => join(basePath, run.flowName, run.runId, "assets"),
-          logPath: (run) => join(basePath, run.flowName, run.runId, "logs"),
+          assetPath: (run) => join(basePath, run.runId, "assets"),
+          logPath: (run) => join(basePath, run.runId, "logs"),
         }),
       })
     );
