@@ -40,7 +40,7 @@ export class FlowRun<EVENT> extends DefaultRun {
   }
 
   async storeBinaryAsset(asset: Asset): Promise<string> {
-    this.assetStorage.storeAsset({
+    await this.assetStorage.storeAsset({
       run: this,
       asset,
     });
