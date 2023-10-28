@@ -14,9 +14,8 @@
   "private": true,
   "scripts": {
     "next": "next dev",
-    "fastify": "npx tsx src/server/server.ts",
+    "fastify": "npx tsx src/storyteller/server.ts",
     "build": "next build",
-    "start": "npx tsx src/server/server.ts",
     "lint": "next lint"
   },
   "engines": {

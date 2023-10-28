@@ -5,9 +5,9 @@ import Fastify from "fastify";
 import { setGlobalFunctionLogging } from "modelfusion";
 import path from "node:path";
 import { join } from "path";
-import { generateStoryFlow } from "../storyteller/generateStoryFlow";
-import { createModelFusionFlowPlugin } from "./createModelFusionFlowPlugin";
-import { FileSystemStorage } from "./FileSystemStorage";
+import { FileSystemStorage } from "../server/FileSystemStorage";
+import { createModelFusionFlowPlugin } from "../server/createModelFusionFlowPlugin";
+import { generateStoryFlow } from "./generateStoryFlow";
 
 dotenv.config();
 
