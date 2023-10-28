@@ -6,7 +6,7 @@ import { setGlobalFunctionLogging } from "modelfusion";
 import path from "node:path";
 import { join } from "path";
 import { FileSystemLogger } from "../server/FileSystemLogger";
-import { createModelFusionFlowPlugin } from "../server/createModelFusionFlowPlugin";
+import { modelFusionFlowPlugin } from "../server/modelFusionFlowPlugin";
 import { generateStoryFlow } from "./generateStoryFlow";
 import { FileSystemAssetStorage } from "@/server/FileSystemAssetStorage";
 
@@ -32,7 +32,7 @@ export async function main() {
       path: (run) => join(basePath, run.runId, "logs"),
     });
 
-    server.register(createModelFusionFlowPlugin(), {
+    server.register(modelFusionFlowPlugin, {
       path: "/generate-story",
       flow: generateStoryFlow,
       logger,
