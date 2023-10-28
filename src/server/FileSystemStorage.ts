@@ -69,7 +69,7 @@ export class FileSystemStorage implements Storage {
             event.functionId ?? event.functionType
           }-${event.eventType}.json`
         ),
-        JSON.stringify(event, null, 2)
+        JSON.stringify(event)
       );
     } catch (error) {
       console.error(`Failed to write event log ${event.callId}`);
