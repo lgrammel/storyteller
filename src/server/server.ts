@@ -7,6 +7,7 @@ import path from "node:path";
 import { join } from "path";
 import { generateStoryEndpoint } from "../storyteller/generateStoryEndpoint";
 import { createEndpointPlugin } from "./createEndpointPlugin";
+import { FileSystemStorage } from "./FileSystemStorage";
 
 dotenv.config();
 
@@ -29,9 +30,11 @@ export async function main() {
     server.register(
       createEndpointPlugin({
         endpoint: generateStoryEndpoint,
-        assetPath: (run) =>
-          join(basePath, run.endpointName, run.runId, "assets"),
-        logPath: (run) => join(basePath, run.endpointName, run.runId, "logs"),
+        storage: new FileSystemStorage({
+          assetPath: (run) =>
+            join(basePath, run.endpointName, run.runId, "assets"),
+          logPath: (run) => join(basePath, run.endpointName, run.runId, "logs"),
+        }),
       })
     );
 

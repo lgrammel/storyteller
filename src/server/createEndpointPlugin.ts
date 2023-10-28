@@ -2,15 +2,14 @@ import { FastifyInstance } from "fastify";
 import { withRun } from "modelfusion";
 import { Endpoint } from "./Endpoint";
 import { EndpointRun } from "./EndpointRun";
+import type { Storage } from "./Storage";
 
 export function createEndpointPlugin<INPUT, EVENT>({
   endpoint,
-  logPath,
-  assetPath,
+  storage,
 }: {
   endpoint: Endpoint<INPUT, EVENT>;
-  logPath: null | ((run: EndpointRun<unknown>) => string);
-  assetPath: null | ((run: EndpointRun<unknown>) => string);
+  storage: Storage;
 }) {
   return (fastify: FastifyInstance, opts: unknown, done: () => void) => {
     const runs: Record<string, EndpointRun<EVENT>> = {};
@@ -18,8 +17,7 @@ export function createEndpointPlugin<INPUT, EVENT>({
     fastify.post(`/${endpoint.name}`, async (request) => {
       const run = new EndpointRun<EVENT>({
         endpointName: endpoint.name,
-        logPath,
-        assetPath,
+        storage,
       });
 
       runs[run.runId] = run;
