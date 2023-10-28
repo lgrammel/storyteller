@@ -32,8 +32,12 @@ export class FileSystemStorage implements Storage {
       await fs.mkdir(assetPath, { recursive: true });
       await fs.writeFile(join(assetPath, asset.name), asset.data);
     } catch (error) {
-      console.error(`Failed to write asset ${asset.name}`);
-      console.error(error);
+      this.logError({
+        run,
+        message: `Failed to store asset ${asset.name}`,
+        error,
+      });
+      throw error;
     }
   }
 
@@ -45,8 +49,11 @@ export class FileSystemStorage implements Storage {
       const assetPath = this.assetPath(options.run);
       return fs.readFile(join(assetPath, options.assetName));
     } catch (error) {
-      console.error(`Failed to read asset ${options.assetName}`);
-      console.error(error);
+      this.logError({
+        run: options.run,
+        message: `Failed to read asset ${options.assetName}`,
+        error,
+      });
       throw error;
     }
   }
@@ -72,12 +79,34 @@ export class FileSystemStorage implements Storage {
         JSON.stringify(event)
       );
     } catch (error) {
-      console.error(`Failed to write event log ${event.callId}`);
-      console.error(error);
+      this.logError({
+        run,
+        message: `Failed to write function event ${event.callId}`,
+        error,
+      });
     }
   }
 
-  logError(options: { run: FlowRun<unknown>; error: unknown }): Promise<void> {
-    throw new Error("Method not implemented.");
+  async logError(options: {
+    run: FlowRun<unknown>;
+    message: string;
+    error: unknown;
+  }): Promise<void> {
+    const timestamp = Date.now();
+    try {
+      const logPath = this.logPath(options.run);
+      return fs.writeFile(
+        join(logPath, `${timestamp}-error.json`),
+        JSON.stringify({
+          timestamp: new Date(timestamp).toISOString(),
+          runId: options.run.runId,
+          message: options.message,
+          error: options.error,
+        })
+      );
+    } catch (error) {
+      console.error(`Failed to write error log`);
+      console.error(error);
+    }
   }
 }

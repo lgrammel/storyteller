@@ -15,5 +15,9 @@ export interface Storage {
     event: FunctionEvent;
   }): Promise<void>;
 
-  logError(options: { run: FlowRun<unknown>; error: unknown }): Promise<void>;
+  logError(options: {
+    run: FlowRun<unknown>;
+    message: string;
+    error: unknown;
+  }): Promise<void>;
 }

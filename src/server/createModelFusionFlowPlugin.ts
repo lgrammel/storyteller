@@ -32,8 +32,12 @@ export function createModelFusionFlowPlugin<INPUT, EVENT>({
             input,
             run,
           })
-          .catch((err) => {
-            console.error(err);
+          .catch((error) => {
+            storage.logError({
+              run,
+              message: "Failed to process flow",
+              error,
+            });
           })
           .finally(async () => {
             run.finish();
@@ -93,7 +97,7 @@ export function createModelFusionFlowPlugin<INPUT, EVENT>({
       const textEncoder = new TextEncoder();
       for await (const event of eventQueue) {
         if (reply.raw.destroyed) {
-          console.log("client disconnected");
+          // client disconnected
           break;
         }
 
