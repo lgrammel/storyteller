@@ -1,6 +1,7 @@
 .env
 
 stories
+runs
 
 # dependencies
 /node_modules

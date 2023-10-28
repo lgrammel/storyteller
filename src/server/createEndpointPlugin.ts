@@ -2,18 +2,25 @@ import { FastifyInstance } from "fastify";
 import { withRun } from "modelfusion";
 import { Endpoint } from "./Endpoint";
 import { EndpointRun } from "./EndpointRun";
-import { saveEndpointRunAssets } from "./saveEndpointRunAssets";
 
 export function createEndpointPlugin<INPUT, EVENT>({
   endpoint,
+  logPath,
+  assetPath,
 }: {
   endpoint: Endpoint<INPUT, EVENT>;
+  logPath: null | ((run: EndpointRun<unknown>) => string);
+  assetPath: null | ((run: EndpointRun<unknown>) => string);
 }) {
   return (fastify: FastifyInstance, opts: unknown, done: () => void) => {
     const runs: Record<string, EndpointRun<EVENT>> = {};
 
     fastify.post(`/${endpoint.name}`, async (request) => {
-      const run = new EndpointRun<EVENT>({ endpointName: endpoint.name });
+      const run = new EndpointRun<EVENT>({
+        endpointName: endpoint.name,
+        logPath,
+        assetPath,
+      });
 
       runs[run.runId] = run;
 
@@ -32,14 +39,6 @@ export function createEndpointPlugin<INPUT, EVENT>({
           })
           .finally(async () => {
             run.finish();
-            try {
-              await saveEndpointRunAssets({
-                basePath: "stories",
-                run,
-              });
-            } catch (err) {
-              console.error(err);
-            }
           });
       });
 
