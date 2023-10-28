@@ -12,5 +12,5 @@ export interface AssetStorage {
   readAsset(options: {
     run: FlowRun<unknown>;
     assetName: string;
-  }): Promise<Buffer | null>;
+  }): Promise<Asset | null>;
 }

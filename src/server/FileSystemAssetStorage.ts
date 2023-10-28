@@ -30,6 +30,13 @@ export class FileSystemAssetStorage implements AssetStorage {
       const assetPath = this.path(run);
       await fs.mkdir(assetPath, { recursive: true });
       await fs.writeFile(join(assetPath, asset.name), asset.data);
+      await fs.writeFile(
+        join(assetPath, `${asset.name}.meta.json`),
+        JSON.stringify({
+          name: asset.name,
+          contentType: asset.contentType,
+        })
+      );
     } catch (error) {
       this.logger.logError({
         run,
@@ -40,13 +47,18 @@ export class FileSystemAssetStorage implements AssetStorage {
     }
   }
 
-  readAsset(options: {
+  async readAsset(options: {
     run: FlowRun<unknown>;
     assetName: string;
-  }): Promise<Buffer | null> {
+  }): Promise<Asset | null> {
     try {
       const assetPath = this.path(options.run);
-      return fs.readFile(join(assetPath, options.assetName));
+      const data = await fs.readFile(join(assetPath, options.assetName));
+      const meta = await fs.readFile(
+        join(assetPath, `${options.assetName}.meta.json`)
+      );
+      const { name, contentType } = JSON.parse(meta.toString());
+      return { data, name, contentType };
     } catch (error) {
       this.logger.logError({
         run: options.run,

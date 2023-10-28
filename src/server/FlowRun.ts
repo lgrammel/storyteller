@@ -5,7 +5,6 @@ import { PathProvider } from "./PathProvider";
 
 export class FlowRun<EVENT> extends DefaultRun {
   readonly eventQueue: AsyncQueue<EVENT> = new AsyncQueue();
-  readonly assets: Record<string, Asset> = {};
 
   private readonly assetStorage: AssetStorage;
   private readonly logger: Logger;
@@ -41,8 +40,6 @@ export class FlowRun<EVENT> extends DefaultRun {
   }
 
   async storeBinaryAsset(asset: Asset): Promise<string> {
-    this.assets[asset.name] = asset;
-
     this.assetStorage.storeAsset({
       run: this,
       asset,

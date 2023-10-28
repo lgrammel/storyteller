@@ -1,10 +1,10 @@
 import { FastifyInstance } from "fastify";
 import { withRun } from "modelfusion";
+import type { AssetStorage } from "./AssetStorage.js";
 import { Flow } from "./Flow.ts.js";
 import { FlowRun } from "./FlowRun.js";
 import { Logger } from "./Logger.js";
 import { PathProvider } from "./PathProvider.js";
-import type { AssetStorage } from "./AssetStorage.js";
 
 export function createModelFusionFlowPlugin<INPUT, EVENT>({
   flow,
@@ -59,7 +59,20 @@ export function createModelFusionFlowPlugin<INPUT, EVENT>({
       const runId = (request.params as any).runId;
       const assetName = (request.params as any).assetName;
 
-      const asset = runs[runId]?.assets[assetName];
+      const asset = await assetStorage.readAsset({
+        run: runs[runId],
+        assetName,
+      });
+
+      if (asset == null) {
+        logger.logError({
+          run: runs[runId],
+          message: `Asset ${assetName} not found`,
+          error: new Error(`Asset ${assetName} not found`),
+        });
+        reply.status(404);
+        return { error: `Asset ${assetName} not found` };
+      }
 
       const headers = {
         "Access-Control-Allow-Origin": "*",
