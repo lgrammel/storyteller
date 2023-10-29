@@ -9,10 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { convertBlobToBase64 } from "@/lib/convertBlobToBase64";
 import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
 import { Loader2, Mic } from "lucide-react";
 import { ZodSchema, delay, readEventSource } from "modelfusion";
+import { convertAudioChunksToBase64 } from "modelfusion/browser";
 import { useRef, useState } from "react";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -78,11 +78,10 @@ export default function Home() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               mimeType: mediaRecorder.mimeType,
-              audioData: await convertBlobToBase64(
-                new Blob(audioChunksRef.current, {
-                  type: mediaRecorder.mimeType,
-                })
-              ),
+              audioData: await convertAudioChunksToBase64({
+                audioChunks: audioChunksRef.current,
+                mimeType: mediaRecorder.mimeType,
+              }),
             }),
           });
 
