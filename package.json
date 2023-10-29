@@ -22,15 +22,16 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@modelfusion/server": "0.0.1",
     "@fastify/cors": "^8.4.0",
     "@fastify/static": "^6.11.2",
+    "@modelfusion/server": "0.0.1",
     "@radix-ui/react-aspect-ratio": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@types/node": "20.6.0",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.15",
+    "bufferutil": "^4.0.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "eslint": "8.49.0",
@@ -47,7 +48,9 @@
     "tailwindcss": "3.3.3",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.2.2",
-    "zod": "3.22.4"
+    "utf-8-validate": "^6.0.3",
+    "zod": "3.22.4",
+    "zod-to-json-schema": "3.21.4"
   },
   "devDependencies": {
     "dotenv": "16.0.3",

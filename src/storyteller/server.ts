@@ -3,21 +3,22 @@ import fastifyStatic from "@fastify/static";
 import dotenv from "dotenv";
 import Fastify from "fastify";
 import { setGlobalFunctionLogging } from "modelfusion";
-import path from "node:path";
-import { generateStoryFlow } from "./generateStoryFlow";
 import {
-  modelFusionFlowPlugin,
   FileSystemAssetStorage,
   FileSystemLogger,
-} from "@modelfusion/server/fastify-plugin";
+  modelFusionFastifyPlugin,
+} from "modelfusion/fastify-server";
+import path from "node:path";
+import { storyTellerFlow } from "./storyTellerFlow";
 
 dotenv.config();
 
 setGlobalFunctionLogging("basic-text");
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3001;
-const host = process.env.HOST;
-const basePath = process.env.BASE_PATH || "runs";
+const host = process.env.HOST ?? "localhost";
+const baseUrl = process.env.BASE_URL ?? `http://${host}:${port}`;
+const fsBasePath = process.env.BASE_PATH ?? "runs";
 
 export async function main() {
   try {
@@ -30,17 +31,18 @@ export async function main() {
     });
 
     const logger = new FileSystemLogger({
-      path: (run) => path.join(basePath, run.runId, "logs"),
+      path: (run) => path.join(fsBasePath, run.runId, "logs"),
     });
 
     const assetStorage = new FileSystemAssetStorage({
-      path: (run) => path.join(basePath, run.runId, "assets"),
+      path: (run) => path.join(fsBasePath, run.runId, "assets"),
       logger,
     });
 
-    fastify.register(modelFusionFlowPlugin, {
-      path: "/generate-story",
-      flow: generateStoryFlow,
+    fastify.register(modelFusionFastifyPlugin, {
+      baseUrl,
+      basePath: "/generate-story",
+      flow: storyTellerFlow,
       logger,
       assetStorage,
     });

@@ -1,5 +1,3 @@
-import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
-import { Flow } from "@modelfusion/server/fastify-plugin";
 import {
   OpenAIChatMessage,
   OpenAIChatModel,
@@ -14,21 +12,13 @@ import {
   getAudioFileExtension,
   streamStructure,
 } from "modelfusion";
+import { DefaultFlow } from "modelfusion/fastify-server";
 import { z } from "zod";
-import { VoiceManager } from "./VoiceManager.js";
+import { VoiceManager } from "./VoiceManager";
+import { storytellerSchema } from "./storytellerSchema";
 
-export const storytellerInputSchema = z.object({
-  mimeType: z.string(),
-  audioData: z.string(),
-});
-
-export const generateStoryFlow: Flow<
-  z.infer<typeof storytellerInputSchema>,
-  z.infer<typeof storytellerEventSchema>
-> = {
-  inputSchema: storytellerInputSchema,
-  eventSchema: storytellerEventSchema,
-
+export const storyTellerFlow = new DefaultFlow({
+  schema: storytellerSchema,
   async process({ input: { mimeType, audioData }, run }) {
     // Transcribe the user voice input:
     const transcription = await generateTranscription(
@@ -110,7 +100,7 @@ export const generateStoryFlow: Flow<
           contentType: "image/png",
         });
 
-        run.publishEvent({ type: "generated-image", path: imagePath });
+        run.publishEvent({ type: "generated-image", url: imagePath });
       })(),
 
       // expand and narrate story:
@@ -222,12 +212,14 @@ export const generateStoryFlow: Flow<
               contentType: "audio/mpeg",
             });
 
-            run.publishEvent({ type: "generated-audio-part", index, path });
+            run.publishEvent({
+              type: "generated-audio-part",
+              index,
+              url: path,
+            });
           }
         }
       })(),
     ]);
-
-    run.publishEvent({ type: "finished-generation" });
   },
-};
+});

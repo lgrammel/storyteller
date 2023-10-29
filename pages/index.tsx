@@ -9,10 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { storytellerEventSchema } from "@/storyteller/StorytellerEvent";
+import { storytellerSchema } from "@/storyteller/storytellerSchema";
 import { Loader2, Mic } from "lucide-react";
-import { ZodSchema, delay, readEventSource } from "modelfusion";
-import { convertAudioChunksToBase64 } from "modelfusion/browser";
+import { delay } from "modelfusion";
+import { convertAudioChunksToBase64, invokeFlow } from "modelfusion/browser";
 import { useRef, useState } from "react";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -79,31 +79,24 @@ export default function Home() {
           audioChunksRef.current = [];
           mediaRecorder.stream?.getTracks().forEach((track) => track.stop()); // stop microphone access
 
-          const response = await fetch(`${baseUrl}/generate-story`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+          invokeFlow({
+            url: `${baseUrl}/generate-story`,
+            input: {
               audioData: await convertAudioChunksToBase64({
                 audioChunks,
                 mimeType,
               }),
               mimeType,
-            }),
-          });
-
-          const path: string = (await response.json()).path;
-
-          readEventSource({
-            url: path,
-            schema: new ZodSchema(storytellerEventSchema),
-            onEvent(event, eventSource) {
+            },
+            schema: storytellerSchema,
+            onEvent(event) {
               switch (event.type) {
                 case "transcribed-input": {
                   setInput(event.input);
                   break;
                 }
                 case "generated-image": {
-                  setImageUrl(`${baseUrl}${event.path}`);
+                  setImageUrl(event.url);
                   break;
                 }
                 case "generated-title": {
@@ -111,16 +104,14 @@ export default function Home() {
                   break;
                 }
                 case "generated-audio-part": {
-                  audioUrls[event.index] = `${baseUrl}${event.path}`;
+                  audioUrls[event.index] = event.url;
                   setAudioUrls(audioUrls.slice());
                   break;
                 }
-                case "finished-generation": {
-                  setGeneratingStory(false);
-                  eventSource.close();
-                  break;
-                }
               }
+            },
+            onStop() {
+              setGeneratingStory(false);
             },
           });
         } catch (error) {
