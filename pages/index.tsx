@@ -73,25 +73,28 @@ export default function Home() {
         setShouldAutoPlay(true);
 
         try {
-          const response = await fetch(`${baseUrl}/generate-story`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              mimeType: mediaRecorder.mimeType,
-              audioData: await convertAudioChunksToBase64({
-                audioChunks: audioChunksRef.current,
-                mimeType: mediaRecorder.mimeType,
-              }),
-            }),
-          });
+          const mimeType = mediaRecorder.mimeType;
+          const audioChunks = audioChunksRef.current;
 
           audioChunksRef.current = [];
           mediaRecorder.stream?.getTracks().forEach((track) => track.stop()); // stop microphone access
 
+          const response = await fetch(`${baseUrl}/generate-story`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              audioData: await convertAudioChunksToBase64({
+                audioChunks,
+                mimeType,
+              }),
+              mimeType,
+            }),
+          });
+
           const path: string = (await response.json()).path;
 
           readEventSource({
-            url: `${baseUrl}${path}`,
+            url: path,
             schema: new ZodSchema(storytellerEventSchema),
             onEvent(event, eventSource) {
               switch (event.type) {
@@ -127,7 +130,6 @@ export default function Home() {
       };
 
       mediaRecorder.stop();
-
       setIsRecording(false);
     }
   };
