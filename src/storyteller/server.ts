@@ -33,14 +33,16 @@ export async function main() {
       path: (run) => path.join(basePath, run.runId, "logs"),
     });
 
+    const assetStorage = new FileSystemAssetStorage({
+      path: (run) => path.join(basePath, run.runId, "assets"),
+      logger,
+    });
+
     fastify.register(modelFusionFlowPlugin, {
       path: "/generate-story",
       flow: generateStoryFlow,
       logger,
-      assetStorage: new FileSystemAssetStorage({
-        path: (run) => path.join(basePath, run.runId, "assets"),
-        logger,
-      }),
+      assetStorage,
     });
 
     console.log(`Starting server on port ${port}...`);
