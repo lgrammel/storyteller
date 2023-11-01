@@ -81,6 +81,7 @@ export default function Home() {
 
           invokeFlow({
             url: `${baseUrl}/generate-story`,
+            schema: storytellerSchema,
             input: {
               audioData: await convertAudioChunksToBase64({
                 audioChunks,
@@ -88,7 +89,6 @@ export default function Home() {
               }),
               mimeType,
             },
-            schema: storytellerSchema,
             onEvent(event) {
               switch (event.type) {
                 case "transcribed-input": {
