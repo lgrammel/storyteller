@@ -1,10 +1,6 @@
 import dotenv from "dotenv";
 import fs from "fs/promises";
-import {
-  MemoryVectorIndex,
-  OpenAITextEmbeddingModel,
-  upsertIntoVectorIndex,
-} from "modelfusion";
+import { MemoryVectorIndex, openai, upsertIntoVectorIndex } from "modelfusion";
 import { z } from "zod";
 import { Voice } from "./VoiceManager";
 
@@ -51,9 +47,7 @@ async function addLmntVoices(vectorIndex: MemoryVectorIndex<Voice>) {
 
   await upsertIntoVectorIndex({
     vectorIndex,
-    embeddingModel: new OpenAITextEmbeddingModel({
-      model: "text-embedding-ada-002",
-    }),
+    embeddingModel: openai.TextEmbedder({ model: "text-embedding-ada-002" }),
     objects: voices,
     getValueToEmbed: (voice) => voice.description,
   });
@@ -87,9 +81,7 @@ async function addElevenLabsVoices(vectorIndex: MemoryVectorIndex<Voice>) {
 
   await upsertIntoVectorIndex({
     vectorIndex,
-    embeddingModel: new OpenAITextEmbeddingModel({
-      model: "text-embedding-ada-002",
-    }),
+    embeddingModel: openai.TextEmbedder({ model: "text-embedding-ada-002" }),
     objects: voices,
     getValueToEmbed: (voice) => voice.description,
   });

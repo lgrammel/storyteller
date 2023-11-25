@@ -1,18 +1,16 @@
-import { readFile } from "node:fs/promises";
 import {
-  ElevenLabsSpeechModel,
-  LmntSpeechModel,
   MemoryVectorIndex,
-  OpenAIChatMessage,
-  OpenAIChatModel,
-  OpenAITextEmbeddingModel,
   SpeechGenerationModel,
   VectorIndexRetriever,
   ZodSchema,
-  ZodStructureDefinition,
+  elevenlabs,
   generateStructure,
+  lmnt,
+  openai,
   retrieve,
+  zodSchema,
 } from "modelfusion";
+import { readFile } from "node:fs/promises";
 import { z } from "zod";
 
 const voiceSchema = z.object({
@@ -74,9 +72,9 @@ export class VoiceManager {
 
     switch (voice.provider) {
       case "lmnt":
-        return new LmntSpeechModel({ voice: voice.voiceId });
+        return lmnt.SpeechGenerator({ voice: voice.voiceId });
       case "elevenlabs":
-        return new ElevenLabsSpeechModel({ voice: voice.voiceId });
+        return elevenlabs.SpeechGenerator({ voice: voice.voiceId });
       default:
         throw new Error(`Unknown voice provider: ${voice.provider}`);
     }
@@ -96,35 +94,33 @@ export class VoiceManager {
 
     // generate voice descriptions for the speakers:
     const voiceDescription = await generateStructure(
-      new OpenAIChatModel({
-        model: "gpt-3.5-turbo",
-        temperature: 0,
-      }),
-      new ZodStructureDefinition({
-        name: "voice",
-        schema: z.object({
+      openai
+        .ChatTextGenerator({ model: "gpt-3.5-turbo", temperature: 0 })
+        .asFunctionCallStructureGenerationModel({ fnName: "voice" })
+        .withTextPrompt(),
+
+      zodSchema(
+        z.object({
           gender: z.string().describe("M for male, F for female)"),
           description: z.string().describe("Voice description"),
-        }),
-      }),
+        })
+      ),
+
       [
-        OpenAIChatMessage.user(
-          [
-            `## Task`,
-            `Generate a voice description for ${speaker} from the following story for an audio book.`,
-            "The voice should be appropriate for a preschooler listener.",
-            "Include the gender and age in the voice description.",
-            "",
-            "## Story",
-            story,
-            "",
-            "## Speaker",
-            speaker,
-            "",
-            "## Voice description (incl. age, gender)",
-          ].join("\n")
-        ),
-      ],
+        `## Task`,
+        `Generate a voice description for ${speaker} from the following story for an audio book.`,
+        "The voice should be appropriate for a preschooler listener.",
+        "Include the gender and age in the voice description.",
+        "",
+        "## Story",
+        story,
+        "",
+        "## Speaker",
+        speaker,
+        "",
+        "## Voice description (incl. age, gender)",
+      ].join("\n"),
+
       { functionId: "generate-voice-description" }
     );
 
@@ -132,7 +128,7 @@ export class VoiceManager {
     const potentialVoices = await retrieve(
       new VectorIndexRetriever({
         vectorIndex: this.voiceIndex,
-        embeddingModel: new OpenAITextEmbeddingModel({
+        embeddingModel: openai.TextEmbedder({
           model: "text-embedding-ada-002",
         }),
         maxResults: 5,

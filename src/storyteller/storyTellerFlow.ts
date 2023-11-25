@@ -1,16 +1,13 @@
 import {
-  OpenAIChatMessage,
-  OpenAIChatModel,
-  OpenAICompletionModel,
-  OpenAITranscriptionModel,
-  StabilityImageGenerationModel,
-  ZodStructureDefinition,
   generateImage,
   generateSpeech,
   generateText,
   generateTranscription,
   getAudioFileExtension,
+  openai,
+  stability,
   streamStructure,
+  zodSchema,
 } from "modelfusion";
 import { DefaultFlow } from "modelfusion/fastify-server";
 import { z } from "zod";
@@ -22,7 +19,7 @@ export const storyTellerFlow = new DefaultFlow({
   async process({ input: { mimeType, audioData }, run }) {
     // Transcribe the user voice input:
     const transcription = await generateTranscription(
-      new OpenAITranscriptionModel({ model: "whisper-1" }),
+      openai.Transcriber({ model: "whisper-1" }),
       {
         type: getAudioFileExtension(mimeType),
         data: Buffer.from(audioData, "base64"),
@@ -34,7 +31,7 @@ export const storyTellerFlow = new DefaultFlow({
 
     // Generate a story based on the transcription:
     const story = await generateText(
-      new OpenAICompletionModel({
+      openai.CompletionTextGenerator({
         model: "gpt-3.5-turbo-instruct",
         temperature: 1.2,
         maxCompletionTokens: 1000,
@@ -49,7 +46,7 @@ export const storyTellerFlow = new DefaultFlow({
       // Generate title:
       (async () => {
         const title = await generateText(
-          new OpenAICompletionModel({
+          openai.CompletionTextGenerator({
             model: "gpt-3.5-turbo-instruct",
             temperature: 0.7,
             maxCompletionTokens: 200,
@@ -67,29 +64,30 @@ export const storyTellerFlow = new DefaultFlow({
       // Generate image that represents story:
       (async () => {
         const imagePrompt = await generateText(
-          new OpenAIChatModel({
-            model: "gpt-4",
-            temperature: 0,
-            maxCompletionTokens: 500,
-          }).withInstructionPrompt(),
-          {
-            instruction:
-              "Generate a short image generation prompt " +
-              "(only abstract keywords, max 8 keywords) for the following story:",
-            input: story,
-          },
+          openai
+            .ChatTextGenerator({
+              model: "gpt-4",
+              temperature: 0,
+              maxCompletionTokens: 500,
+            })
+            .withTextPrompt(),
+          "Generate a short image generation prompt " +
+            "(only abstract keywords, max 8 keywords) for the following story: " +
+            story,
           { functionId: "generate-story-image-prompt" }
         );
 
         const storyImage = await generateImage(
-          new StabilityImageGenerationModel({
-            model: "stable-diffusion-xl-1024-v1-0",
-            cfgScale: 7,
-            height: 1024,
-            width: 1024,
-            samples: 1,
-            steps: 30,
-          }).withBasicPrompt(),
+          stability
+            .ImageGenerator({
+              model: "stable-diffusion-xl-1024-v1-0",
+              cfgScale: 7,
+              height: 1024,
+              width: 1024,
+              samples: 1,
+              steps: 30,
+            })
+            .withBasicPrompt(),
           `${imagePrompt} style of colorful illustration for a preschooler story`,
           { functionId: "generate-story-image" }
         );
@@ -137,33 +135,34 @@ export const storyTellerFlow = new DefaultFlow({
         const processedParts: Array<NarratedStoryPart> = [];
 
         const audioStoryFragments = await streamStructure(
-          new OpenAIChatModel({
-            model: "gpt-4",
-            temperature: 0,
-          }),
-          new ZodStructureDefinition({
-            name: "story",
-            description: "Kids story with narration.",
-            schema: structuredStorySchema,
-          }),
+          openai
+            .ChatTextGenerator({
+              model: "gpt-4",
+              temperature: 0,
+            })
+            .asFunctionCallStructureGenerationModel({
+              fnName: "story",
+              fnDescription: "Kids story with narration.",
+            })
+            .withTextPrompt(),
+
+          zodSchema(structuredStorySchema),
+
           [
-            OpenAIChatMessage.user(
-              [
-                "Expand the following story into a longer, narrated audio story for preschoolers.",
-                "",
-                "The audio story should include interesting dialogue by the main characters.",
-                "The language should be understandable by a preschooler.",
-                "",
-                "Add details and dialoge to make the story parts longer.",
-                "Add the speaker to each dialogue part. A dialogue part can only have one speaker.",
-                "There must only be one narrator.",
-                "Each spoken part must be a dialogue part with a speaker.",
-                "",
-                "Story:",
-                story,
-              ].join("\n")
-            ),
-          ],
+            "Expand the following story into a longer, narrated audio story for preschoolers.",
+            "",
+            "The audio story should include interesting dialogue by the main characters.",
+            "The language should be understandable by a preschooler.",
+            "",
+            "Add details and dialoge to make the story parts longer.",
+            "Add the speaker to each dialogue part. A dialogue part can only have one speaker.",
+            "There must only be one narrator.",
+            "Each spoken part must be a dialogue part with a speaker.",
+            "",
+            "Story:",
+            story,
+          ].join("\n"),
+
           { functionId: "generate-audio-story" }
         );
 
