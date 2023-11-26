@@ -87,7 +87,7 @@ export const storyTellerFlow = new DefaultFlow({
               samples: 1,
               steps: 30,
             })
-            .withBasicPrompt(),
+            .withTextPrompt(),
           `${imagePrompt} style of colorful illustration for a preschooler story`,
           { functionId: "generate-story-image" }
         );
