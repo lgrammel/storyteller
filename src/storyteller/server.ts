@@ -2,7 +2,7 @@ import cors from "@fastify/cors";
 import fastifyStatic from "@fastify/static";
 import dotenv from "dotenv";
 import Fastify from "fastify";
-import { setGlobalFunctionLogging } from "modelfusion";
+import { modelfusion } from "modelfusion";
 import {
   FileSystemAssetStorage,
   FileSystemLogger,
@@ -13,7 +13,7 @@ import { storyTellerFlow } from "./storyTellerFlow";
 
 dotenv.config();
 
-setGlobalFunctionLogging("basic-text");
+modelfusion.setLogFormat("basic-text");
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3001;
 const host = process.env.HOST ?? "localhost";
