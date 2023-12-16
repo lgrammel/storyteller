@@ -34,7 +34,7 @@ export const storyTellerFlow = new DefaultFlow({
       openai.CompletionTextGenerator({
         model: "gpt-3.5-turbo-instruct",
         temperature: 1.2,
-        maxCompletionTokens: 1000,
+        maxGenerationTokens: 1000,
       }),
       "Generate a story aimed at preschoolers on the following topic: \n" +
         `'${transcription}'.`,
@@ -49,7 +49,7 @@ export const storyTellerFlow = new DefaultFlow({
           openai.CompletionTextGenerator({
             model: "gpt-3.5-turbo-instruct",
             temperature: 0.7,
-            maxCompletionTokens: 200,
+            maxGenerationTokens: 200,
             stopSequences: ['"'],
           }),
           "Generate a short title for the following story for pre-school children: \n\n" +
@@ -68,7 +68,7 @@ export const storyTellerFlow = new DefaultFlow({
             .ChatTextGenerator({
               model: "gpt-4",
               temperature: 0,
-              maxCompletionTokens: 500,
+              maxGenerationTokens: 500,
             })
             .withTextPrompt(),
           "Generate a short image generation prompt " +
