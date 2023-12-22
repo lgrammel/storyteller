@@ -84,7 +84,6 @@ export const storyTellerFlow = new DefaultFlow({
               cfgScale: 7,
               height: 1024,
               width: 1024,
-              samples: 1,
               steps: 30,
             })
             .withTextPrompt(),
