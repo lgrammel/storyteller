@@ -3,13 +3,13 @@ import {
   generateSpeech,
   generateText,
   generateTranscription,
-  getAudioFileExtension,
   openai,
   stability,
   streamStructure,
   zodSchema,
 } from "modelfusion";
-import { DefaultFlow } from "modelfusion/fastify-server";
+import { getAudioFileExtension } from "modelfusion-experimental";
+import { DefaultFlow } from "modelfusion-experimental/fastify-server";
 import { z } from "zod";
 import { VoiceManager } from "./VoiceManager";
 import { storytellerSchema } from "./storytellerSchema";

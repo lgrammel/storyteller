@@ -12,7 +12,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { storytellerSchema } from "@/storyteller/storytellerSchema";
 import { Loader2, Mic } from "lucide-react";
 import { delay } from "modelfusion";
-import { convertAudioChunksToBase64, invokeFlow } from "modelfusion/browser";
+import {
+  convertAudioChunksToBase64,
+  invokeFlow,
+} from "modelfusion-experimental/browser";
 import { useRef, useState } from "react";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;

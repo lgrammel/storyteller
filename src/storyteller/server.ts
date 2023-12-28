@@ -7,7 +7,7 @@ import {
   FileSystemAssetStorage,
   FileSystemLogger,
   modelFusionFastifyPlugin,
-} from "modelfusion/fastify-server";
+} from "modelfusion-experimental/fastify-server";
 import path from "node:path";
 import { storyTellerFlow } from "./storyTellerFlow";
 
