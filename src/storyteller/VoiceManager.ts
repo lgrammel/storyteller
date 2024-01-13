@@ -93,20 +93,19 @@ export class VoiceManager {
     }
 
     // generate voice descriptions for the speakers:
-    const voiceDescription = await generateStructure(
-      openai
+    const voiceDescription = await generateStructure({
+      functionId: "generate-voice-description",
+      model: openai
         .ChatTextGenerator({ model: "gpt-3.5-turbo", temperature: 0 })
         .asFunctionCallStructureGenerationModel({ fnName: "voice" })
         .withTextPrompt(),
-
-      zodSchema(
+      schema: zodSchema(
         z.object({
           gender: z.string().describe("M for male, F for female)"),
           description: z.string().describe("Voice description"),
         })
       ),
-
-      [
+      prompt: [
         `## Task`,
         `Generate a voice description for ${speaker} from the following story for an audio book.`,
         "The voice should be appropriate for a preschooler listener.",
@@ -120,9 +119,7 @@ export class VoiceManager {
         "",
         "## Voice description (incl. age, gender)",
       ].join("\n"),
-
-      { functionId: "generate-voice-description" }
-    );
+    });
 
     // retrieve the voice vectors from the index:
     const potentialVoices = await retrieve(

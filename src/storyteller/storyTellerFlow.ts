@@ -18,67 +18,71 @@ export const storyTellerFlow = new DefaultFlow({
   schema: storytellerSchema,
   async process({ input: { mimeType, audioData }, run }) {
     // Transcribe the user voice input:
-    const transcription = await generateTranscription(
-      openai.Transcriber({ model: "whisper-1" }),
-      {
+    const transcription = await generateTranscription({
+      functionId: "transcribe",
+      model: openai.Transcriber({ model: "whisper-1" }),
+      data: {
         type: getAudioFileExtension(mimeType),
         data: Buffer.from(audioData, "base64"),
       },
-      { functionId: "transcribe" }
-    );
+    });
 
     run.publishEvent({ type: "transcribed-input", input: transcription });
 
     // Generate a story based on the transcription:
-    const story = await generateText(
-      openai.CompletionTextGenerator({
+    const story = await generateText({
+      functionId: "generate-story",
+      model: openai.CompletionTextGenerator({
         model: "gpt-3.5-turbo-instruct",
         temperature: 1.2,
         maxGenerationTokens: 1000,
       }),
-      "Generate a story aimed at preschoolers on the following topic: \n" +
+      prompt:
+        "Generate a story aimed at preschoolers on the following topic: \n" +
         `'${transcription}'.`,
-      { functionId: "generate-story" }
-    );
+    });
 
     // Run in parallel:
     await Promise.allSettled([
       // Generate title:
       (async () => {
-        const title = await generateText(
-          openai.CompletionTextGenerator({
+        const title = await generateText({
+          functionId: "generate-title",
+          model: openai.CompletionTextGenerator({
             model: "gpt-3.5-turbo-instruct",
             temperature: 0.7,
             maxGenerationTokens: 200,
             stopSequences: ['"'],
           }),
-          "Generate a short title for the following story for pre-school children: \n\n" +
+          prompt:
+            "Generate a short title for the following story for pre-school children: \n\n" +
             `'${story}'.\n\n` +
             'Title: "',
-          { functionId: "generate-title" }
-        );
+        });
 
         run.publishEvent({ type: "generated-title", title });
       })(),
 
       // Generate image that represents story:
       (async () => {
-        const imagePrompt = await generateText(
-          openai
+        const imagePrompt = await generateText({
+          functionId: "generate-story-image-prompt",
+          model: openai
             .ChatTextGenerator({
               model: "gpt-4",
               temperature: 0,
               maxGenerationTokens: 500,
             })
             .withTextPrompt(),
-          "Generate a short image generation prompt " +
+          prompt:
+            "Generate a short image generation prompt " +
             "(only abstract keywords, max 8 keywords) for the following story: " +
             story,
-          { functionId: "generate-story-image-prompt" }
-        );
+        });
 
-        const storyImage = await generateImage(
-          stability
+        const storyImage = await generateImage({
+          functionId: "generate-story-image",
+          model: stability
             .ImageGenerator({
               model: "stable-diffusion-xl-1024-v1-0",
               cfgScale: 7,
@@ -87,9 +91,8 @@ export const storyTellerFlow = new DefaultFlow({
               steps: 30,
             })
             .withTextPrompt(),
-          `${imagePrompt} style of colorful illustration for a preschooler story`,
-          { functionId: "generate-story-image" }
-        );
+          prompt: `${imagePrompt} style of colorful illustration for a preschooler story`,
+        });
 
         const imagePath = await run.storeBinaryAsset({
           name: "story.png",
@@ -133,8 +136,9 @@ export const storyTellerFlow = new DefaultFlow({
 
         const processedParts: Array<NarratedStoryPart> = [];
 
-        const audioStoryFragments = await streamStructure(
-          openai
+        const audioStoryFragments = await streamStructure({
+          functionId: "generate-audio-story",
+          model: openai
             .ChatTextGenerator({
               model: "gpt-4",
               temperature: 0,
@@ -144,10 +148,8 @@ export const storyTellerFlow = new DefaultFlow({
               fnDescription: "Kids story with narration.",
             })
             .withTextPrompt(),
-
-          zodSchema(structuredStorySchema),
-
-          [
+          schema: zodSchema(structuredStorySchema),
+          prompt: [
             "Expand the following story into a longer, narrated audio story for preschoolers.",
             "",
             "The audio story should include interesting dialogue by the main characters.",
@@ -161,9 +163,7 @@ export const storyTellerFlow = new DefaultFlow({
             "Story:",
             story,
           ].join("\n"),
-
-          { functionId: "generate-audio-story" }
-        );
+        });
 
         for await (const fragment of audioStoryFragments) {
           if (!fragment.isComplete) {
@@ -198,11 +198,11 @@ export const storyTellerFlow = new DefaultFlow({
             const index = processedParts.indexOf(part);
             const speaker = part.speaker;
 
-            const narrationAudio = await generateSpeech(
-              await voiceManager.getSpeechModel({ speaker, story }),
-              part.content,
-              { functionId: "narrate-story-part" }
-            );
+            const narrationAudio = await generateSpeech({
+              functionId: "narrate-story-part",
+              model: await voiceManager.getSpeechModel({ speaker, story }),
+              text: part.content,
+            });
 
             const path = await run.storeBinaryAsset({
               name: `story-part-${index}.mp3`,
