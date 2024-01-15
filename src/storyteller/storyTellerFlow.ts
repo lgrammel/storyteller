@@ -136,59 +136,58 @@ export const storyTellerFlow = new DefaultFlow({
 
         const processedParts: Array<NarratedStoryPart> = [];
 
-        const audioStoryFragments = await streamStructure({
-          functionId: "generate-audio-story",
-          model: openai
-            .ChatTextGenerator({
-              model: "gpt-4",
-              temperature: 0,
-            })
-            .asFunctionCallStructureGenerationModel({
-              fnName: "story",
-              fnDescription: "Kids story with narration.",
-            })
-            .withTextPrompt(),
-          schema: zodSchema(structuredStorySchema),
-          prompt: [
-            "Expand the following story into a longer, narrated audio story for preschoolers.",
-            "",
-            "The audio story should include interesting dialogue by the main characters.",
-            "The language should be understandable by a preschooler.",
-            "",
-            "Add details and dialoge to make the story parts longer.",
-            "Add the speaker to each dialogue part. A dialogue part can only have one speaker.",
-            "There must only be one narrator.",
-            "Each spoken part must be a dialogue part with a speaker.",
-            "",
-            "Story:",
-            story,
-          ].join("\n"),
-        });
+        const { structureStream: audioStoryFragments, structurePromise } =
+          await streamStructure({
+            functionId: "generate-audio-story",
+            model: openai
+              .ChatTextGenerator({
+                model: "gpt-4",
+                temperature: 0,
+              })
+              .asFunctionCallStructureGenerationModel({
+                fnName: "story",
+                fnDescription: "Kids story with narration.",
+              })
+              .withTextPrompt(),
+            schema: zodSchema(structuredStorySchema),
+            prompt: [
+              "Expand the following story into a longer, narrated audio story for preschoolers.",
+              "",
+              "The audio story should include interesting dialogue by the main characters.",
+              "The language should be understandable by a preschooler.",
+              "",
+              "Add details and dialoge to make the story parts longer.",
+              "Add the speaker to each dialogue part. A dialogue part can only have one speaker.",
+              "There must only be one narrator.",
+              "Each spoken part must be a dialogue part with a speaker.",
+              "",
+              "Story:",
+              story,
+            ].join("\n"),
+            fullResponse: true,
+          });
 
         for await (const fragment of audioStoryFragments) {
-          if (!fragment.isComplete) {
-            const parseResult = structuredStorySchema
-              .deepPartial()
-              .safeParse(fragment.value);
+          if (fragment.parts == null) {
+            continue;
+          }
 
-            if (parseResult.success) {
-              const partialParts = (parseResult.data.parts ?? [])
-                // the last story part might not be complete yet:
-                .slice(0, -1);
+          // the last story part might not be complete yet:
+          const partialParts = fragment.parts.slice(0, -1);
 
-              // ensure that the remaining story parts are complete:
-              const partialPartsParseResult = z
-                .array(narratedStoryPartSchema)
-                .safeParse(partialParts);
+          // ensure that the remaining story parts are complete:
+          const partialPartsParseResult = z
+            .array(narratedStoryPartSchema)
+            .safeParse(partialParts);
 
-              if (partialPartsParseResult.success) {
-                await processNewParts(partialPartsParseResult.data);
-              }
-            }
-          } else {
-            await processNewParts(fragment.value.parts);
+          if (partialPartsParseResult.success) {
+            await processNewParts(partialPartsParseResult.data);
           }
         }
+
+        // process the remaining parts:
+        const audioStory = await structurePromise;
+        await processNewParts(audioStory.parts);
 
         async function processNewParts(parts: NarratedStoryPart[]) {
           const newParts = parts.slice(processedParts.length);
