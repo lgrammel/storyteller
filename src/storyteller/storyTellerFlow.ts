@@ -96,7 +96,7 @@ export const storyTellerFlow = new DefaultFlow({
 
         const imagePath = await run.storeBinaryAsset({
           name: "story.png",
-          data: storyImage,
+          data: Buffer.from(storyImage),
           contentType: "image/png",
         });
 
@@ -205,7 +205,7 @@ export const storyTellerFlow = new DefaultFlow({
 
             const path = await run.storeBinaryAsset({
               name: `story-part-${index}.mp3`,
-              data: narrationAudio,
+              data: Buffer.from(narrationAudio),
               contentType: "audio/mpeg",
             });
 
