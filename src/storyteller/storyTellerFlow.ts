@@ -8,7 +8,6 @@ import {
   streamStructure,
   zodSchema,
 } from "modelfusion";
-import { getAudioFileExtension } from "modelfusion-experimental";
 import { DefaultFlow } from "modelfusion-experimental/fastify-server";
 import { z } from "zod";
 import { VoiceManager } from "./VoiceManager";
@@ -21,10 +20,8 @@ export const storyTellerFlow = new DefaultFlow({
     const transcription = await generateTranscription({
       functionId: "transcribe",
       model: openai.Transcriber({ model: "whisper-1" }),
-      data: {
-        type: getAudioFileExtension(mimeType),
-        data: Buffer.from(audioData, "base64"),
-      },
+      mimeType,
+      audioData,
     });
 
     run.publishEvent({ type: "transcribed-input", input: transcription });
