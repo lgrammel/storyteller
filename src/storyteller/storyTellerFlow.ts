@@ -5,7 +5,7 @@ import {
   generateTranscription,
   openai,
   stability,
-  streamStructure,
+  streamObject,
   zodSchema,
 } from "modelfusion";
 import { DefaultFlow } from "modelfusion-experimental/fastify-server";
@@ -133,15 +133,15 @@ export const storyTellerFlow = new DefaultFlow({
 
         const processedParts: Array<NarratedStoryPart> = [];
 
-        const { structureStream: audioStoryFragments, structurePromise } =
-          await streamStructure({
+        const { objectStream: audioStoryStream, objectPromise } =
+          await streamObject({
             functionId: "generate-audio-story",
             model: openai
               .ChatTextGenerator({
                 model: "gpt-4",
                 temperature: 0,
               })
-              .asFunctionCallStructureGenerationModel({
+              .asFunctionCallObjectGenerationModel({
                 fnName: "story",
                 fnDescription: "Kids story with narration.",
               })
@@ -153,7 +153,7 @@ export const storyTellerFlow = new DefaultFlow({
               "The audio story should include interesting dialogue by the main characters.",
               "The language should be understandable by a preschooler.",
               "",
-              "Add details and dialoge to make the story parts longer.",
+              "Add details and dialog to make the story parts longer.",
               "Add the speaker to each dialogue part. A dialogue part can only have one speaker.",
               "There must only be one narrator.",
               "Each spoken part must be a dialogue part with a speaker.",
@@ -164,13 +164,13 @@ export const storyTellerFlow = new DefaultFlow({
             fullResponse: true,
           });
 
-        for await (const fragment of audioStoryFragments) {
-          if (fragment.parts == null) {
+        for await (const { partialObject } of audioStoryStream) {
+          if (partialObject.parts == null) {
             continue;
           }
 
           // the last story part might not be complete yet:
-          const partialParts = fragment.parts.slice(0, -1);
+          const partialParts = partialObject.parts.slice(0, -1);
 
           // ensure that the remaining story parts are complete:
           const partialPartsParseResult = z
@@ -183,7 +183,7 @@ export const storyTellerFlow = new DefaultFlow({
         }
 
         // process the remaining parts:
-        const audioStory = await structurePromise;
+        const audioStory = await objectPromise;
         await processNewParts(audioStory.parts);
 
         async function processNewParts(parts: NarratedStoryPart[]) {
