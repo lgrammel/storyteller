@@ -4,7 +4,7 @@ import {
   VectorIndexRetriever,
   ZodSchema,
   elevenlabs,
-  generateStructure,
+  generateObject,
   lmnt,
   openai,
   retrieve,
@@ -93,11 +93,11 @@ export class VoiceManager {
     }
 
     // generate voice descriptions for the speakers:
-    const voiceDescription = await generateStructure({
+    const voiceDescription = await generateObject({
       functionId: "generate-voice-description",
       model: openai
         .ChatTextGenerator({ model: "gpt-3.5-turbo", temperature: 0 })
-        .asFunctionCallStructureGenerationModel({ fnName: "voice" })
+        .asFunctionCallObjectGenerationModel({ fnName: "voice" })
         .withTextPrompt(),
       schema: zodSchema(
         z.object({
